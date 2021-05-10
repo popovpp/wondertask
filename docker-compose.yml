@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: ./wondertask
+    restart: always
+    command: python3 /code/manage.py runserver 0.0.0.0:9007
+    volumes:
+      - ./wondertask:/code/
+    ports:
+      - "9007:9007"
+    environment:
+      SECRET_KEY: bigsecretkey
+      DJANGO_CONFIGURATION: Develop
+      DJANGO_SETTINGS_MODULE:
+volumes:
+  pgdata:
