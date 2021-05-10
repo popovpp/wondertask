@@ -13,9 +13,32 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import settings
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.views.generic import TemplateView
+from django.conf.urls.static import static
+from generic.jwt import CustomJWTSerializer
+from rest_framework_jwt.views import (
+    ObtainJSONWebToken,
+    refresh_jwt_token,
+    verify_jwt_token,
+)
+
+authentication_endpoints = [
+    path('token/obtaining/', ObtainJSONWebToken.as_view(serializer_class=CustomJWTSerializer)),
+    path('token/refreshing/', refresh_jwt_token),
+    path('token/verification/', verify_jwt_token),
+]
+
+v1 = [
+    path('authentication/', include(authentication_endpoints)),
+    path('openapi/', TemplateView.as_view(template_name='swugger.html')),
+]
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
+    path('v1/', include(v1)),
+] + static(settings.STATIC_URL)
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -8,7 +8,7 @@ RUN pip3 install -r requirements.txt
 
 ARG DJANGO_SETTINGS_MODULE=""
 ARG SECRET_KEY=""
-ARG DEBUG="false"
+ARG DEBUG="true"
 # Postgres
 ARG API_PG_DB=""
 ARG API_PG_USER=""

@@ -1,0 +1,18 @@
+openapi: 3.0.2
+info:
+  title: 'API'
+  version: 'v1'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+#  /v1/accounts/registration/:
+#    $ref: './view/accounts/registration.yml'
