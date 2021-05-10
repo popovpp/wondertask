@@ -25,6 +25,8 @@ from rest_framework_jwt.views import (
     verify_jwt_token,
 )
 
+from accounts.endpoints import registration_endpoint
+
 authentication_endpoints = [
     path('token/obtaining/', ObtainJSONWebToken.as_view(serializer_class=CustomJWTSerializer)),
     path('token/refreshing/', refresh_jwt_token),
@@ -34,6 +36,7 @@ authentication_endpoints = [
 v1 = [
     path('authentication/', include(authentication_endpoints)),
     path('openapi/', TemplateView.as_view(template_name='swugger.html')),
+    path('accounts/', include(registration_endpoint)),
 ]
 
 urlpatterns = [
