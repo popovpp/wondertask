@@ -8,6 +8,7 @@ from accounts.managers import AccountManager
 class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(unique=True, blank=False)
+    full_name = models.CharField(max_length=150, blank=True, null=True, default='')
 
     created = models.DateTimeField(auto_now_add=True)
     is_email_confirmed = models.BooleanField(default=False)
