@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'taggit',
+    'taggit_serializer',
     'accounts',
     'tasks',
 ]
@@ -172,3 +174,6 @@ MEDIA_URL = '/media/'
 
 
 AUTH_USER_MODEL = 'accounts.User'
+
+
+TAGGIT_CASE_INSENSITIVE = True

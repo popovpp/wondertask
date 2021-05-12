@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from taggit.managers import TaggableManager
 
 from accounts.models import User
 
@@ -36,6 +37,7 @@ class Task(models.Model):
                                 related_name='task_authors')
     parent_task = models.OneToOneField('Task', related_name='super_task', on_delete=models.CASCADE,
     	                               blank=True, null=True)
+    tags = TaggableManager()
 
     class Meta:
         db_table = 'tasks'
