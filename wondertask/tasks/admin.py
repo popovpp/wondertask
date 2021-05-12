@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from tasks.models import Task, Comment, Doc, Image, Audio
+
+admin.site.register(Task)
+admin.site.register(Comment)
+admin.site.register(Doc)
+admin.site.register(Image)
+admin.site.register(Audio)

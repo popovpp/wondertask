@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'accounts',
-    'tasks',
+    'tasks'
 ]
 
 MIDDLEWARE = [
@@ -127,7 +127,7 @@ JWT_AUTH = {
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=3),
     'JWT_ALLOW_REFRESH': True,
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'generic.view.jwt_response_payload_handler',
-    'JWT_AUTH_COOKIE': None
+    'JWT_AUTH_COOKIE': None,
 }
 
 
