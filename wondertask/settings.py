@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'taggit',
     'taggit_serializer',
+    'mptt',
     'accounts',
     'tasks',
 ]
