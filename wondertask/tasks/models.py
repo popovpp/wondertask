@@ -1,7 +1,6 @@
 import uuid
 
 from django.db import models
-from django.db.models.signals import post_delete
 from django.utils import timezone
 from rest_framework.generics import get_object_or_404
 from taggit.managers import TaggableManager
@@ -127,7 +126,6 @@ class Comment(models.Model):
 
 class Doc(models.Model):
     def files_directory_path(instance, filename):
-        filename = uuid.uuid4().hex[:6] + '_' + filename
         return f'files/{instance.task.pk}/{filename}'
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              blank=True, null=True,
@@ -152,7 +150,6 @@ class Doc(models.Model):
 
 class Image(models.Model):
     def images_directory_path(instance, filename):
-        filename = uuid.uuid4().hex[:6] + '_' + filename
         return f'images/{instance.task.pk}/{filename}'
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              blank=True, null=True,
@@ -177,7 +174,6 @@ class Image(models.Model):
 
 class Audio(models.Model):
     def audio_directory_path(instance, filename):
-        filename = uuid.uuid4().hex[:6] + '_' + filename
         return f'audio/{instance.task.pk}/{filename}'
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              blank=True, null=True,

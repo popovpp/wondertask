@@ -3,16 +3,18 @@ from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
-def create_text_file():
+def create_text_file(filename):
     pdf = BytesIO(
         b'%PDF-1.0\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1'
         b'>>endobj 3 0 obj<</Type/Page/MediaBox[0 0 3 3]>>endobj\nxref\n0 4\n0000000000 65535 f\n000000'
         b'0010 00000 n\n0000000053 00000 n\n0000000102 00000 n\ntrailer<</Size 4/Root 1 0 R>>\nstartxre'
         b'f\n149\n%EOF\n')
-    file_name = 'foo.pdf'
-    file = SimpleUploadedFile(
-        file_name, pdf.read(), content_type='application/pdf')
-    return file
+    file_name = f'{filename}.pdf'
+    uploaded = SimpleUploadedFile(
+        file_name,
+        pdf.read(),
+        content_type='application/pdf')
+    return uploaded
 
 
 def create_image_file():
@@ -35,7 +37,9 @@ def create_audio_file():
         b'MM\x00*\x00\x00\x00\x08\x00\x03\x01\x00\x00\x03\x00\x00\x00\x01\x00\x01'
         b'\x00\x00\x01\x01\x00\x03\x00\x00\x00\x01\x00\x01\x00\x00\x01\x11\x00\x03'
         b'\x00\x00\x00\x01\x00\x00\x00\x00')
-    audio_file = SimpleUploadedFile(name='music.mp3',
-                                    content=testfile_audio,
-                                    content_type='audio/mpeg')
-    return audio_file
+    uploaded = SimpleUploadedFile(
+        name='music.mp3',
+        content=testfile_audio,
+        content_type='audio/mpeg'
+    )
+    return uploaded
