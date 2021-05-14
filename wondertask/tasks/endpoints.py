@@ -17,9 +17,7 @@ task_router.register(r'group/(?P<group_id>\d+)/grouptasks', GroupTasksViewSet, '
 task_router.register('taskgroup', TaskGroupViewSet, 'taskgroup')
 
 task_router.register(r'task/(?P<task_id>\d+)/doc', TaskDocViewSet, 'task_doc')
-
 task_router.register(r'task/(?P<task_id>\d+)/image', TaskImageViewSet, 'task_image')
-
 task_router.register(r'task/(?P<task_id>\d+)/audio', TaskAudioViewSet, 'task_audio')
 
 task_endpoints = [

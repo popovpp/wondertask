@@ -1,5 +1,3 @@
-import uuid
-
 from django.db import models
 from django.utils import timezone
 from rest_framework.generics import get_object_or_404
