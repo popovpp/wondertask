@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'taggit',
     'taggit_serializer',
     'mptt',
-    'drf_yasg',
     'accounts',
     'tasks',
 ]
