@@ -1,28 +1,33 @@
+from io import BytesIO
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 def create_text_file():
-    test_file = "testfile.txt"
-    with open(test_file, "w") as f:
-        f.write("Hello World")
-    f = open(test_file, 'r')
-    return f
+    pdf = BytesIO(
+        b'%PDF-1.0\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1'
+        b'>>endobj 3 0 obj<</Type/Page/MediaBox[0 0 3 3]>>endobj\nxref\n0 4\n0000000000 65535 f\n000000'
+        b'0010 00000 n\n0000000053 00000 n\n0000000102 00000 n\ntrailer<</Size 4/Root 1 0 R>>\nstartxre'
+        b'f\n149\n%EOF\n')
+    file_name = 'foo.pdf'
+    file = SimpleUploadedFile(
+        file_name, pdf.read(), content_type='application/pdf')
+    return file
 
 
 def create_image_file():
-    SMALL_GIF = (b'\x47\x49\x46\x38\x39\x61\x02\x00'
+    small_gif = (b'\x47\x49\x46\x38\x39\x61\x02\x00'
                  b'\x01\x00\x80\x00\x00\x00\x00\x00'
                  b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
                  b'\x00\x00\x00\x2C\x00\x00\x00\x00'
                  b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-                 b'\x0A\x00\x3B'
-                 )
-    UPLOADED = SimpleUploadedFile(
+                 b'\x0A\x00\x3B')
+    uploaded = SimpleUploadedFile(
         name='small.gif',
-        content=SMALL_GIF,
+        content=small_gif,
         content_type='image/gif'
     )
-    return UPLOADED
+    return uploaded
 
 
 def create_audio_file():

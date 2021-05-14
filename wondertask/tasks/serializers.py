@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from tasks import validators
 from tasks.models import (Task, Executor, Observer, Comment,
                           Doc, Image, Audio)
+from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
+                              VALID_AUDIO_FILES)
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -77,11 +78,8 @@ class DocSerializer(serializers.ModelSerializer):
                                      required=False)
 
     def validate(self, instance):
-        if ('doc_file' not in instance or
-                (str(instance['doc_file']).split('.')[-1]) in
-                validators.VALID_DOC_FILES):
-            return instance
-        raise ValidationError('Unsupported file extension.')
+        check_file_extensions('doc_file', instance, VALID_DOC_FILES)
+        return instance
 
     class Meta:
         model = Doc
@@ -122,11 +120,8 @@ class AudioSerializer(serializers.ModelSerializer):
                                        required=False)
 
     def validate(self, instance):
-        if ('audio_file' not in instance or
-                (str(instance['audio_file']).split('.')[-1]) in
-                validators.VALID_AUDIO_FILES):
-            return instance
-        raise ValidationError('Unsupported file extension.')
+        check_file_extensions('audio_file', instance, VALID_AUDIO_FILES)
+        return instance
 
     class Meta:
         model = Audio
