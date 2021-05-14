@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils import timezone
+from taggit.managers import TaggableManager
+import mptt
+from mptt.fields import TreeForeignKey
 
 from accounts.models import User
 
@@ -37,8 +40,8 @@ class Task(models.Model):
     priority = models.PositiveIntegerField(default=0)
     creator = models.ForeignKey(User, on_delete=models.CASCADE,
                                 related_name='task_authors')
-    parent_task = models.OneToOneField('Task', related_name='super_task', on_delete=models.CASCADE,
-                                       blank=True, null=True)
+
+    user_tags = TaggableManager()
 
     class Meta:
         db_table = 'tasks'
@@ -50,10 +53,23 @@ class Task(models.Model):
         pass
 
 
+TreeForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(Task, 'parent')
+mptt.register(Task, order_insertion_by=['id'])
+
+
+class TaskSystemTags(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE,
+                             related_name='task_field')
+    system_tags = TaggableManager()
+
+    class Meta:
+        db_table = 'task_system_tags'
+
+
 class Executor(models.Model):
 
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
-                             related_name='task_executor')
+                             related_name='executors')
     executor = models.ForeignKey(User, on_delete=models.CASCADE,
                                  related_name='task_executor')
 
@@ -64,12 +80,36 @@ class Executor(models.Model):
 class Observer(models.Model):
 
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
-                             related_name='task_observer')
+                                related_name='observers')
     observer = models.ForeignKey(User, on_delete=models.CASCADE,
                                  related_name='task_observer')
 
     class Meta:
         db_table = 'observers'
+
+
+class Group(models.Model):
+
+    group_name = models.CharField(max_length=255, default='', blank=True, null=True)
+    is_system = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'groups'
+
+    def __str__(self):
+        return repr(self.group_name)
+
+
+class TaskGroup(models.Model):
+
+    task = models.ForeignKey(Task, on_delete=models.CASCADE,
+                             related_name='groups')
+    group = models.ForeignKey(Group, on_delete=models.CASCADE,
+                              related_name='task_group_group_field')
+
+    class Meta:
+        db_table = 'taskgroups'
+        unique_together = ('task', 'group')
 
 
 class Comment(models.Model):
