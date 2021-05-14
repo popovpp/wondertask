@@ -36,14 +36,14 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
-    # user_tags = TagListSerializerField()
+    user_tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Task
         fields = ['url', 'id', 'title', 'creation_date', 'deadline',
                   'start_date', 'finish_date', 'last_start_time',
                   'sum_elapsed_time', 'status', 'priority', 'creator',
-                  'tree_id', 'level', 'parent']
+                  'user_tags', 'tree_id', 'level', 'parent']
 
 
 class TaskSystemTagsSerializer(TaggitSerializer, serializers.ModelSerializer):

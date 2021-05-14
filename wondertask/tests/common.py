@@ -17,29 +17,31 @@ def create_text_file(filename):
     return uploaded
 
 
-def create_image_file():
+def create_image_file(filename):
     small_gif = (b'\x47\x49\x46\x38\x39\x61\x02\x00'
                  b'\x01\x00\x80\x00\x00\x00\x00\x00'
                  b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
                  b'\x00\x00\x00\x2C\x00\x00\x00\x00'
                  b'\x02\x00\x01\x00\x00\x02\x02\x0C'
                  b'\x0A\x00\x3B')
+    file_name = f'{filename}.gif'
     uploaded = SimpleUploadedFile(
-        name='small.gif',
+        name=file_name,
         content=small_gif,
         content_type='image/gif'
     )
     return uploaded
 
 
-def create_audio_file():
-    testfile_audio = (
+def create_audio_file(filename):
+    audio = (
         b'MM\x00*\x00\x00\x00\x08\x00\x03\x01\x00\x00\x03\x00\x00\x00\x01\x00\x01'
         b'\x00\x00\x01\x01\x00\x03\x00\x00\x00\x01\x00\x01\x00\x00\x01\x11\x00\x03'
         b'\x00\x00\x00\x01\x00\x00\x00\x00')
+    file_name = f'{filename}.mp3'
     uploaded = SimpleUploadedFile(
-        name='music.mp3',
-        content=testfile_audio,
+        name=file_name,
+        content=audio,
         content_type='audio/mpeg'
     )
     return uploaded

@@ -41,7 +41,7 @@ class Task(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE,
                                 related_name='task_authors')
 
-    # user_tags = TaggableManager()
+    user_tags = TaggableManager()
 
     class Meta:
         db_table = 'tasks'
