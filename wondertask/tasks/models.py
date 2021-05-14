@@ -1,13 +1,14 @@
+import uuid
+
 from django.db import models
+from django.db.models.signals import post_delete
 from django.utils import timezone
+from rest_framework.generics import get_object_or_404
 from taggit.managers import TaggableManager
 import mptt
 from mptt.fields import TreeForeignKey
 
 from accounts.models import User
-
-IMAGES_DIR = 'images/%Y/%m/'
-FILES_DIR = 'files/%Y/%m/'
 
 
 class Task(models.Model):
@@ -41,7 +42,7 @@ class Task(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE,
                                 related_name='task_authors')
 
-    user_tags = TaggableManager()
+    # user_tags = TaggableManager()
 
     class Meta:
         db_table = 'tasks'
@@ -58,6 +59,7 @@ mptt.register(Task, order_insertion_by=['id'])
 
 
 class TaskSystemTags(models.Model):
+
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              related_name='task_field')
     system_tags = TaggableManager()
@@ -118,54 +120,81 @@ class Comment(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              related_name='comments')
     text = models.TextField(default='', blank=True, null=True)
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL,
-                               blank=True, null=True,
-                               related_name='super_comment',)
 
     class Meta:
         db_table = 'comments'
 
 
 class Doc(models.Model):
-
+    def files_directory_path(instance, filename):
+        filename = uuid.uuid4().hex[:6] + '_' + filename
+        return f'files/{instance.task.pk}/{filename}'
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              blank=True, null=True,
                              related_name='docs')
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE,
                                 blank=True, null=True,
                                 related_name='docs')
-    doc_file = models.FileField(upload_to=FILES_DIR,
+    doc_file = models.FileField(upload_to=files_directory_path,
                                 blank=True, null=True,)
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            return super(Doc, self).save(*args, **kwargs)
+        old_self = get_object_or_404(Doc, pk=self.pk)
+        if old_self.doc_file and self.doc_file != old_self.doc_file:
+            old_self.doc_file.delete(False)
+        return super(Doc, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'docs'
 
 
 class Image(models.Model):
-
+    def images_directory_path(instance, filename):
+        filename = uuid.uuid4().hex[:6] + '_' + filename
+        return f'images/{instance.task.pk}/{filename}'
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              blank=True, null=True,
                              related_name='images')
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE,
                                 blank=True, null=True,
                                 related_name='images')
-    image_file = models.ImageField(upload_to=IMAGES_DIR,
+    image_file = models.ImageField(upload_to=images_directory_path,
                                    blank=True, null=True,)
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            return super(Image, self).save(*args, **kwargs)
+        old_self = get_object_or_404(Image, pk=self.pk)
+        if old_self.image_file and self.image_file != old_self.image_file:
+            old_self.image_file.delete(False)
+        return super(Image, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'images'
 
 
 class Audio(models.Model):
-
+    def audio_directory_path(instance, filename):
+        filename = uuid.uuid4().hex[:6] + '_' + filename
+        return f'audio/{instance.task.pk}/{filename}'
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              blank=True, null=True,
                              related_name='audios')
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE,
                                 blank=True, null=True,
                                 related_name='audios')
-    audio_file = models.FileField(upload_to=FILES_DIR,
+    audio_file = models.FileField(upload_to=audio_directory_path,
                                   blank=True, null=True,)
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            return super(Audio, self).save(*args, **kwargs)
+        old_self = get_object_or_404(Audio, pk=self.pk)
+        if old_self.audio_file and self.audio_file != old_self.audio_file:
+            old_self.audio_file.delete(False)
+        return super(Audio, self).save(*args, **kwargs)
 
     class Meta:
         db_table = 'audio'

@@ -1,17 +1,20 @@
+from http import HTTPStatus
+
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, SAFE_METHODS
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import get_object_or_404
 
 from tasks.models import (Task, Observer, TaskSystemTags,
-                          Group, TaskGroup, Comment)
+                          Group, TaskGroup, Doc, Image, Audio)
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
                                GroupSerializer, TaskGroupSerializer,
-                               TaskTreeSerializer, CommentSerializer, DocSerializer,
-                               ImageSerializer,
-                               AudioSerializer, CreateCommentSerializer)
+                               TaskTreeSerializer, DocSerializer,
+                               ImageSerializer, AudioSerializer)
+from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 
 
 class TaskViewSet(ModelViewSet):
@@ -30,7 +33,6 @@ class TaskTreeViewSet(ModelViewSet):
 
     def list(self, request):
         self.serializer_class = TaskSerializer
-
         return super(TaskTreeViewSet, self).list(request)
 
 
@@ -81,23 +83,6 @@ class GroupTasksViewSet(ModelViewSet):
         return TaskGroup.objects.filter(group=group)
 
 
-class CommentViewSet(ModelViewSet):
-    permission_classes = [AllowAny]
-
-    def get_serializer_class(self):
-        if self.request.method in SAFE_METHODS:
-            return CommentSerializer
-        return CreateCommentSerializer
-
-    def get_queryset(self):
-        task = get_object_or_404(Task, pk=self.kwargs['task_id'])
-        return task.comments.filter(parent=None)
-
-    def perform_create(self, serializer):
-        task = get_object_or_404(Task, pk=self.kwargs.get('task_id'))
-        serializer.save(author=self.request.user, task=task)
-
-
 class TaskDocViewSet(ModelViewSet):
     serializer_class = DocSerializer
     permission_classes = [AllowAny]
@@ -110,21 +95,9 @@ class TaskDocViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=self.kwargs.get('task_id'))
         serializer.save(task=task, comment=None)
 
-
-class CommentDocViewSet(ModelViewSet):
-    serializer_class = DocSerializer
-    permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        comment = get_object_or_404(Comment, id=self.kwargs['comment_id'],
-                                    task__id=self.kwargs['task_id'])
-        return comment.docs.all()
-
-    def perform_create(self, serializer):
-        comment = get_object_or_404(Comment, id=self.kwargs['comment_id'],
-                                    task__id=self.kwargs['task_id'])
-        task = get_object_or_404(Task, pk=self.kwargs['task_id'])
-        serializer.save(task=task, comment=comment)
+    def perform_destroy(self, instance):
+        doc_file_delete(Doc, instance=instance)
+        instance.delete()
 
 
 class TaskImageViewSet(ModelViewSet):
@@ -139,20 +112,9 @@ class TaskImageViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=self.kwargs.get('task_id'))
         serializer.save(task=task)
 
-
-class CommentImageViewSet(ModelViewSet):
-    serializer_class = ImageSerializer
-    permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        comment = get_object_or_404(Comment, id=self.kwargs['comment_id'])
-        return comment.images.all()
-
-    def perform_create(self, serializer):
-        comment = get_object_or_404(Comment, id=self.kwargs['comment_id'],
-                                    task__id=self.kwargs['task_id'])
-        task = get_object_or_404(Task, pk=self.kwargs['task_id'])
-        serializer.save(task=task, comment=comment)
+    def perform_destroy(self, instance):
+        image_file_delete(Image, instance=instance)
+        instance.delete()
 
 
 class TaskAudioViewSet(ModelViewSet):
@@ -167,18 +129,6 @@ class TaskAudioViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=self.kwargs.get('task_id'))
         serializer.save(task=task)
 
-
-class CommentAudioViewSet(ModelViewSet):
-    serializer_class = AudioSerializer
-    permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        comment = get_object_or_404(Comment, id=self.kwargs['comment_id'],
-                                    task__id=self.kwargs['task_id'])
-        return comment.audios.all()
-
-    def perform_create(self, serializer):
-        comment = get_object_or_404(Comment, id=self.kwargs['comment_id'],
-                                    task__id=self.kwargs['task_id'])
-        task = get_object_or_404(Task, pk=self.kwargs['task_id'])
-        serializer.save(task=task, comment=comment)
+    def perform_destroy(self, instance):
+        audio_file_delete(Audio, instance=instance)
+        instance.delete()

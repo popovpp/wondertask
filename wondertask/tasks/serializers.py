@@ -3,7 +3,7 @@ from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer)
 
 from tasks.models import (Task, Executor, Observer, TaskSystemTags,
-                          Group, TaskGroup, Comment, Doc, Image, Audio)
+                          Group, TaskGroup, Doc, Image, Audio)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
                               VALID_AUDIO_FILES)
 
@@ -36,14 +36,14 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
-    user_tags = TagListSerializerField()
+    # user_tags = TagListSerializerField()
 
     class Meta:
         model = Task
         fields = ['url', 'id', 'title', 'creation_date', 'deadline',
                   'start_date', 'finish_date', 'last_start_time',
                   'sum_elapsed_time', 'status', 'priority', 'creator',
-                  'user_tags', 'tree_id', 'level', 'parent']
+                  'tree_id', 'level', 'parent']
 
 
 class TaskSystemTagsSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -77,44 +77,6 @@ class TaskGroupSerializer(TaggitSerializer, serializers.ModelSerializer):
     class Meta:
         model = TaskGroup
         fields = ['id', 'task', 'group']
-
-
-class RecursiveSerializer(serializers.Serializer):
-    """Вывод рекурсивно children"""
-    def to_representation(self, value):
-        serializer = CommentSerializer(value, context=self.context)
-        return serializer.data
-
-
-class CreateCommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='id',
-        read_only=True
-    )
-    task = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='id',
-    )
-
-    class Meta:
-        model = Comment
-        fields = '__all__'
-
-
-class CommentSerializer(serializers.ModelSerializer):
-    super_comment = RecursiveSerializer(many=True)
-    author = serializers.SlugRelatedField(
-        slug_field='id',
-        read_only=True
-    )
-    task = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='id',
-    )
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'author', 'task', 'text', 'parent', 'super_comment')
 
 
 class DocSerializer(serializers.ModelSerializer):
