@@ -17,7 +17,6 @@ def create_task(user_client):
     task_data1 = {
         'title': 'test_title1',
         'creator': 1,
-        # 'user_tags':  ["any_tag"]
     }
     response = user_client.post('/v1/tasks/task/', data=task_data1).json()
     return response
