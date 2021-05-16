@@ -28,6 +28,7 @@ from rest_framework_jwt.views import (
 from accounts.endpoints import registration_endpoint
 from tasks.endpoints import task_endpoints
 
+
 authentication_endpoints = [
     path('token/obtaining/', ObtainJSONWebToken.as_view(serializer_class=CustomJWTSerializer)),
     path('token/refreshing/', refresh_jwt_token),
