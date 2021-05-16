@@ -1,0 +1,82 @@
+post:
+  summary: "Creating a new observer for the task"
+  tags: ['Observers']
+  operationId: CreateNewObserver
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            observer:
+              type: integer
+              example: 2
+    description: 'The field "observer" is filled by user id' 
+  responses:
+    '201':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 5
+              observer:
+                type: integer
+                example: 2
+      description: 'The observer was created. The id is id of observer table here.'
+get:
+  summary: "Getting a list of observers for the task with id=id"
+  tags: ['Observers']
+  operationId: ListObservers
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: '#/components/schemas/Observer'
+          examples:
+            Observer:
+              $ref: '#/components/examples/Observer'
+      description: 'The list of observers was got. The id is pk of observer table here.'
+
+components:
+  schemas:
+    Observer:
+      type: object
+      description: 'Observer'
+      properties:
+        id:
+          type: integer
+        observer:
+          type: object
+          properties:
+            full_name:
+              type: string
+            avatar_image:
+              type: string
+  examples:
+    Observer:
+      summary: 'Observer'
+      value:
+        id: 6
+        observer:
+          full_name: 'дон Педро'
+          avatar_image: 

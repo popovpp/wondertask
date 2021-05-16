@@ -1,0 +1,115 @@
+get:
+  summary: 'Getting the list of tasks sorted descending by "creation_date"'
+  tags: ['Tasks']
+  operationId: GetTask
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '/static/docs/openapi/schema/response_single_task.yml#/components/schemas/SingleTask'
+      description: 'The task was got'
+put:
+  summary: "Changing the task"
+  tags: ['Tasks']
+  operationId: ChangeTask
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Task'
+        examples:
+          Task:
+            $ref: '#/components/examples/Task'
+    description: 'Creator is id of the user which create the task'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '/static/docs/openapi/schema/response_single_task.yml#/components/schemas/SingleTask'
+      description: 'The task was created'
+patch:
+  summary: "Changing the field of the task"
+  tags: ['Tasks']
+  operationId: ChangeField
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Task'
+        examples:
+          Task:
+            $ref: '#/components/examples/Task'
+    description: 'Changing any from presented fields. Creator is id of the user which create the task'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '/static/docs/openapi/schema/response_single_task.yml#/components/schemas/SingleTask'
+      description: 'The task was created'
+delete:
+  summary: 'Deleting the list of tasks sorted descending by "creation_date"'
+  tags: ['Tasks']
+  operationId: DeleteTask
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  description: The task will delete with all subtasks
+  responses:
+    '204':
+      content: 
+      description: 'The task was deleted'
+
+components:
+  schemas:
+    Task:
+      type: object
+      description: 'Task'
+      properties:
+        title:
+          type: string
+        deadline:
+          type: string
+        priority:
+          type: integer
+        creator:
+          type: integer
+        parent:
+          type: integer
+
+  examples:
+    Task:
+      summary: 'Task'
+      value:
+        title: Новая задача
+        deadline: '2021-05-13T01:00:59.502847Z'
+        priority: 0
+        creator: 1
+        parent: 0

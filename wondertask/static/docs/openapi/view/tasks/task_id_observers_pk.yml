@@ -1,0 +1,61 @@
+get:
+  summary: "Getting an observer with pk for the task with task_id"
+  tags: ['Observers']
+  operationId: DetailObserver
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: 'The pk of observer'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/Observer'
+          examples:
+            Observer:
+              $ref: '#/components/examples/Observer'
+      description: 'The observer was got. The id is pk of observer table here.'
+delete:
+  summary: "Delete an observer with pk for the task with task_id"
+  tags: ['Observers']
+  operationId: DeleteObserver
+  parameters: []
+  responses:
+    '204':
+      content: 
+      description: 'The observer was deleted. The id is pk of observer table here.'
+
+components:
+  schemas:
+    Observer:
+      type: object
+      description: 'Observer'
+      properties:
+        id:
+          type: integer
+        observer:
+          type: object
+          properties:
+            full_name:
+              type: string
+            avatar_image:
+              type: string
+
+  examples:
+    Observer:
+      summary: 'Observer'
+      value:
+        id: 6
+        observer:
+          full_name: 'дон Педро'
+          avatar_image: 

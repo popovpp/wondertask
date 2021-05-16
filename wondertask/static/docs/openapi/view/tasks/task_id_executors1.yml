@@ -1,0 +1,80 @@
+post:
+  summary: "Creating a new executor for the task"
+  tags: ['Executors']
+  operationId: CreateNewExecutor
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            executor:
+              type: integer
+              example: 2
+    description: 'The field "executor" is filled by user id' 
+  responses:
+    '201':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 5
+              executor:
+                type: integer
+                example: 2
+      description: 'The executor was created. The id is id of executor table here.'
+get:
+  summary: "Getting a list of executors for the task with id=id"
+  tags: ['Executors']
+  operationId: ListExecutors
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Executor'
+      description: 'The list of executors was got. The id is pk of executor table here.'
+
+components:
+  schemas:
+    Executor:
+      type: object
+      description: 'Executor'
+      properties:
+        id:
+          type: integer
+        executor:
+          type: object
+          properties:
+            full_name:
+              type: string
+            avatar_image:
+              type: string
+
+  examples:
+    Executor:
+      summary: 'Executor'
+      value:
+        id: 6
+        executor:
+          full_name: 'дон Педро'
+          avatar_image: 

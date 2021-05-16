@@ -1,0 +1,18 @@
+get:
+  summary: 'Getting the task tree sorted descending by "creation_date" for task has level=0'
+  tags: ['TaskTree']
+  operationId: GetTaskTree
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The id of the task has level=0'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '/static/docs/openapi/schema/response_single_task.yml#/components/schemas/SingleTaskTree'
+      description: 'The task was got'

@@ -1,0 +1,19 @@
+components:
+  schemas:
+    ExecutorsList:
+      type: array
+      items:
+        type: object
+        properties:
+          task:
+            type: integer
+            example: 24
+          executor:
+            type: object
+            properties:
+              full_name: 
+                type: string
+                example: дон Педро
+              avatar_image:
+                type: string
+                example: 

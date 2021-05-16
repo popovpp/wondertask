@@ -1,49 +1,83 @@
 from rest_framework import serializers
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer)
-
+from django.shortcuts import get_object_or_404
 from tasks.models import (Task, Executor, Observer, TaskSystemTags,
                           Group, TaskGroup, Doc, Image, Audio)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
                               VALID_AUDIO_FILES)
 
+from accounts.serializers import UserTaskSerializer
+
 
 class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
-    user_tags = TagListSerializerField()
+    
+    user_tags = TagListSerializerField(required=False, read_only=True)
+    title = serializers.CharField(required=True)
+    creation_date = serializers.CharField(read_only=True)
+    start_date = serializers.CharField(read_only=True)
+    last_start_time = serializers.CharField(read_only=True)
+    finish_date = serializers.CharField(read_only=True)
+    sum_elapsed_time = serializers.CharField(read_only=True)
+    status = serializers.IntegerField(read_only=True)
+    level = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Task
         fields = ['url', 'id', 'title', 'creation_date', 'deadline',
                   'start_date', 'finish_date', 'last_start_time',
                   'sum_elapsed_time', 'status', 'priority', 'creator',
-                  'user_tags', 'tree_id', 'level', 'parent']
+                  'user_tags', 'level', 'parent']
 
     def to_representation(self, instance):
-        resp = super().to_representation(instance)
-        descendants = instance.get_descendants(include_self=False)
 
+        output_data = TaskSerializer(instance, context={'request': self.context['request']}).data
+
+        all_descendants = instance.get_descendants(include_self=False).order_by('-creation_date')
         lst = []
-        for el in descendants:
-            lst.append(super().to_representation(el))
+        for el in all_descendants:
+            lst.append(TaskSerializer(el, context={'request': self.context['request']}).data)
         for el in lst:
             for ele in lst:
-                if ele['id'] == el['parent']:
-                    ele['children'] = el
-                    lst.remove(el)
-        resp['children'] = lst
+                if el['id']== ele['parent']:
+                    el['children'] = ele
+                    lst.remove(ele)
+        output_data['children'] = lst
 
-        return resp
+        return output_data
 
 
 class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
-    user_tags = TagListSerializerField(required=False)
-
+    
+    user_tags = TagListSerializerField(required=False, read_only=True)
+    title = serializers.CharField(required=True)
+    creation_date = serializers.CharField(read_only=True)
+    start_date = serializers.CharField(read_only=True)
+    last_start_time = serializers.CharField(read_only=True)
+    finish_date = serializers.CharField(read_only=True)
+    sum_elapsed_time = serializers.CharField(read_only=True)
+    status = serializers.IntegerField(read_only=True)
+    level = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model = Task
         fields = ['url', 'id', 'title', 'creation_date', 'deadline',
                   'start_date', 'finish_date', 'last_start_time',
                   'sum_elapsed_time', 'status', 'priority', 'creator',
-                  'user_tags', 'tree_id', 'level', 'parent']
+                  'user_tags', 'level', 'parent']
+
+    def to_representation(self, instance):
+        output_data = super().to_representation(instance)
+        
+        executors = instance.executors.all()
+        list_executors = [ExecutorListSerializer(el).data for el in executors]
+        output_data['executors'] = list_executors
+
+        observers = instance.observers.all()
+        list_observers = [ObserverListSerializer(el).data for el in observers]
+        output_data['observers'] = list_observers
+
+        return output_data
 
 
 class TaskSystemTagsSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -56,15 +90,40 @@ class TaskSystemTagsSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class ExecutorSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Executor
-        fields = '__all__'
+        fields = ['id', 'executor']
+
+    def create(self, validated_data):
+        
+        task = get_object_or_404(Task, id=self.context['task_id'])
+        executor, created = Executor.objects.get_or_create(task=task, executor=validated_data['executor'])
+        
+        return executor
+
+
+class ExecutorListSerializer(ExecutorSerializer):
+    
+    executor = UserTaskSerializer()
 
 
 class ObserverSerializer(serializers.ModelSerializer):
     class Meta:
         model = Observer
-        fields = '__all__'
+        fields = ['id', 'observer']
+
+    def create(self, validated_data):
+        
+        task = get_object_or_404(Task, id=self.context['task_id'])
+        observer, created = Observer.objects.get_or_create(task=task, observer=validated_data['observer'])
+        
+        return observer
+
+
+class ObserverListSerializer(ObserverSerializer):
+
+    observer = UserTaskSerializer()
 
 
 class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
