@@ -2,8 +2,8 @@ version: "3"
 
 services:
   web:
-    build:
-      context: ./wondertask
+    image: registry.gitlab.com/auditor2/production/wondertaskbackend:latest
+    container_name: wondertask-backend
     restart: always
     command: python3 /code/manage.py runserver 0.0.0.0:9007
     volumes:
