@@ -1,0 +1,58 @@
+image: docker:18
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - test
+  - deploy review
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - my_cash/
+
+wondertask_api build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  when: manual
+  script:
+    - echo $CI_REGISTRY
+    - echo $CI_REGISTRY_USER
+    - echo $CI_REGISTRY_PASSWORD
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - echo $DJANGO_SETTINGS_MODULE
+    - echo $SECRET_KEY
+    - echo $DEBUG
+    - >
+      /kaniko/executor --context ./wondertask/ --dockerfile ./wondertask/Dockerfile
+      --build-arg DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+      --build-arg SECRET_KEY=$SECRET_KEY
+      --build-arg DEBUG=$DEBUG
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+  only:
+#    - merge_request
+    - develop
+
+wondertask_api deploy:
+  stage: deploy review
+  script:
+    - echo "Deploy review wondertask_api"
+    - echo $CI_REGISTRY
+    - echo $CI_REGISTRY_USER
+    - echo $CI_REGISTRY_PASSWORD
+    - docker info
+    - if docker ps | grep -q wondertask-backend; then docker stop wondertask-backend; fi
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - docker pull registry.gitlab.com/auditor2/production/wondertaskbackend:latest
+    - docker-compose -f docker-compose-prod.yml up -d
+    - echo 'y' | docker system prune
+  when: manual
+  tags:
+    - wondertaskbackend-dev
+  only:
+#    - merge_request
+    - develop
