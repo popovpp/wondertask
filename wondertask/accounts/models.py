@@ -7,8 +7,14 @@ from accounts.managers import AccountManager
 
 class User(AbstractBaseUser, PermissionsMixin):
 
+    def image_directory_path(instance, filename):
+        filename = str(instance.id) + '_' + uuid.uuid4().hex[:6] + '_' + filename
+        return 'avatar_img/{0}'.format(filename)
+
     email = models.EmailField(unique=True, blank=False)
     full_name = models.CharField(max_length=150, blank=True, null=True, default='')
+    avatar_image = models.ImageField(upload_to=image_directory_path, 
+                                    default='', max_length=255)
 
     created = models.DateTimeField(auto_now_add=True)
     is_email_confirmed = models.BooleanField(default=False)

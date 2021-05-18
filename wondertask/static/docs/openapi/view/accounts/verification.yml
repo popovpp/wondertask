@@ -1,0 +1,24 @@
+post:
+  operationId: CreateVerifyJSONWebToken
+  tags: ['Authentication']
+  parameters: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          properties:
+            token:
+              type: string
+          required:
+          - token
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            properties:
+              token:
+                type: string
+            required:
+            - token
+      description: ''

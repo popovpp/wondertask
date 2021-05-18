@@ -39,7 +39,7 @@ class Task(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE,
                                 related_name='task_authors')
 
-    user_tags = TaggableManager()
+    user_tags = TaggableManager(blank=True)
 
     class Meta:
         db_table = 'tasks'
@@ -70,7 +70,7 @@ class Executor(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              related_name='executors')
     executor = models.ForeignKey(User, on_delete=models.CASCADE,
-                                 related_name='task_executor')
+                                 related_name='executor_tasks')
 
     class Meta:
         db_table = 'executors'
@@ -81,7 +81,7 @@ class Observer(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                                 related_name='observers')
     observer = models.ForeignKey(User, on_delete=models.CASCADE,
-                                 related_name='task_observer')
+                                 related_name='observer_tasks')
 
     class Meta:
         db_table = 'observers'

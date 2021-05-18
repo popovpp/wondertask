@@ -1,0 +1,31 @@
+post:
+  operationId: CreateCustomJWT
+  tags: ['Authentication']
+  parameters: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+              writeOnly: true
+          required:
+          - email
+          - password
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            properties:
+              token:
+                type: string
+              token_lifetime:
+                type: integer
+            required:
+            - user_id
+            - token
+      description: ''

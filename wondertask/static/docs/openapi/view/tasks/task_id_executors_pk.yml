@@ -1,0 +1,62 @@
+get:
+  summary: "Getting an executor with pk for the task with id=task_id"
+  tags: ['Executors']
+  operationId: DetailExecutor
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: 'The pk of executor'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/Executor'
+          examples:
+            Executor:
+              $ref: '#/components/examples/Executor'
+      description: 'The executor was got. The id is pk of executor table here.'
+delete:
+  summary: "Delete an executor with pk for the task with id=task_id"
+  tags: ['Executors']
+  operationId: DeleteExecutor
+  parameters: []
+  responses:
+    '204':
+      content: 
+      description: 'The executor was deleted. The id is pk of executor table here.'
+
+components:
+  schemas:
+    Executor:
+      type: object
+      description: 'Executor'
+      properties:
+        id:
+          type: integer
+        executor:
+          type: object
+          properties:
+            full_name:
+              type: string
+            avatar_image:
+              type: string
+
+  examples:
+    Executor:
+      summary: 'Executor'
+      value:
+        id: 6
+        executor:
+          full_name: 'дон Педро'
+          avatar_image: 
+            

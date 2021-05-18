@@ -1,0 +1,51 @@
+post:
+  summary: "Registration a new user"
+  tags: ['Accounts']
+  operationId: UserRegistrationSingle
+  parameters: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/User'
+        examples:
+          User:
+            $ref: '#/components/examples/User'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            properties:
+              email:
+                type: string
+                example: test@test.ru
+              full_name:
+                type: string
+                example: Zarbazan
+      description: 'User is registered'
+
+components:
+  schemas:
+    User:
+      type: object
+      description: 'Mystery guest'
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        full_name:
+          type: string
+      required:
+      - email
+      - password
+      - full_name
+
+  examples:
+    User:
+      summary: 'User'
+      value:
+        email: test@test.ru
+        password: qwerty:)
+        full_name: Zarbazan

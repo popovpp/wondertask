@@ -1,0 +1,256 @@
+components:
+  schemas:
+    SingleTask:
+      type: object
+      properties:
+        url:
+          type: string
+          example: http://0.0.0.0:9007/v1/tasks/task/22/
+        id:
+          type: integer
+          example: 22
+        title:
+          type: string
+          example: Новая задача
+        creation_date:
+          type: string
+          example: '2021-05-15T10:55:56.532291Z'
+        deadline:
+          type: string
+          example: '2021-05-15T10:55:56.525330Z'
+        start_date:
+          type: string
+          example: null
+        finish_date:
+          type: string
+          example: null
+        last_start_time:
+          type: string
+          example: null
+        sum_elapsed_time:
+          type: string
+          example: null
+        status:
+          type: integer
+          example: 0
+        priority:
+          type: integer
+          example: 0
+        creator:
+          type: integer
+          example: 0
+        user_tags:
+          type: array
+          items:
+            type: string
+          example: []
+        level:
+          type: integer
+          example: 0
+        parent:
+          type: integer
+          example: null
+        executors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              executor:
+                type: object
+                properties:
+                  full_name: 
+                    type: string
+                    example: дон Педро
+                  avatar_image:
+                    type: string
+                    example: null
+        oservers:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              observer:
+                type: object
+                properties:
+                  full_name: 
+                    type: string
+                    example: дон Педро
+                  avatar_image:
+                    type: string
+                    example: null
+    SingleTaskTree:
+      type: object
+      properties:
+        url:
+          type: string
+          example: http://0.0.0.0:9007/v1/tasks/task/22/
+        id:
+          type: integer
+          example: 22
+        title:
+          type: string
+          example: Новая задача
+        creation_date:
+          type: string
+          example: '2021-05-15T10:55:56.532291Z'
+        deadline:
+          type: string
+          example: '2021-05-15T10:55:56.525330Z'
+        start_date:
+          type: string
+          example: null
+        finish_date:
+          type: string
+          example: null
+        last_start_time:
+          type: string
+          example: null
+        sum_elapsed_time:
+          type: string
+          example: null
+        status:
+          type: integer
+          example: 0
+        priority:
+          type: integer
+          example: 0
+        creator:
+          type: integer
+          example: 1
+        user_tags:
+          type: array
+          items:
+            type: string
+          example: []
+        level:
+          type: integer
+          example: 0
+        parent:
+          type: integer
+          example: null 
+        executors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              executor:
+                type: object
+                properties:
+                  full_name: 
+                    type: string
+                    example: дон Педро
+                  avatar_image:
+                    type: string
+                    example: null
+        oservers:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              observer:
+                type: object
+                properties:
+                  full_name: 
+                    type: string
+                    example: дон Педро
+                  avatar_image:
+                    type: string
+                    example: null
+        children:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+                example: http://0.0.0.0:9007/v1/tasks/task/26/
+              id:
+                type: integer
+                example: 26
+              title:
+                type: string
+                example: Новая задача1
+              creation_date:
+                type: string
+                example: '2021-05-15T10:55:56.532291Z'
+              deadline:
+                type: string
+                example: '2021-05-15T10:55:56.525330Z'
+              start_date:
+                type: string
+                example: null
+              finish_date:
+                type: string
+                example: null
+              last_start_time:
+                type: string
+                example: null
+              sum_elapsed_time:
+                type: string
+                example: null
+              status:
+                type: integer
+                example: 0
+              priority:
+                type: integer
+                example: 0
+              creator:
+                type: integer
+                example: 1
+              user_tags:
+                type: array
+                items:
+                  type: string
+                example: []
+              level:
+                type: integer
+                example: 1
+              parent:
+                type: integer
+                example: 22
+              executors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    executor:
+                      type: object
+                      properties:
+                        full_name: 
+                          type: string
+                          example: дон Педро
+                        avatar_image:
+                          type: string
+                          example: null
+              oservers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    observer:
+                      type: object
+                      properties:
+                        full_name: 
+                          type: string
+                          example: дон Педро
+                        avatar_image:
+                          type: string
+                          example: null
