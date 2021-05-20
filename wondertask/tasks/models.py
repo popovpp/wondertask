@@ -9,7 +9,6 @@ from accounts.models import User
 
 
 class Task(models.Model):
-
     CREATED = 0
     IN_PROGRESS = 1
     IN_WAITING = 2
@@ -18,13 +17,13 @@ class Task(models.Model):
     IN_PROGRESS_OVERDUE = IN_PROGRESS + OVERDUE
     IN_WAITING_OVERDUE = IN_WAITING + OVERDUE
     STATUS_DICT = {
-                   CREATED : 'CREATED',
-               IN_PROGRESS : 'IN_PROGRESS',
-                IN_WAITING : 'IN_WAITING',
-                      DONE : 'DONE',
-                   OVERDUE : 'OVERDUE',
-       IN_PROGRESS_OVERDUE : 'IN_PROGRESS_OVERDUE',
-        IN_WAITING_OVERDUE : 'IN_WAITING_OVERDUE'
+        CREATED: 'CREATED',
+        IN_PROGRESS: 'IN_PROGRESS',
+        IN_WAITING: 'IN_WAITING',
+        DONE: 'DONE',
+        OVERDUE: 'OVERDUE',
+        IN_PROGRESS_OVERDUE: 'IN_PROGRESS_OVERDUE',
+        IN_WAITING_OVERDUE: 'IN_WAITING_OVERDUE'
     }
 
     title = models.CharField(max_length=255, default='', blank=True, null=True)
@@ -56,7 +55,6 @@ mptt.register(Task, order_insertion_by=['id'])
 
 
 class TaskSystemTags(models.Model):
-
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              related_name='task_field')
     system_tags = TaggableManager()
@@ -66,7 +64,6 @@ class TaskSystemTags(models.Model):
 
 
 class Executor(models.Model):
-
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              related_name='executors')
     executor = models.ForeignKey(User, on_delete=models.CASCADE,
@@ -77,9 +74,8 @@ class Executor(models.Model):
 
 
 class Observer(models.Model):
-
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
-                                related_name='observers')
+                             related_name='observers')
     observer = models.ForeignKey(User, on_delete=models.CASCADE,
                                  related_name='observer_tasks')
 
@@ -88,7 +84,6 @@ class Observer(models.Model):
 
 
 class Group(models.Model):
-
     group_name = models.CharField(max_length=255, default='', blank=True, null=True)
     is_system = models.BooleanField(default=False)
 
@@ -100,7 +95,6 @@ class Group(models.Model):
 
 
 class TaskGroup(models.Model):
-
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              related_name='groups')
     group = models.ForeignKey(Group, on_delete=models.CASCADE,
@@ -122,9 +116,14 @@ class Comment(models.Model):
         db_table = 'comments'
 
 
+TreeForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(Comment, 'parent')
+mptt.register(Comment, order_insertion_by=['id'])
+
+
 class Doc(models.Model):
     def files_directory_path(instance, filename):
         return f'files/{instance.task.pk}/{filename}'
+
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              blank=True, null=True,
                              related_name='docs')
@@ -132,7 +131,7 @@ class Doc(models.Model):
                                 blank=True, null=True,
                                 related_name='docs')
     doc_file = models.FileField(upload_to=files_directory_path,
-                                blank=True, null=True,)
+                                blank=True, null=True, )
 
     def save(self, *args, **kwargs):
         if self.pk is None:
@@ -149,6 +148,7 @@ class Doc(models.Model):
 class Image(models.Model):
     def images_directory_path(instance, filename):
         return f'images/{instance.task.pk}/{filename}'
+
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              blank=True, null=True,
                              related_name='images')
@@ -156,7 +156,7 @@ class Image(models.Model):
                                 blank=True, null=True,
                                 related_name='images')
     image_file = models.ImageField(upload_to=images_directory_path,
-                                   blank=True, null=True,)
+                                   blank=True, null=True, )
 
     def save(self, *args, **kwargs):
         if self.pk is None:
@@ -173,6 +173,7 @@ class Image(models.Model):
 class Audio(models.Model):
     def audio_directory_path(instance, filename):
         return f'audio/{instance.task.pk}/{filename}'
+
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              blank=True, null=True,
                              related_name='audios')
@@ -180,7 +181,7 @@ class Audio(models.Model):
                                 blank=True, null=True,
                                 related_name='audios')
     audio_file = models.FileField(upload_to=audio_directory_path,
-                                  blank=True, null=True,)
+                                  blank=True, null=True, )
 
     def save(self, *args, **kwargs):
         if self.pk is None:
