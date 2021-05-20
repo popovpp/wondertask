@@ -1,9 +1,10 @@
+from mptt.forms import TreeNodeChoiceField
 from rest_framework import serializers
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer)
 from django.shortcuts import get_object_or_404
 from tasks.models import (Task, Executor, Observer, TaskSystemTags,
-                          Group, TaskGroup, Doc, Image, Audio)
+                          Group, TaskGroup, Doc, Image, Audio, Comment)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
                               VALID_AUDIO_FILES)
 
@@ -136,6 +137,41 @@ class TaskGroupSerializer(TaggitSerializer, serializers.ModelSerializer):
     class Meta:
         model = TaskGroup
         fields = ['id', 'task', 'group']
+
+
+class CommentTreeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent']
+
+    def to_representation(self, instance):
+        children_comments = instance.get_descendants(include_self=False)
+        comments_list = []
+        for comment in children_comments:
+            comments_list.append(super().to_representation(comment))
+        for child in comments_list:
+            for parent in comments_list:
+                if parent['id'] == child['parent']:
+                    parent['children'] = child
+                    comments_list.remove(child)
+        comment = super().to_representation(instance)
+        comment['children'] = comments_list
+        return comment
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='id',
+        read_only=True
+    )
+    task = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='id',
+    )
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent']
 
 
 class DocSerializer(serializers.ModelSerializer):

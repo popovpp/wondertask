@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
-  title: 'API'
-  version: 'v1'
+  title: "API"
+  version: "v1"
 
 components:
   securitySchemes:
@@ -15,36 +15,36 @@ security:
 
 paths:
   /v1/accounts/registration/:
-    $ref: './view/accounts/user_registration.yml'
+    $ref: "./view/accounts/user_registration.yml"
 
   # Authentication
   /v1/authentication/token/obtaining/:
-    $ref: './view/accounts/obtaining.yml'
+    $ref: "./view/accounts/obtaining.yml"
   /v1/authentication/token/refreshing/:
-    $ref: './view/accounts/refreshing.yml'
+    $ref: "./view/accounts/refreshing.yml"
   /v1/authentication/token/verification/:
-    $ref: './view/accounts/verification.yml'
+    $ref: "./view/accounts/verification.yml"
 
   # Task
   /v1/tasks/task/:
-    $ref: './view/tasks/task.yml'
+    $ref: "./view/tasks/task.yml"
   /v1/tasks/task/{id}/:
-    $ref: './view/tasks/task_id.yml'
+    $ref: "./view/tasks/task_id.yml"
 
   # Tasktree
   /v1/tasks/tasktree/:
-    $ref: './view/tasks/task_tree.yml'
+    $ref: "./view/tasks/task_tree.yml"
   /v1/tasks/tasktree/{id}/:
-    $ref: './view/tasks/task_tree_id.yml'
+    $ref: "./view/tasks/task_tree_id.yml"
 
   # Executor
   /v1/tasks/task/{task_id}/executors/:
-    $ref: './view/tasks/task_id_executors1.yml'
+    $ref: "./view/tasks/task_id_executors1.yml"
   /v1/tasks/task/{task_id}/executors/{pk}:
-    $ref: './view/tasks/task_id_executors_pk.yml'
+    $ref: "./view/tasks/task_id_executors_pk.yml"
 
   # Observer
   /v1/tasks/task/{task_id}/observers/:
-    $ref: './view/tasks/task_id_observers.yml'
+    $ref: "./view/tasks/task_id_observers.yml"
   /v1/tasks/task/{task_id}/observers/{pk}/:
-    $ref: './view/tasks/task_id_observers_pk.yml'
+    $ref: "./view/tasks/task_id_observers_pk.yml"
