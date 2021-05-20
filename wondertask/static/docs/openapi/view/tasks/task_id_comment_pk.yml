@@ -1,0 +1,148 @@
+get:
+  summary: "Getting the comment tree for comment has level=0"
+  tags: ["Comment"]
+  operationId: GetCommentTree
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "comment id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          type: array
+          schema:
+            - $ref: "#/components/schemas/CommentTree"
+          examples:
+            Comment:
+              $ref: "#/components/examples/CommentTree"
+      description: "The list has been recieved"
+patch:
+  summary: "Updating data for the comment id"
+  tags: ["Comment"]
+  operationId: PatchComment
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "comment id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            text:
+              type: string
+            parent:
+              type: integer
+    description: "Changing Comment data"
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Comment"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Comment"
+      description: "Comment has been updated"
+delete:
+  summary: "Delete comment with pk for the task with task_id"
+  tags: ["Comment"]
+  operationId: DeleteComment
+  parameters: []
+  responses:
+    "204":
+      content:
+      description: "Task Comment been deleted. The id is pk of comment table here."
+
+components:
+  schemas:
+    Comment:
+      type: object
+      description: "Comment"
+      properties:
+        id:
+          type: integer
+        author:
+          type: integer
+        task:
+          type: integer
+        text:
+          type: string
+    CommentTree:
+      type: object
+      description: "CommentTree"
+      properties:
+        id:
+          type: integer
+        author:
+          type: integer
+        task:
+          type: integer
+        text:
+          type: string
+        tree_id:
+          type: integer
+        level:
+          type: integer
+        parent:
+          type: integer
+
+  examples:
+    CommentTree:
+      summary: "Comment"
+      value:
+        id: 6
+        author: 2
+        task: 1
+        text: "comment text"
+        tree_id: 1
+        level: 0
+        parent: null
+        children:
+          id: 7
+          author: 2
+          task: 1
+          text: "comment text"
+          tree_id: 1
+          level: 1
+          parent: 6
+          children:
+            id: 8
+            author: 2
+            task: 1
+            text: "comment text"
+            tree_id: 1
+            level: 2
+            parent: 7
+    Comment:
+      summary: "Comment"
+      value:
+        id: 6
+        author: 2
+        task: 1
+        text: "comment text"
+        tree_id: 1
+        level: 0
+        parent: null

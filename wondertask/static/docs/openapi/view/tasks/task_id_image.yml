@@ -1,0 +1,89 @@
+get:
+  summary: "Getting the list of images"
+  tags: ["TaskImage"]
+  operationId: GetListImages
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Image"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Image"
+      description: "The list has been recieved"
+post:
+  summary: "Creating a new image for the task"
+  tags: ["TaskImage"]
+  operationId: CreateNewTaskImage
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            image_file:
+              type: string
+              format: binary
+          required:
+            - image_file
+  responses:
+    "201":
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 2
+              task:
+                type: integer
+                example: 2
+              comment:
+                type: integer
+                example: null
+              image_file:
+                type: string
+                example: "test image_file"
+      description: "Image is created. The id is id of image table here."
+
+components:
+  schemas:
+    Image:
+      type: object
+      description: "Image"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        image_file:
+          type: string
+
+  examples:
+    Image:
+      summary: "Image"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        image_file: "Test Image"

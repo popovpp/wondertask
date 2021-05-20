@@ -1,0 +1,101 @@
+get:
+  summary: "Getting the list of Audio for the comment id"
+  tags: ["CommentAudio"]
+  operationId: GetListCommentAudio
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "The comment id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Audio"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Audio"
+      description: "The list has been recieved"
+post:
+  summary: "Creating a new Audio for the comment"
+  tags: ["CommentAudio"]
+  operationId: CreateNewCommentAudio
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "The comment id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            audio_file:
+              type: string
+              format: binary
+          required:
+            - audio_file
+  responses:
+    "201":
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 2
+              task:
+                type: integer
+                example: 2
+              comment:
+                type: integer
+                example: null
+              audio_file:
+                type: string
+                example: "test audio_file"
+      description: "Audio is created. The id is id of Audio table here."
+
+components:
+  schemas:
+    Audio:
+      type: object
+      description: "Audio"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        Audio_file:
+          type: string
+
+  examples:
+    Audio:
+      summary: "Audio"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        Audio_file: "Test Audio"

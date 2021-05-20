@@ -1,0 +1,103 @@
+get:
+  summary: "Getting doc for the comment id"
+  tags: ["CommentDoc"]
+  operationId: GetCommentDoc
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "Comment id"
+      schema:
+        type: integer
+    - name: doc_pk
+      in: path
+      required: true
+      description: "Doc id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Doc"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Doc"
+      description: "The list has been recieved"
+patch:
+  summary: "Updating doc data for the comment id"
+  tags: ["CommentDoc"]
+  operationId: PatchCommentDoc
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "Comment id"
+      schema:
+        type: integer
+    - name: doc_pk
+      in: path
+      required: true
+      description: "Doc id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: ""#/components/schemas/Doc"
+          examples:
+            Doc:
+              $ref: "#/components/examples/Doc"
+      description: "Doc has been updated"
+delete:
+  summary: "Delete doc with pk for the comment with comment_id"
+  tags: ["CommentDoc"]
+  operationId: DeleteComment
+  parameters: []
+  responses:
+    "204":
+      content:
+      description: "Comment's doc has been deleted. The id is pk of doc table here."
+
+components:
+  schemas:
+    Doc:
+      type: object
+      description: "Doc"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        doc_file:
+          type: string
+
+  examples:
+    Doc:
+      summary: "Doc"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        doc_file: "Test File"

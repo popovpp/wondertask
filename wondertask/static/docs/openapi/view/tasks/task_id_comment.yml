@@ -1,0 +1,81 @@
+get:
+  summary: "Getting the list of comments level=0 only"
+  tags: ["Comment"]
+  operationId: GetListCommentsZeroLevel
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Comment"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Comment"
+      description: "The list has been recieved"
+post:
+  summary: "Creating a new comment for the task"
+  tags: ["Comment"]
+  operationId: CreateNewComment
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+  responses:
+    "201":
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 5
+              task:
+                type: integer
+                example: 2
+      description: "Comment is created. The id is id of comment table here."
+
+components:
+  schemas:
+    Comment:
+      type: object
+      description: "Comment"
+      properties:
+        id:
+          type: integer
+        author:
+          type: integer
+        task:
+          type: integer
+        text:
+          type: string
+        tree_id:
+          type: integer
+        level:
+          type: integer
+        parent:
+          type: integer
+
+  examples:
+    Comment:
+      summary: "Comment"
+      value:
+        id: 6
+        author: 2
+        task: 1
+        text: "comment text"
+        tree_id: 1
+        level: 0
+        parent: null

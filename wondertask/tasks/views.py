@@ -182,6 +182,10 @@ class CommentDocViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=self.kwargs['task_id'])
         serializer.save(task=task, comment=comment)
 
+    def perform_destroy(self, instance):
+        doc_file_delete(Doc, instance=instance)
+        instance.delete()
+
 
 class TaskImageViewSet(ModelViewSet):
     serializer_class = ImageSerializer
