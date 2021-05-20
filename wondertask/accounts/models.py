@@ -1,3 +1,6 @@
+import hashlib
+import uuid
+
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -13,8 +16,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(unique=True, blank=False)
     full_name = models.CharField(max_length=150, blank=True, null=True, default='')
-    avatar_image = models.ImageField(upload_to=image_directory_path, 
-                                    default='', max_length=255)
+    avatar_image = models.ImageField(upload_to=image_directory_path,
+                                     default='', max_length=255)
 
     created = models.DateTimeField(auto_now_add=True)
     is_email_confirmed = models.BooleanField(default=False)
@@ -24,9 +27,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_deleted = models.BooleanField(default=False)
 
     last_login = models.DateTimeField(blank=True, null=True, verbose_name='last login')
-    secret = models.CharField(max_length=50, blank=True, null=True, 
+    secret = models.CharField(max_length=50, blank=True, null=True,
                               verbose_name='Secret for recover password')
-
 
     objects = AccountManager()
 

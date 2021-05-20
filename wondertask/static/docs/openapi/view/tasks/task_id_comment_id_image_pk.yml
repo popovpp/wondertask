@@ -1,0 +1,114 @@
+get:
+  summary: "Getting Image for the comment id"
+  tags: ["CommentImage"]
+  operationId: GetCommentImage
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "Comment id"
+      schema:
+        type: integer
+    - name: image_pk
+      in: path
+      required: true
+      description: "image id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Image"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Image"
+      description: "The list has been recieved"
+patch:
+  summary: "Updating Image data for the comment id"
+  tags: ["CommentImage"]
+  operationId: PatchCommentImage
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "Comment id"
+      schema:
+        type: integer
+    - name: image_pk
+      in: path
+      required: true
+      description: "image id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            image_file:
+              type: string
+              format: binary
+          required:
+            - image_file
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: ""#/components/schemas/Image"
+          examples:
+            Image:
+              $ref: "#/components/examples/Image"
+      description: "Image has been updated"
+delete:
+  summary: "Delete Image with pk for the comment with comment_id"
+  tags: ["CommentImage"]
+  operationId: DeleteCommentImage
+  parameters: []
+  responses:
+    "204":
+      content:
+      description: "Comment's image has been deleted. The id is pk of Image table here."
+
+components:
+  schemas:
+    Image:
+      type: object
+      description: "Image"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        image_file:
+          type: string
+
+  examples:
+    Image:
+      summary: "Image"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        image_file: "Test Image"

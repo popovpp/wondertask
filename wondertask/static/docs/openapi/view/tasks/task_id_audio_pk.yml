@@ -1,0 +1,102 @@
+get:
+  summary: "Getting audio with pk for the task with task_id"
+  tags: ["TaskAudio"]
+  operationId: GetTaskAudio
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: audio_pk
+      in: path
+      required: true
+      description: "Audio id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Audio"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Audio"
+      description: "The list has been recieved"
+patch:
+  summary: "Updating data for the audio id"
+  tags: ["TaskAudio"]
+  operationId: PatchTaskAudio
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "Task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Audio id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            audio_file:
+              type: string
+              format: binary
+          required:
+            - audio_file
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: ""#/components/schemas/Audio"
+          examples:
+            Audio:
+              $ref: "#/components/examples/Audio"
+      description: "Audio has been updated"
+delete:
+  summary: "Delete Audio with pk for the task with task_id"
+  tags: ["TaskAudio"]
+  operationId: DeleteAudio
+  parameters: []
+  responses:
+    "204":
+      content:
+      description: "Task Audio been deleted. The id is pk of Audio table here."
+
+components:
+  schemas:
+    Audio:
+      type: object
+      description: "Audio"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        audio_file:
+          type: string
+
+  examples:
+    Audio:
+      summary: "Audio"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        audio_file: "Test Audio"

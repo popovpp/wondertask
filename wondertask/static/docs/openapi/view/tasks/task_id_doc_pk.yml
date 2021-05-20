@@ -1,0 +1,103 @@
+get:
+  summary: "Getting doc with pk for the task with task_id"
+  tags: ["TaskDoc"]
+  operationId: GetDoc
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Doc id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Doc"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Doc"
+      description: "The list has been recieved"
+patch:
+  summary: "Updating data for the doc id"
+  tags: ["TaskDoc"]
+  operationId: PatchTaskDoc
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Doc id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            doc_file:
+              type: string
+              format: binary
+          required:
+            - doc_file
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: ""#/components/schemas/Doc"
+          examples:
+            Doc:
+              $ref: "#/components/examples/Doc"
+      description: "Doc has been updated"
+delete:
+  summary: "Delete Doc with pk for the task with task_id"
+  tags: ["TaskDoc"]
+  operationId: DeleteDoc
+  parameters: []
+  responses:
+    "204":
+      content:
+      description: "Task Doc been deleted. The id is pk of Doc table here."
+
+components:
+  schemas:
+    Doc:
+      type: object
+      description: "Doc"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        doc_file:
+          type: string
+          format: binary
+
+  examples:
+    Doc:
+      summary: "Doc"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        doc_file: "Doc_file"

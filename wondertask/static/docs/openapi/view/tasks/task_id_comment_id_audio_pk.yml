@@ -1,0 +1,114 @@
+get:
+  summary: "Getting Audio for the comment id"
+  tags: ["CommentAudio"]
+  operationId: GetCommentAudio
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "Comment id"
+      schema:
+        type: integer
+    - name: audio_pk
+      in: path
+      required: true
+      description: "Audio id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Audio"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Audio"
+      description: "The list has been recieved"
+patch:
+  summary: "Updating Audio data for the comment id"
+  tags: ["CommentAudio"]
+  operationId: PatchCommentAudio
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "Comment id"
+      schema:
+        type: integer
+    - name: audio_pk
+      in: path
+      required: true
+      description: "Audio id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            audio_file:
+              type: string
+              format: binary
+          required:
+            - audio_file
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: ""#/components/schemas/Audio"
+          examples:
+            Audio:
+              $ref: "#/components/examples/Audio"
+      description: "Audio has been updated"
+delete:
+  summary: "Delete Audio with pk for the comment with comment_id"
+  tags: ["CommentAudio"]
+  operationId: DeleteCommentAudio
+  parameters: []
+  responses:
+    "204":
+      content:
+      description: "Comment's dAudiooc has been deleted. The id is pk of Audio table here."
+
+components:
+  schemas:
+    Audio:
+      type: object
+      description: "Audio"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        Audio_file:
+          type: string
+
+  examples:
+    Audio:
+      summary: "Audio"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        Audio_file: "Test Audio"

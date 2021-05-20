@@ -48,3 +48,39 @@ paths:
     $ref: "./view/tasks/task_id_observers.yml"
   /v1/tasks/task/{task_id}/observers/{pk}/:
     $ref: "./view/tasks/task_id_observers_pk.yml"
+
+  # Comment
+  /v1/tasks/task/{task_id}/comment/:
+    $ref: "./view/tasks/task_id_comment.yml"
+  /v1/tasks/task/{task_id}/comment/{pk}/:
+    $ref: "./view/tasks/task_id_comment_pk.yml"
+
+  # Doc
+  /v1/tasks/task/{task_id}/doc/:
+    $ref: "./view/tasks/task_id_doc.yml"
+  /v1/tasks/task/{task_id}/doc/{pk}/:
+    $ref: "./view/tasks/task_id_doc_pk.yml"
+  /v1/tasks/task/{task_id}/comment/{comment_id}/doc/:
+    $ref: "./view/tasks/task_id_comment_id_doc.yml"
+  /v1/tasks/task/{task_id}/comment/{comment_id}/doc/{pk}/:
+    $ref: "./view/tasks/task_id_comment_id_doc_pk.yml"
+
+  # Image
+  /v1/tasks/task/{task_id}/image/:
+    $ref: "./view/tasks/task_id_image.yml"
+  /v1/tasks/task/{task_id}/image/{pk}/:
+    $ref: "./view/tasks/task_id_image_pk.yml"
+  /v1/tasks/task/{task_id}/comment/{comment_id}/image/:
+    $ref: "./view/tasks/task_id_comment_id_image.yml"
+  /v1/tasks/task/{task_id}/comment/{comment_id}/image/{pk}/:
+    $ref: "./view/tasks/task_id_comment_id_image_pk.yml"
+
+  # Audio
+  /v1/tasks/task/{task_id}/audio/:
+    $ref: "./view/tasks/task_id_audio.yml"
+  /v1/tasks/task/{task_id}/audio/{pk}/:
+    $ref: "./view/tasks/task_id_audio_pk.yml"
+  /v1/tasks/task/{task_id}/comment/{comment_id}/audio/:
+    $ref: "./view/tasks/task_id_comment_id_audio.yml"
+  /v1/tasks/task/{task_id}/comment/{comment_id}/audio/{pk}/:
+    $ref: "./view/tasks/task_id_comment_id_audio_pk.yml"

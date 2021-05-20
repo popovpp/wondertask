@@ -13,6 +13,14 @@ class TaskModelAdmin(admin.ModelAdmin):
         model = Task
 
 
+class CommentModelAdmin(admin.ModelAdmin):
+    list_display = ['id', 'author', 'task', 'text', 'parent']
+    list_display_links = ['id']
+
+    class Meta:
+        model = Doc
+
+
 class DocModelAdmin(admin.ModelAdmin):
     list_display = ['id', 'task', 'comment', 'doc_file']
     list_display_links = ['id']
@@ -21,8 +29,24 @@ class DocModelAdmin(admin.ModelAdmin):
         model = Doc
 
 
+class ImageModelAdmin(admin.ModelAdmin):
+    list_display = ['id', 'task', 'comment', 'image_file']
+    list_display_links = ['id']
+
+    class Meta:
+        model = Doc
+
+
+class AudioModelAdmin(admin.ModelAdmin):
+    list_display = ['id', 'task', 'comment', 'audio_file']
+    list_display_links = ['id']
+
+    class Meta:
+        model = Doc
+
+
 admin.site.register(Task, TaskModelAdmin)
-admin.site.register(Comment)
+admin.site.register(Comment, CommentModelAdmin)
 admin.site.register(Doc, DocModelAdmin)
-admin.site.register(Image)
-admin.site.register(Audio)
+admin.site.register(Image, ImageModelAdmin)
+admin.site.register(Audio, AudioModelAdmin)

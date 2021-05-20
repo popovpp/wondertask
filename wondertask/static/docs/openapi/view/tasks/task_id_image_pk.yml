@@ -1,0 +1,102 @@
+get:
+  summary: "Getting image with pk for the task with task_id"
+  tags: ["TaskImage"]
+  operationId: GetTaskImage
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: image_pk
+      in: path
+      required: true
+      description: "Image id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Image"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Image"
+      description: "The list has been recieved"
+patch:
+  summary: "Updating data for the image id"
+  tags: ["TaskImage"]
+  operationId: PatchTaskImage
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Image id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            image_file:
+              type: string
+              format: binary
+          required:
+            - image_file
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: ""#/components/schemas/Image"
+          examples:
+            Image:
+              $ref: "#/components/examples/Image"
+      description: "Image has been updated"
+delete:
+  summary: "Delete image with pk for the task with task_id"
+  tags: ["TaskImage"]
+  operationId: DeleteImage
+  parameters: []
+  responses:
+    "204":
+      content:
+      description: "Task Image been deleted. The id is pk of image table here."
+
+components:
+  schemas:
+    Image:
+      type: object
+      description: "Image"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        image_file:
+          type: string
+
+  examples:
+    Image:
+      summary: "Image"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        image_file: "Test Image"

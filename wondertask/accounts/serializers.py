@@ -16,7 +16,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserTaskSerializer(serializers.ModelSerializer):
-
     avatar_image = serializers.ImageField(use_url=True)
     full_name = serializers.CharField(required=True)
 
