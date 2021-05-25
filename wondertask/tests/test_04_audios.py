@@ -25,21 +25,29 @@ def test_02_task_audio_create_without_file(user_client, create_task):
 
 
 @pytest.mark.django_db()
-def test_03_task_audio_create_and_delete_with_right_file_type(user_client,
-                                                              create_task):
+def test_03_task_audio_create_with_right_file_type(user_client,
+                                                   create_task):
     audio = create_audio_file('music')
     task = create_task
     data = {'audio_file': audio}
     response = user_client.post(
         f'/v1/tasks/task/{task["id"]}/audio/', data=data)
     assert response.status_code == 201, f'{response.json()}'
-    filepath = f'media/audio/{task["id"]}/music.mp3'
-    assert os.path.isfile(filepath) is True
     audio_id = Audio.objects.all()[0].id
-    response2 = user_client.delete(
+    user_client.delete(f'/v1/tasks/task/{task["id"]}/audio/{audio_id}/')
+
+
+@pytest.mark.django_db()
+def test_03_task_audio_delete(user_client, create_task):
+    audio = create_audio_file('music')
+    task = create_task
+    data = {'audio_file': audio}
+    user_client.post(
+        f'/v1/tasks/task/{task["id"]}/audio/', data=data)
+    audio_id = Audio.objects.all()[0].id
+    response = user_client.delete(
         f'/v1/tasks/task/{task["id"]}/audio/{audio_id}/')
-    assert response2.status_code == 204, f'{response.json()}'
-    assert os.path.isfile(filepath) is False
+    assert response.status_code == 204, f'{response.json()}'
 
 
 @pytest.mark.django_db()
@@ -113,8 +121,8 @@ def test_08_comment_audio_create_without_file(user_client, create_comment):
 
 
 @pytest.mark.django_db()
-def test_09_comment_audio_audio_create_and_delete_with_right_file_type(user_client,
-                                                                       create_comment):
+def test_09_comment_audio_create_with_right_file_type(user_client,
+                                                      create_comment):
     audio_file = create_audio_file('music')
     task, comment = create_comment
     data = {'audio_file': audio_file}
@@ -122,13 +130,23 @@ def test_09_comment_audio_audio_create_and_delete_with_right_file_type(user_clie
         f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/audio/',
         data=data)
     assert response.status_code == 201, f'{response.json()}'
-    filepath = f'media/audio/{task["id"]}/music.mp3'
-    assert os.path.isfile(filepath) is True
     audio_id = Audio.objects.all()[0].id
-    response2 = user_client.delete(
+    user_client.delete(
         f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/audio/{audio_id}/')
-    assert response2.status_code == 204, f'{response.json()}'
-    assert os.path.isfile(filepath) is False
+
+
+@pytest.mark.django_db()
+def test_09_comment_audio_delete(user_client, create_comment):
+    audio_file = create_audio_file('music')
+    task, comment = create_comment
+    data = {'audio_file': audio_file}
+    user_client.post(
+        f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/audio/',
+        data=data)
+    audio_id = Audio.objects.all()[0].id
+    response = user_client.delete(
+        f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/audio/{audio_id}/')
+    assert response.status_code == 204, f'{response.json()}'
 
 
 @pytest.mark.django_db()
