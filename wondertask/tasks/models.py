@@ -8,6 +8,17 @@ from mptt.fields import TreeForeignKey
 from accounts.models import User
 
 
+class FileSave(models.Model):
+    def file_save(self, model_name, field_name, *args, **kwargs):
+        if self.pk is None:
+            return super().save(*args, **kwargs)
+        old_self = get_object_or_404(model_name, pk=self.pk)
+        if (getattr(old_self, field_name) and
+                getattr(self, field_name) != getattr(old_self, field_name)):
+            getattr(old_self, field_name).delete(False)
+        return super().save(*args, **kwargs)
+
+
 class Task(models.Model):
     CREATED = 0
     IN_PROGRESS = 1
@@ -120,7 +131,7 @@ TreeForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True).contrib
 mptt.register(Comment, order_insertion_by=['id'])
 
 
-class Doc(models.Model):
+class Doc(FileSave):
     def files_directory_path(instance, filename):
         return f'files/{instance.task.pk}/{filename}'
 
@@ -134,18 +145,15 @@ class Doc(models.Model):
                                 blank=True, null=True, )
 
     def save(self, *args, **kwargs):
-        if self.pk is None:
-            return super(Doc, self).save(*args, **kwargs)
-        old_self = get_object_or_404(Doc, pk=self.pk)
-        if old_self.doc_file and self.doc_file != old_self.doc_file:
-            old_self.doc_file.delete(False)
-        return super(Doc, self).save(*args, **kwargs)
+        return self.file_save(model_name=Doc,
+                              field_name='doc_file',
+                              *args, **kwargs)
 
     class Meta:
         db_table = 'docs'
 
 
-class Image(models.Model):
+class Image(FileSave):
     def images_directory_path(instance, filename):
         return f'images/{instance.task.pk}/{filename}'
 
@@ -159,18 +167,15 @@ class Image(models.Model):
                                    blank=True, null=True, )
 
     def save(self, *args, **kwargs):
-        if self.pk is None:
-            return super(Image, self).save(*args, **kwargs)
-        old_self = get_object_or_404(Image, pk=self.pk)
-        if old_self.image_file and self.image_file != old_self.image_file:
-            old_self.image_file.delete(False)
-        return super(Image, self).save(*args, **kwargs)
+        return self.file_save(model_name=Image,
+                              field_name='image_file',
+                              *args, **kwargs)
 
     class Meta:
         db_table = 'images'
 
 
-class Audio(models.Model):
+class Audio(FileSave):
     def audio_directory_path(instance, filename):
         return f'audio/{instance.task.pk}/{filename}'
 
@@ -184,12 +189,9 @@ class Audio(models.Model):
                                   blank=True, null=True, )
 
     def save(self, *args, **kwargs):
-        if self.pk is None:
-            return super(Audio, self).save(*args, **kwargs)
-        old_self = get_object_or_404(Audio, pk=self.pk)
-        if old_self.audio_file and self.audio_file != old_self.audio_file:
-            old_self.audio_file.delete(False)
-        return super(Audio, self).save(*args, **kwargs)
+        return self.file_save(model_name=Audio,
+                              field_name='audio_file',
+                              *args, **kwargs)
 
     class Meta:
         db_table = 'audio'
