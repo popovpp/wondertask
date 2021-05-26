@@ -41,11 +41,11 @@ v1 = [
     path('accounts/', include(registration_endpoint)),
     path('tasks/', include(task_endpoints)),
 
-]
+] + static(settings.STATIC_URL)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1/', include(v1)),
-] + static(settings.STATIC_URL)
+] #+ static(settings.STATIC_URL)
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
