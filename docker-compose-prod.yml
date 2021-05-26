@@ -10,9 +10,5 @@ services:
       - ./wondertask:/code/
     ports:
       - "9007:9007"
-    environment:
-      SECRET_KEY: bigsecretkey
-      DJANGO_CONFIGURATION: Develop
-      DJANGO_SETTINGS_MODULE:
 volumes:
   pgdata:

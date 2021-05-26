@@ -48,7 +48,7 @@ wondertask_api deploy:
     - if docker ps | grep -q wondertask-backend; then docker stop wondertask-backend; fi
     - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
     - docker pull registry.gitlab.com/auditor2/production/wondertaskbackend:latest
-    - docker-compose -f docker-compose-prod.yml up -d
+    - docker-compose -f docker-compose-prod.yml up -d --build
     - echo 'y' | docker system prune
   when: manual
   tags:
