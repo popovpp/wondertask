@@ -1,9 +1,8 @@
-from rest_framework import filters
+from rest_framework import mixins
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import get_object_or_404
-from http import HTTPStatus
 
 from tasks.models import (Task, TaskSystemTags,
                           Group, TaskGroup, Doc, Image, Audio, Comment)
@@ -17,13 +16,37 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 
 
+class ListCreateRetrieveDestroyViewSet(mixins.CreateModelMixin,
+                                       mixins.RetrieveModelMixin,
+                                       mixins.DestroyModelMixin,
+                                       mixins.ListModelMixin,
+                                       GenericViewSet):
+
+    def get_task_queryset(self, serializer_type, model, model_related_name):
+        if self.request.method == 'GET':
+            self.serializer_class = serializer_type
+        obj = get_object_or_404(model, pk=self.kwargs['task_id'])
+        return getattr(obj, model_related_name).all()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['task_id'] = self.kwargs.get('task_id')
+        return context
+
+
+class RetrieveListViewSet(mixins.RetrieveModelMixin,
+                          mixins.ListModelMixin,
+                          GenericViewSet):
+    pass
+
+
 class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all().order_by('-creation_date')
     serializer_class = TaskSerializer
     permission_classes = [AllowAny]
 
 
-class TaskTreeViewSet(ModelViewSet):
+class TaskTreeViewSet(RetrieveListViewSet):
     serializer_class = TaskTreeSerializer
     permission_classes = [AllowAny]
 
@@ -31,30 +54,9 @@ class TaskTreeViewSet(ModelViewSet):
         queryset = Task.objects.filter(level=0).order_by('-creation_date')
         return queryset
 
-    def get_serializer_context(self):
-        context = super(TaskTreeViewSet, self).get_serializer_context()
-        context['request'] = self.request
-        return context
-
     def list(self, request):
         self.serializer_class = TaskSerializer
         return super(TaskTreeViewSet, self).list(request)
-
-    def create(self, request):
-        return Response({'result': 'Method is not allowly.'},
-                        status=HTTPStatus.BAD_REQUEST)
-
-    def destroy(self, request, pk):
-        return Response({'result': 'Method is not allowly.'},
-                        status=HTTPStatus.BAD_REQUEST)
-
-    def update(self, request, pk=None):
-        return Response({'result': 'Method is not allowly.'},
-                        status=HTTPStatus.BAD_REQUEST)
-
-    def partial_update(self, request, pk=None):
-        return Response({'result': 'Method is not allowly.'},
-                        status=HTTPStatus.BAD_REQUEST)
 
 
 class TaskSystemTagsViewSet(ModelViewSet):
@@ -63,52 +65,24 @@ class TaskSystemTagsViewSet(ModelViewSet):
     permission_classes = [AllowAny]
 
 
-class ExecutorViewSet(ModelViewSet):
+class ExecutorViewSet(ListCreateRetrieveDestroyViewSet):
     serializer_class = ExecutorSerializer
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        if self.request.method == 'GET':
-            self.serializer_class = ExecutorListSerializer
-        task = get_object_or_404(Task, pk=self.kwargs['task_id'])
-        return task.executors.all()
-
-    def get_serializer_context(self):
-        context = super(ExecutorViewSet, self).get_serializer_context()
-        context['task_id'] = self.kwargs.get('task_id')
-        return context
-
-    def update(self, request, pk=None, **kwargs):
-        return Response({'result': 'Method is not allowly.'},
-                        status=HTTPStatus.BAD_REQUEST)
-
-    def partial_update(self, request, pk=None, **kwargs):
-        return Response({'result': 'Method is not allowly.'},
-                        status=HTTPStatus.BAD_REQUEST)
+        return self.get_task_queryset(ExecutorListSerializer,
+                                      model=Task,
+                                      model_related_name="executors")
 
 
-class ObserverViewSet(ModelViewSet):
+class ObserverViewSet(ListCreateRetrieveDestroyViewSet):
     serializer_class = ObserverSerializer
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        if self.request.method == 'GET':
-            self.serializer_class = ObserverListSerializer
-        task = get_object_or_404(Task, pk=self.kwargs['task_id'])
-        return task.observers.all()
-
-    def get_serializer_context(self):
-        context = super(ObserverViewSet, self).get_serializer_context()
-        context['task_id'] = self.kwargs.get('task_id')
-        return context
-
-    def update(self, request, pk=None, **kwargs):
-        return Response({'result': 'Method is not allowly.'},
-                        status=HTTPStatus.BAD_REQUEST)
-
-    def partial_update(self, request, pk=None, **kwargs):
-        return Response({'result': 'Method is not allowly.'},
-                        status=HTTPStatus.BAD_REQUEST)
+        return self.get_task_queryset(ObserverListSerializer,
+                                      model=Task,
+                                      model_related_name="observers")
 
 
 class GroupViewSet(ModelViewSet):

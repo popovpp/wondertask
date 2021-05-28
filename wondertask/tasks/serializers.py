@@ -1,4 +1,3 @@
-from mptt.forms import TreeNodeChoiceField
 from rest_framework import serializers
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer)
