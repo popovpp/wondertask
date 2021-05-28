@@ -125,6 +125,7 @@ class Comment(models.Model):
 
     class Meta:
         db_table = 'comments'
+        ordering = ['-id']
 
 
 TreeForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(Comment, 'parent')

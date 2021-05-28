@@ -10,9 +10,7 @@ from tests.common import create_image_file, create_audio_file, create_text_file
 def test_01_get_task_image_list(user_client, create_task):
     task = create_task
     response = user_client.get(f'/v1/tasks/task/{task["id"]}/image/')
-    assert response.status_code != 404, \
-        ('Страница `/v1/tasks/task/{task_id}/image/` не найдена, '
-         'проверьте этот адрес в *urls.py*')
+    assert response.status_code == 200, f'{response.json()}'
 
 
 @pytest.mark.django_db()
@@ -89,10 +87,7 @@ def test_07_get_comment_image_list(user_client, create_comment):
     task, comment = create_comment
     response = user_client.get(
         f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/image/')
-    assert response.status_code != 404, \
-        (
-            'Страница `/v1/tasks/task/{task_id}/comment/{comment_id/image}` не найдена, '
-            'проверьте этот адрес в *urls.py*')
+    assert response.status_code == 200, f'{response.json()}'
 
 
 @pytest.mark.django_db()
@@ -103,10 +98,7 @@ def test_08_get_comment_single_image(user_client, create_comment):
         data={}).json()
     response = user_client.get(
         f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/image/{image["id"]}/')
-    assert response.status_code != 404, \
-        (
-            'Страница `/v1/tasks/task/{task_id}/comment/{comment_id/image}` не найдена, '
-            'проверьте этот адрес в *urls.py*')
+    assert response.status_code == 200, f'{response.json()}'
 
 
 @pytest.mark.django_db()
