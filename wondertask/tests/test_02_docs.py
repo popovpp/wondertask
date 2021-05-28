@@ -10,7 +10,7 @@ from tests.common import create_text_file, create_image_file
 def test_01_get_task_doc_list(user_client, create_task):
     task = create_task
     response = user_client.get(f'/v1/tasks/task/{task["id"]}/doc/')
-    assert response.status_code != 404
+    assert response.status_code == 200, f'{response.json()}'
 
 
 @pytest.mark.django_db()
@@ -87,7 +87,7 @@ def test_07_get_comment_docs_list(user_client, create_comment):
     task, comment = create_comment
     response = user_client.get(
         f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/doc/')
-    assert response.status_code != 404
+    assert response.status_code == 200, f'{response.json()}'
 
 
 @pytest.mark.django_db()
@@ -98,7 +98,7 @@ def test_08_get_comment_single_doc(user_client, create_comment):
         data={}).json()
     response = user_client.get(
         f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/doc/{doc["id"]}/')
-    assert response.status_code != 404
+    assert response.status_code == 200, f'{response.json()}'
 
 
 @pytest.mark.django_db()

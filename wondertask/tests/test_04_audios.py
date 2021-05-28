@@ -10,9 +10,7 @@ from tests.common import create_audio_file, create_text_file
 def test_01_get_task_audio_list(user_client, create_task):
     task = create_task
     response = user_client.get(f'/v1/tasks/task/{task["id"]}/audio/')
-    assert response.status_code != 404, \
-        ('Страница `/v1/tasks/task/{task_id}/audio/` не найдена, '
-         'проверьте этот адрес в *urls.py*')
+    assert response.status_code == 200, f'{response.json()}'
 
 
 @pytest.mark.django_db()
@@ -90,10 +88,7 @@ def test_06_get_comment_audio_list(user_client, create_comment):
     task, comment = create_comment
     response = user_client.get(
         f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/audio/')
-    assert response.status_code != 404, \
-        (
-            'Страница `/v1/tasks/task/{task_id}/comment/{comment_id/audio}` не найдена, '
-            'проверьте этот адрес в *urls.py*')
+    assert response.status_code == 200, f'{response.json()}'
 
 
 @pytest.mark.django_db()
@@ -104,10 +99,7 @@ def test_07_get_comment_single_audio(user_client, create_comment):
         data={}).json()
     response = user_client.get(
         f'/v1/tasks/task/{task["id"]}/comment/{comment["id"]}/audio/{audio["id"]}/')
-    assert response.status_code != 404, \
-        (
-            'Страница `/v1/tasks/task/{task_id}/comment/{comment_id/audio}` не найдена, '
-            'проверьте этот адрес в *urls.py*')
+    assert response.status_code == 200, f'{response.json()}'
 
 
 @pytest.mark.django_db()
