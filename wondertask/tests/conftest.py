@@ -30,3 +30,10 @@ def create_comment(user_client, create_task):
     response = user_client.post(f'/v1/tasks/task/{task["id"]}/comment/',
                                 data=data).json()
     return task, response
+
+
+@pytest.fixture
+def create_tag(user_client):
+    data = {'name': 'project'}
+    response = user_client.post(f'/v1/tasks/tags/', data=data).json()
+    return response

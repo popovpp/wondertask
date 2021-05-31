@@ -1,0 +1,34 @@
+delete:
+  summary: "Remove tags from task"
+  tags: ['TaskTag']
+  operationId: DelTagsFromTask
+  description: "**Needs body in request!**"
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          tags:
+            type: array
+            items:
+              type string
+        examples:
+          Tag:
+            value:
+              tags: ["project", "work"]
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            tags:
+              type: array
+              items:
+                type string
+      description: 'Tags was removed from task'

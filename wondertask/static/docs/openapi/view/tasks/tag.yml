@@ -1,0 +1,55 @@
+get:
+  summary: 'Getting the list of tags'
+  tags: ['Tag']
+  operationId: GetListTag
+  parameters: []
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Tag'
+      description: 'The list was got'
+post:
+  summary: "Creating a new tag"
+  tags: ['Tag']
+  operationId: CreateNewTag
+  parameters: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Tag'
+        examples:
+          Tag:
+            $ref: '#/components/examples/Tag'
+  responses:
+    '201':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/Tag'
+      description: 'The tag was created'
+
+components:
+  schemas:
+    Tag:
+      type: object
+      description: 'Tag'
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        user:
+          type: integer
+
+  examples:
+    Tag:
+      summary: 'Tag'
+      value:
+        name: 'Some tag'

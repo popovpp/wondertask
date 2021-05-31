@@ -3,7 +3,7 @@ from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer, )
 from django.shortcuts import get_object_or_404
 from tasks.models import (Task, Executor, Observer, TaskSystemTags,
-                          Group, TaskGroup, Doc, Image, Audio, Comment, )
+                          Group, TaskGroup, Doc, Image, Audio, Comment, TaskTag)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
                               VALID_AUDIO_FILES, )
 
@@ -225,3 +225,10 @@ class AudioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Audio
         fields = '__all__'
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskTag
+        fields = ['id', 'name', 'slug', 'user']
+        read_only_fields = ['slug', 'user']

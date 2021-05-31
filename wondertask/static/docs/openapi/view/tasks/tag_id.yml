@@ -1,0 +1,107 @@
+get:
+  summary: 'Getting the tag'
+  tags: ['Tag']
+  operationId: GetTag
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The tag id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tag'
+      description: 'The task was got'
+put:
+  summary: "Changing the tag"
+  tags: ['Tag']
+  operationId: ChangeTag
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The tag id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Tag'
+        examples:
+          Tag:
+            $ref: '#/components/examples/Tag'
+    description: 'Creator is id of the user which create the tag'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tag'
+      description: 'The task was created'
+patch:
+  summary: "Changing the field of the tag"
+  tags: ['Tag']
+  operationId: ChangeField
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The tag id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Tag'
+        examples:
+          Task:
+            $ref: '#/components/examples/Tag'
+    description: 'Changing any from presented fields. Creator is id of the user which create the tag'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tag'
+      description: 'The task was created'
+delete:
+  summary: 'Deleting the tag'
+  tags: ['Tag']
+  operationId: DeleteTag
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  description: The task will delete with all subtasks
+  responses:
+    '204':
+      content:
+      description: 'The task was deleted'
+
+components:
+  schemas:
+    Tag:
+      type: object
+      description: 'Tag'
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+
+  examples:
+    Tag:
+      summary: 'Tag'
+      value:
+        name: 'Some tag'
