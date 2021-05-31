@@ -4,6 +4,7 @@ from rest_framework.generics import get_object_or_404
 from taggit.managers import TaggableManager
 import mptt
 from mptt.fields import TreeForeignKey
+from taggit.models import TagBase, GenericTaggedItemBase
 
 from accounts.models import User
 
@@ -17,6 +18,21 @@ class FileSave(models.Model):
                 getattr(self, field_name) != getattr(old_self, field_name)):
             getattr(old_self, field_name).delete(False)
         return super().save(*args, **kwargs)
+
+
+class TaskTag(TagBase):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'task_tag'
+
+
+class TaggedTask(GenericTaggedItemBase):
+    tag = models.ForeignKey(TaskTag, on_delete=models.CASCADE,
+                            related_name="%(app_label)s_%(class)s_items")
+
+    class Meta:
+        db_table = 'tagged_task'
 
 
 class Task(models.Model):
@@ -49,7 +65,7 @@ class Task(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE,
                                 related_name='task_authors')
 
-    user_tags = TaggableManager(blank=True)
+    user_tags = TaggableManager(through=TaggedTask, blank=True)
 
     class Meta:
         db_table = 'tasks'
@@ -61,7 +77,8 @@ class Task(models.Model):
         pass
 
 
-TreeForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(Task, 'parent')
+TreeForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(Task,
+                                                                                          'parent')
 mptt.register(Task, order_insertion_by=['id'])
 
 
@@ -128,7 +145,8 @@ class Comment(models.Model):
         ordering = ['-id']
 
 
-TreeForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(Comment, 'parent')
+TreeForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(
+    Comment, 'parent')
 mptt.register(Comment, order_insertion_by=['id'])
 
 

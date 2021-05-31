@@ -4,8 +4,8 @@ from rest_framework.routers import DefaultRouter
 from tasks.views import (TaskViewSet, ExecutorViewSet, ObserverViewSet,
                          TaskSystemTagsViewSet, GroupViewSet, TaskGroupViewSet,
                          TaskTreeViewSet, GroupTasksViewSet,
-                         TaskDocViewSet, TaskImageViewSet, TaskAudioViewSet, CommentViewSet, CommentDocViewSet,
-                         CommentImageViewSet, CommentAudioViewSet)
+                         TaskDocViewSet, TaskImageViewSet, TaskAudioViewSet, CommentViewSet,
+                         CommentDocViewSet, CommentImageViewSet, CommentAudioViewSet, TagViewSet)
 
 task_router = DefaultRouter()
 task_router.register('task', TaskViewSet, 'task')
@@ -29,6 +29,8 @@ task_router.register(r'task/(?P<task_id>\d+)/comment/(?P<comment_id>\d+)/image',
 task_router.register(r'task/(?P<task_id>\d+)/audio', TaskAudioViewSet, 'task_audio')
 task_router.register(r'task/(?P<task_id>\d+)/comment/(?P<comment_id>\d+)/audio',
                      CommentAudioViewSet, 'comment_audio')
+
+task_router.register('tags', TagViewSet, 'tags')
 
 task_endpoints = [
     path('', include([path('', include(task_router.urls)), ]))
