@@ -71,7 +71,19 @@ delete:
   summary: "Delete image with pk for the task with task_id"
   tags: ["TaskImage"]
   operationId: DeleteImage
-  parameters: []
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "Task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Task image id"
+      schema:
+        type: integer
   responses:
     "204":
       content:

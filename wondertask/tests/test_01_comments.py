@@ -10,7 +10,8 @@ User = get_user_model()
 @pytest.mark.django_db()
 def test_01_comment_create(user_client, create_comment):
     task, comment = create_comment
-    data = {'text': 'asdf'}
+    data = {'author': 1,
+            'text': 'asdf'}
     response = user_client.post(f'/v1/tasks/task/{task["id"]}/comment/',
                                 data=data)
     assert response.status_code == 201, f'{response.json()}'

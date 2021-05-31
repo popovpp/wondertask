@@ -25,7 +25,8 @@ def create_task(user_client):
 @pytest.fixture
 def create_comment(user_client, create_task):
     task = create_task
-    data = {'text': 'asdf'}
+    data = {'author': 1,
+            'text': 'asdf'}
     response = user_client.post(f'/v1/tasks/task/{task["id"]}/comment/',
                                 data=data).json()
     return task, response

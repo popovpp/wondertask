@@ -71,7 +71,19 @@ delete:
   summary: "Delete Audio with pk for the task with task_id"
   tags: ["TaskAudio"]
   operationId: DeleteAudio
-  parameters: []
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "Task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Task audio id"
+      schema:
+        type: integer
   responses:
     "204":
       content:

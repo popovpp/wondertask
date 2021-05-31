@@ -70,7 +70,19 @@ delete:
   summary: "Delete comment with pk for the task with task_id"
   tags: ["Comment"]
   operationId: DeleteComment
-  parameters: []
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "Task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Task comment id"
+      schema:
+        type: integer
   responses:
     "204":
       content:
