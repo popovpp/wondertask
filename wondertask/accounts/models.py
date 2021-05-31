@@ -17,7 +17,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, blank=False)
     full_name = models.CharField(max_length=150, blank=True, null=True, default='')
     avatar_image = models.ImageField(upload_to=image_directory_path,
-                                     default='', max_length=255)
+                                     default='', max_length=255,
+                                     blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     is_email_confirmed = models.BooleanField(default=False)

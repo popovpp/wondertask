@@ -35,6 +35,20 @@ class TaggedTask(GenericTaggedItemBase):
         db_table = 'tagged_task'
 
 
+class Group(models.Model):
+    group_name = models.CharField(max_length=255, default='', blank=True, null=True)
+    is_system = models.BooleanField(default=False)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name='group_author', blank=True, null=True)
+    group_members = models.ManyToManyField(User, blank=True, null=True)
+
+    class Meta:
+        db_table = 'groups'
+
+    def __str__(self):
+        return repr(self.group_name)
+
+
 class Task(models.Model):
     CREATED = 0
     IN_PROGRESS = 1
@@ -64,8 +78,9 @@ class Task(models.Model):
     priority = models.PositiveIntegerField(default=0)
     creator = models.ForeignKey(User, on_delete=models.CASCADE,
                                 related_name='task_authors')
-
     user_tags = TaggableManager(through=TaggedTask, blank=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE,
+                              related_name='group_tasks', blank=True, null=True)
 
     class Meta:
         db_table = 'tasks'
@@ -111,26 +126,15 @@ class Observer(models.Model):
         db_table = 'observers'
 
 
-class Group(models.Model):
-    group_name = models.CharField(max_length=255, default='', blank=True, null=True)
-    is_system = models.BooleanField(default=False)
+# class TaskGroup(models.Model):
+#     task = models.ForeignKey(Task, on_delete=models.CASCADE,
+#                              related_name='groups')
+#     group = models.ForeignKey(Group, on_delete=models.CASCADE,
+#                               related_name='tasks')
 
-    class Meta:
-        db_table = 'groups'
-
-    def __str__(self):
-        return repr(self.group_name)
-
-
-class TaskGroup(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE,
-                             related_name='groups')
-    group = models.ForeignKey(Group, on_delete=models.CASCADE,
-                              related_name='task_group_group_field')
-
-    class Meta:
-        db_table = 'taskgroups'
-        unique_together = ('task', 'group')
+#    class Meta:
+#        db_table = 'taskgroups'
+#        unique_together = ('task', 'group')
 
 
 class Comment(models.Model):

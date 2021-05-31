@@ -6,10 +6,10 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import get_object_or_404
 
 from tasks.models import (Task, TaskSystemTags,
-                          Group, TaskGroup, Doc, Image, Audio, Comment, TaskTag)
+                          Group, Doc, Image, Audio, Comment, TaskTag)
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
-                               GroupSerializer, TaskGroupSerializer,
+                               GroupSerializer,
                                TaskTreeSerializer, ExecutorListSerializer,
                                ObserverListSerializer, DocSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
@@ -114,22 +114,6 @@ class GroupViewSet(ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [AllowAny]
-
-
-class TaskGroupViewSet(ModelViewSet):
-    queryset = TaskGroup.objects.all()
-    serializer_class = TaskGroupSerializer
-    permission_classes = [AllowAny]
-
-
-class GroupTasksViewSet(ModelViewSet):
-    queryset = TaskGroup.objects.all()
-    serializer_class = TaskGroupSerializer
-    permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        group = get_object_or_404(Group, pk=self.kwargs['group_id'])
-        return TaskGroup.objects.filter(group=group)
 
 
 class CommentViewSet(ModelViewSet):

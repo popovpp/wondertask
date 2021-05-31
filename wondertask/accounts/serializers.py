@@ -16,9 +16,24 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserTaskSerializer(serializers.ModelSerializer):
-    avatar_image = serializers.ImageField(use_url=True)
+    avatar_image = serializers.ImageField(max_length=None,
+                                          allow_empty_file=True,
+                                          use_url=True,
+                                          required=False)
     full_name = serializers.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ['full_name', 'avatar_image']
+        fields = ['url', 'id', 'email', 'full_name', 'avatar_image']
+
+
+class AvatarSerializer(serializers.ModelSerializer):
+    
+    avatar_image = serializers.ImageField(max_length=None,
+                                          allow_empty_file=True,
+                                          use_url=True,
+                                          required=False)
+
+    class Meta:
+        model = User
+        fields = ['id', 'avatar_image']
