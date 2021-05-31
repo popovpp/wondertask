@@ -1,18 +1,19 @@
-from rest_framework import mixins
-from rest_framework.permissions import AllowAny
+from rest_framework import mixins, status
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import get_object_or_404
 
 from tasks.models import (Task, TaskSystemTags,
-                          Group, TaskGroup, Doc, Image, Audio, Comment)
+                          Group, TaskGroup, Doc, Image, Audio, Comment, TaskTag)
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
                                GroupSerializer, TaskGroupSerializer,
                                TaskTreeSerializer, ExecutorListSerializer,
                                ObserverListSerializer, DocSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
-                               CommentTreeSerializer)
+                               CommentTreeSerializer, TagSerializer)
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 
 
@@ -44,6 +45,30 @@ class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all().order_by('-creation_date')
     serializer_class = TaskSerializer
     permission_classes = [AllowAny]
+
+    @action(methods=['POST'], detail=True, url_path="add-tags", url_name="add_tags",
+            permission_classes=[IsAuthenticatedOrReadOnly])
+    def add_tags(self, request, pk=None):
+        try:
+            tags = request.data['tags']
+        except KeyError:
+            return Response(data={"detail": "Request has no 'tags' attached"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        task = get_object_or_404(Task, pk=pk)
+        task.user_tags.add(*tags, tag_kwargs={"user": request.user})
+        return Response(status=status.HTTP_200_OK)
+
+    @action(methods=['DELETE'], detail=True, url_path="del-tags", url_name="del_tags",
+            permission_classes=[IsAuthenticatedOrReadOnly])
+    def del_tags(self, request, pk=None):
+        try:
+            tags = request.data['tags']
+        except KeyError:
+            return Response(data={"detail": 'Request has no "tags" attached'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        task = get_object_or_404(Task, pk=pk)
+        task.user_tags.remove(*tags)
+        return Response(status=status.HTTP_200_OK)
 
 
 class TaskTreeViewSet(RetrieveListViewSet):
@@ -233,3 +258,12 @@ class CommentAudioViewSet(ModelViewSet):
     def perform_destroy(self, instance):
         audio_file_delete(Audio, instance=instance)
         instance.delete()
+
+
+class TagViewSet(ModelViewSet):
+    queryset = TaskTag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

@@ -3,7 +3,7 @@ from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer)
 from django.shortcuts import get_object_or_404
 from tasks.models import (Task, Executor, Observer, TaskSystemTags,
-                          Group, TaskGroup, Doc, Image, Audio, Comment)
+                          Group, TaskGroup, Doc, Image, Audio, Comment, TaskTag)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
                               VALID_AUDIO_FILES)
 
@@ -11,7 +11,7 @@ from accounts.serializers import UserTaskSerializer
 
 
 class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
-    
+
     user_tags = TagListSerializerField(required=False, read_only=True)
     title = serializers.CharField(required=True)
     creation_date = serializers.CharField(read_only=True)
@@ -48,7 +48,7 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
-    
+
     user_tags = TagListSerializerField(required=False, read_only=True)
     title = serializers.CharField(required=True)
     creation_date = serializers.CharField(read_only=True)
@@ -58,7 +58,7 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
     sum_elapsed_time = serializers.CharField(read_only=True)
     status = serializers.IntegerField(read_only=True)
     level = serializers.IntegerField(read_only=True)
-    
+
     class Meta:
         model = Task
         fields = ['url', 'id', 'title', 'creation_date', 'deadline',
@@ -68,7 +68,7 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     def to_representation(self, instance):
         output_data = super().to_representation(instance)
-        
+
         executors = instance.executors.all()
         list_executors = [ExecutorListSerializer(el).data for el in executors]
         output_data['executors'] = list_executors
@@ -90,21 +90,21 @@ class TaskSystemTagsSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class ExecutorSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Executor
         fields = ['id', 'executor']
 
     def create(self, validated_data):
-        
+
         task = get_object_or_404(Task, id=self.context['task_id'])
         executor, created = Executor.objects.get_or_create(task=task, executor=validated_data['executor'])
-        
+
         return executor
 
 
 class ExecutorListSerializer(ExecutorSerializer):
-    
+
     executor = UserTaskSerializer()
 
 
@@ -114,10 +114,10 @@ class ObserverSerializer(serializers.ModelSerializer):
         fields = ['id', 'observer']
 
     def create(self, validated_data):
-        
+
         task = get_object_or_404(Task, id=self.context['task_id'])
         observer, created = Observer.objects.get_or_create(task=task, observer=validated_data['observer'])
-        
+
         return observer
 
 
@@ -236,3 +236,10 @@ class AudioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Audio
         fields = '__all__'
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskTag
+        fields = ['id', 'name', 'slug', 'user']
+        read_only_fields = ['slug', 'user']

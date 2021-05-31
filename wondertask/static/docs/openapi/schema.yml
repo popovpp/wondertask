@@ -14,8 +14,11 @@ security:
   - ApiKeyAuth: []
 
 paths:
+  # Accounts
   /v1/accounts/registration/:
     $ref: "./view/accounts/user_registration.yml"
+  /v1/accounts/user/user_id/tags/:
+    $ref: "./view/accounts/user_id_tags.yml"
 
   # Authentication
   /v1/authentication/token/obtaining/:
@@ -84,3 +87,15 @@ paths:
     $ref: "./view/tasks/task_id_comment_id_audio.yml"
   /v1/tasks/task/{task_id}/comment/{comment_id}/audio/{pk}/:
     $ref: "./view/tasks/task_id_comment_id_audio_pk.yml"
+
+  # Tag
+  /v1/tasks/tags/:
+    $ref: "./view/tasks/tag.yml"
+  /v1/tasks/tags/{tag_id}/:
+    $ref: "./view/tasks/tag_id.yml"
+
+  # TaskTag
+  /v1/tasks/task/{task_id}/add-tags/:
+    $ref: "./view/tasks/task_id_tag_add.yml"
+  /v1/tasks/task/{task_id}/del-tags/:
+    $ref: "./view/tasks/task_id_tag_del.yml"
