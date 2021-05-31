@@ -71,7 +71,19 @@ delete:
   summary: "Delete Doc with pk for the task with task_id"
   tags: ["TaskDoc"]
   operationId: DeleteDoc
-  parameters: []
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "Task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Task doc id"
+      schema:
+        type: integer
   responses:
     "204":
       content:

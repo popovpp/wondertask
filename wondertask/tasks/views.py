@@ -113,7 +113,7 @@ class CommentViewSet(ModelViewSet):
 
     def get_queryset(self):
         task = get_object_or_404(Task, pk=self.kwargs['task_id'])
-        return task.comments.filter(level=0)
+        return task.comments.all()
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -122,7 +122,7 @@ class CommentViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         task = get_object_or_404(Task, pk=self.kwargs.get('task_id'))
-        serializer.save(author=self.request.user, task=task)
+        serializer.save(task=task)
 
 
 class TaskDocViewSet(ModelViewSet):

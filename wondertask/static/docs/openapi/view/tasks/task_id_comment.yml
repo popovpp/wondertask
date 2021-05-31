@@ -32,6 +32,14 @@ post:
       description: "The task id"
       schema:
         type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: "#/components/schemas/Comment"
+        examples:
+          Task:
+            $ref: "#/components/examples/Comment"
   responses:
     "201":
       content:
@@ -72,10 +80,8 @@ components:
     Comment:
       summary: "Comment"
       value:
-        id: 6
-        author: 2
-        task: 1
+        author: 1
         text: "comment text"
         tree_id: 1
         level: 0
-        parent: null
+        parent: 0

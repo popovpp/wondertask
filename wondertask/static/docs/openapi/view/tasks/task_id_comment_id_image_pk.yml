@@ -83,7 +83,25 @@ delete:
   summary: "Delete Image with pk for the comment with comment_id"
   tags: ["CommentImage"]
   operationId: DeleteCommentImage
-  parameters: []
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "Task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "comment id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Comment doc id"
+      schema:
+        type: integer
   responses:
     "204":
       content:
