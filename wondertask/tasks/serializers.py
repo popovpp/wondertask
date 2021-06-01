@@ -2,12 +2,18 @@ from rest_framework import serializers
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer, )
 from django.shortcuts import get_object_or_404
+
 from tasks.models import (Task, Executor, Observer, TaskSystemTags,
-                          Group, TaskGroup, Doc, Image, Audio, Comment, TaskTag)
+                          Group, Doc, Image, Audio, Comment, TaskTag)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
                               VALID_AUDIO_FILES, )
-
 from accounts.serializers import UserTaskSerializer
+
+
+class GroupNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['group_name']
 
 
 class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -23,7 +29,7 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['url', 'id', 'title', 'creation_date', 'deadline',
+        fields = ['url', 'id', 'title', 'group', 'creation_date', 'deadline',
                   'start_date', 'finish_date', 'last_start_time',
                   'sum_elapsed_time', 'status', 'priority', 'creator',
                   'user_tags', 'level', 'parent']
@@ -59,13 +65,23 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['url', 'id', 'title', 'creation_date', 'deadline',
+        fields = ['url', 'id', 'title', 'group', 'creation_date', 'deadline',
                   'start_date', 'finish_date', 'last_start_time',
                   'sum_elapsed_time', 'status', 'priority', 'creator',
                   'user_tags', 'level', 'parent']
 
+    def create(self, validated_data):
+        
+        task = super(TaskSerializer, self).create(validated_data)
+        if not task.group:
+            task.group, create = Group.objects.get_or_create(group_name='FREE_TASKS', creator=task.creator)
+            task.save()
+        
+        return task
+
     def to_representation(self, instance):
-        output_data = super().to_representation(instance)
+        output_data = super().to_representation(instance)       
+        output_data['group'] = instance.group.group_name
 
         executors = instance.executors.all()
         list_executors = [ExecutorListSerializer(el).data for el in executors]
@@ -122,13 +138,15 @@ class ObserverListSerializer(ObserverSerializer):
 class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ['group_name']
+        fields = '__all__'
 
-
-class TaskGroupSerializer(TaggitSerializer, serializers.ModelSerializer):
-    class Meta:
-        model = TaskGroup
-        fields = ['id', 'task', 'group']
+    def create(self, validated_data):
+        
+        group = super(GroupSerializer, self).create(validated_data)
+        group.group_members.add(group.creator)
+        group.save()
+        
+        return group
 
 
 class CommentTreeSerializer(serializers.ModelSerializer):
