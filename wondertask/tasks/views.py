@@ -1,6 +1,10 @@
-from rest_framework import mixins, status
+import django_filters
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework import mixins
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import get_object_or_404
@@ -41,10 +45,45 @@ class RetrieveListViewSet(mixins.RetrieveModelMixin,
     pass
 
 
+class TaskFilters(django_filters.FilterSet):
+    creation_date = django_filters.DateFromToRangeFilter(field_name="creation_date")
+    deadline = django_filters.DateFromToRangeFilter(field_name="deadline")
+    start_date = django_filters.DateFromToRangeFilter(field_name="start_date")
+    finish_date = django_filters.DateFromToRangeFilter(field_name="finish_date")
+    tags = django_filters.CharFilter(field_name="user_tags", method='filter_tags')
+
+    class Meta:
+        model = Task
+        fields = ["status", "priority"]
+
+    @staticmethod
+    def filter_tags(queryset, name, value):
+        return queryset.filter(user_tags__name__in=value.split(',')).distinct()
+
+
 class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all().order_by('-creation_date')
     serializer_class = TaskSerializer
     permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = TaskFilters
+    search_fields = ['$title']
+    ordering_fields = ["status", "priority", "creation_date",
+                       "deadline", "start_date", "finish_date"]
+
+    @action(methods=['GET'], detail=False, url_path="my", url_name="my_tasks",
+            permission_classes=[IsAuthenticated])
+    def my_tasks(self, request):
+        filter_queryset = self.filter_queryset(self.get_queryset())
+        queryset = filter_queryset.filter(creator=request.user)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=True, url_path="add-tags", url_name="add_tags",
             permission_classes=[IsAuthenticatedOrReadOnly])

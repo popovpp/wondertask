@@ -5,7 +5,7 @@ import pytest
 def test_01_get_tags_list(user_client, create_tag):
     response = user_client.get(f'/v1/tasks/tags/')
     assert response.status_code == 200
-    assert response.json() == [create_tag]
+    assert response.json()['results'] == [create_tag]
 
 
 @pytest.mark.django_db()
