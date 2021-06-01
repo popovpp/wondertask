@@ -16,6 +16,7 @@ def test_01_task_create(user_client):
     response = user_client.post(f'/v1/tasks/task/', data=data)
     assert response.status_code == 201, f'{response.json()}'
 
+
 @pytest.mark.django_db()
 def test_02_get_task_list(user_client, create_task):
     create_task
@@ -70,3 +71,10 @@ def test_07_get_task_tree_children(user_client, create_task):
     user_client.post(f'/v1/tasks/task/', data=data)
     response = user_client.get(f'/v1/tasks/tasktree/{task1["id"]}/')
     assert response.status_code == 200, f'{response.json()}'
+
+
+@pytest.mark.django_db()
+def test_08_get_my_task_list(user_client, create_task):
+    response = user_client.get(f'/v1/tasks/task/my/')
+    assert response.status_code == 200
+    assert response.json()['results'] == [create_task]

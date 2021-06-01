@@ -31,6 +31,8 @@ paths:
   # Task
   /v1/tasks/task/:
     $ref: "./view/tasks/task.yml"
+  /v1/tasks/task/my/:
+    $ref: "./view/tasks/task_my.yml"
   /v1/tasks/task/{id}/:
     $ref: "./view/tasks/task_id.yml"
 
