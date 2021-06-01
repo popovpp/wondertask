@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'mptt',
     'accounts',
     'tasks',
+    'journals'
 ]
 
 MIDDLEWARE = [

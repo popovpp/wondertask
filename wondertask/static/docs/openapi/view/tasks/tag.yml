@@ -1,5 +1,5 @@
 get:
-  summary: 'Getting the list of tags'
+  summary: "Getting the list of tags"
   tags: ['Tag']
   operationId: GetListTag
   parameters: []

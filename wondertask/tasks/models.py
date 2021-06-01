@@ -77,7 +77,8 @@ class Task(models.Model):
     status = models.IntegerField(default=CREATED)
     priority = models.PositiveIntegerField(default=0)
     creator = models.ForeignKey(User, on_delete=models.CASCADE,
-                                related_name='task_authors')
+                                related_name='task_authors',
+                                blank=True, null=True)
     user_tags = TaggableManager(through=TaggedTask, blank=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE,
                               related_name='group_tasks', blank=True, null=True)

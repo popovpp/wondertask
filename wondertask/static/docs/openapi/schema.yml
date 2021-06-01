@@ -17,7 +17,7 @@ paths:
   # Accounts
   /v1/accounts/registration/:
     $ref: "./view/accounts/user_registration.yml"
-  /v1/accounts/user/user_id/tags/:
+  /v1/accounts/user/{user_id}/tags/:
     $ref: "./view/accounts/user_id_tags.yml"
 
   # Authentication
@@ -91,7 +91,7 @@ paths:
   # Tag
   /v1/tasks/tags/:
     $ref: "./view/tasks/tag.yml"
-  /v1/tasks/tags/{tag_id}/:
+  /v1/tasks/tags/{id}/:
     $ref: "./view/tasks/tag_id.yml"
 
   # TaskTag
