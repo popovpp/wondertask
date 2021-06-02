@@ -1,0 +1,48 @@
+delete:
+  summary: 'Deleting the user avatar'
+  tags: ['Accounts']
+  operationId: DelUserAvatar
+  parameters:
+    - name: user_id
+      in: path
+      required: true
+      description: 'The user id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/User'
+          examples:
+            User:
+              $ref: '#/components/examples/User'
+      description: 'The user info was got'
+
+components:
+  schemas:
+    User:
+      type: object
+      description: 'User'
+      properties:
+        url:
+          type: string
+        id:
+          type: integer
+        email:
+          type: string
+        full_name:
+          type: string
+        avatar_image:
+          type: string
+
+  examples:
+    User:
+      summary: 'User'
+      value:
+        url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+        id: 1
+        email: "test@test.com"
+        full_name: 'дон Педро'
+        avatar_image: null

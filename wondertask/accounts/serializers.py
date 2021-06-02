@@ -20,7 +20,8 @@ class UserTaskSerializer(serializers.ModelSerializer):
                                           allow_empty_file=True,
                                           use_url=True,
                                           required=False)
-    full_name = serializers.CharField(required=True)
+    full_name = serializers.CharField(required=False)
+    email = serializers.CharField(required=False)
 
     class Meta:
         model = User
