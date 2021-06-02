@@ -14,5 +14,5 @@ get:
       content:
         application/json:
           schema:
-            $ref: '/static/docs/openapi/schema/response_single_task.yml#/components/schemas/SingleTaskTree'
+            $ref: '/static/docs/openapi/schema/response_single_task_1.yml#/components/schemas/SingleTaskTree'
       description: 'The task was got'

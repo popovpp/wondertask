@@ -66,7 +66,7 @@ class TaskFilters(django_filters.FilterSet):
 class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all().order_by('-creation_date')
     serializer_class = TaskSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = TaskFilters
     search_fields = ['$title']

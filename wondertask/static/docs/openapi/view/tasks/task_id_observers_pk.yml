@@ -29,7 +29,19 @@ delete:
   summary: "Delete an observer with pk for the task with task_id"
   tags: ['Observers']
   operationId: DeleteObserver
-  parameters: []
+  parameters: 
+    - name: task_id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: 'The pk of executor'
+      schema:
+        type: integer
   responses:
     '204':
       content: 
@@ -46,6 +58,12 @@ components:
         observer:
           type: object
           properties:
+            url:
+              type: string
+            id:
+              type: integer
+            email:
+              type: string
             full_name:
               type: string
             avatar_image:
@@ -57,5 +75,8 @@ components:
       value:
         id: 6
         observer:
+          url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+          id: 1
+          email: "test@test.com"
           full_name: 'дон Педро'
           avatar_image: 

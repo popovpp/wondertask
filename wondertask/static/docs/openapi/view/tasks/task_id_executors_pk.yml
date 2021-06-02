@@ -29,11 +29,23 @@ delete:
   summary: "Delete an executor with pk for the task with id=task_id"
   tags: ['Executors']
   operationId: DeleteExecutor
-  parameters: []
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: 'The pk of executor'
+      schema:
+        type: integer
   responses:
     '204':
       content: 
-      description: 'The executor was deleted. The id is pk of executor table here.'
+      description: 'The executor was deleted.'
 
 components:
   schemas:
@@ -46,6 +58,12 @@ components:
         executor:
           type: object
           properties:
+            url:
+              type: string
+            id: 
+              type: integer
+            email:
+              type: string
             full_name:
               type: string
             avatar_image:
@@ -57,6 +75,9 @@ components:
       value:
         id: 6
         executor:
+          url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+          id: 1
+          email: "test@test.com"
           full_name: 'дон Педро'
           avatar_image: 
             
