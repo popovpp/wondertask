@@ -48,16 +48,15 @@ services:
       - redis
       - db
     environment:
-      environment:
-        SECRET_KEY: bigsecretkey
-        DJANGO_CONFIGURATION: Develop
-        DJANGO_SETTINGS_MODULE:
-        DEBUG: 'true'
-        API_PG_USER: postgres
-        API_PG_PASSWORD: postgres
-        API_PG_DB: postgres
-        API_PG_HOST: db
-        API_PG_PORT: 5432
+      SECRET_KEY: bigsecretkey
+      DJANGO_CONFIGURATION: Develop
+      DJANGO_SETTINGS_MODULE:
+      DEBUG: 'true'
+      API_PG_USER: postgres
+      API_PG_PASSWORD: postgres
+      API_PG_DB: postgres
+      API_PG_HOST: db
+      API_PG_PORT: 5432
 
 volumes:
   pgdata:

@@ -31,11 +31,11 @@ def test_04_group_delete(user_client, create_group):
     assert response.status_code == 204
 
 
-# @pytest.mark.django_db()
-# def test_05_invite_users_in_group(user_client, create_group):
-#     data = {"users_emails": ["user@gmail.com"]}
-#     response = user_client.post(f'/v1/tasks/groups/{create_group["id"]}/invite/', data=data)
-#     assert response.status_code == 200
+@pytest.mark.django_db()
+def test_05_invite_users_in_group(user_client, create_group):
+    data = {"users_emails": ["user@gmail.com"]}
+    response = user_client.post(f'/v1/tasks/groups/{create_group["id"]}/invite/', data=data)
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db()

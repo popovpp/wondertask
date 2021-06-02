@@ -198,11 +198,7 @@ AUTH_USER_MODEL = 'accounts.User'
 TAGGIT_CASE_INSENSITIVE = True
 
 
-EMAIL_HOST = os.environ.get("EMAIL_HOST"),
-EMAIL_PORT = os.environ.get("EMAIL_PORT"),
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS"),
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER"),
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD"),
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"
