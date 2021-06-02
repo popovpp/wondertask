@@ -37,3 +37,10 @@ def create_tag(user_client):
     data = {'name': 'project'}
     response = user_client.post(f'/v1/tasks/tags/', data=data).json()
     return response
+
+
+@pytest.fixture
+def create_group(user_client):
+    data = {'group_name': 'some group'}
+    response = user_client.post(f'/v1/tasks/groups/', data=data).json()
+    return response

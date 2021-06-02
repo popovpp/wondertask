@@ -107,3 +107,15 @@ paths:
     $ref: "./view/tasks/task_id_tag_add.yml"
   /v1/tasks/task/{task_id}/del-tags/:
     $ref: "./view/tasks/task_id_tag_del.yml"
+
+  # Group
+  /v1/tasks/groups/:
+    $ref: "./view/tasks/group.yml"
+  /v1/tasks/groups/{id}/:
+    $ref: "./view/tasks/group_id.yml"
+
+  # Group Invite/Accept
+  /v1/tasks/groups/{id}/invite/:
+    $ref: "./view/tasks/group_invite.yml"
+  /v1/tasks/groups/{id}/accept-invite/:
+    $ref: "./view/tasks/group_accept.yml"

@@ -71,16 +71,16 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
                   'user_tags', 'level', 'parent']
 
     def create(self, validated_data):
-        
         task = super(TaskSerializer, self).create(validated_data)
         if not task.group:
-            task.group, create = Group.objects.get_or_create(group_name='FREE_TASKS', creator=task.creator)
+            task.group, create = Group.objects.get_or_create(group_name='FREE_TASKS',
+                                                             creator=task.creator)
             task.save()
-        
+
         return task
 
     def to_representation(self, instance):
-        output_data = super().to_representation(instance)       
+        output_data = super().to_representation(instance)
         output_data['group'] = instance.group.group_name
 
         executors = instance.executors.all()
@@ -110,7 +110,8 @@ class ExecutorSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         task = get_object_or_404(Task, id=self.context['task_id'])
-        executor, created = Executor.objects.get_or_create(task=task, executor=validated_data['executor'])
+        executor, created = Executor.objects.get_or_create(task=task,
+                                                           executor=validated_data['executor'])
 
         return executor
 
@@ -126,7 +127,8 @@ class ObserverSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         task = get_object_or_404(Task, id=self.context['task_id'])
-        observer, created = Observer.objects.get_or_create(task=task, observer=validated_data['observer'])
+        observer, created = Observer.objects.get_or_create(task=task,
+                                                           observer=validated_data['observer'])
 
         return observer
 
@@ -141,11 +143,10 @@ class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        
         group = super(GroupSerializer, self).create(validated_data)
         group.group_members.add(group.creator)
         group.save()
-        
+
         return group
 
 
@@ -250,3 +251,7 @@ class TagSerializer(serializers.ModelSerializer):
         model = TaskTag
         fields = ['id', 'name', 'slug', 'user']
         read_only_fields = ['slug', 'user']
+
+
+class GroupInviteSerializer(serializers.Serializer):
+    users_emails = serializers.ListField(child=serializers.EmailField())

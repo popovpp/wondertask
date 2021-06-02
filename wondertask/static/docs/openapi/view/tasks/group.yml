@@ -1,0 +1,58 @@
+get:
+  summary: "Getting the list of groups"
+  tags: ['Group']
+  operationId: GetListGroups
+  parameters: []
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Group'
+      description: 'The list was got'
+post:
+  summary: "Creating a new group"
+  tags: ['Group']
+  operationId: CreateNewGroup
+  parameters: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Group'
+        examples:
+          Group:
+            $ref: '#/components/examples/Group'
+  responses:
+    '201':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/Group'
+      description: 'The group was created'
+
+components:
+  schemas:
+    Group:
+      type: object
+      description: 'Group'
+      properties:
+        id:
+          type: integer
+        group_name:
+          type: string
+        is_system:
+          type: string
+        creator:
+          type: integer
+        group_members:
+          type: array
+          items:
+            type: integer
+
+  examples:
+    Group:
+      summary: 'Group'
+      value:
+        group_name: 'Some group name'
+

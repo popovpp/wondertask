@@ -1,0 +1,51 @@
+post:
+  summary: "Invite users in a group"
+  tags: ['Group Invite/Accept']
+  operationId: InviteUsersInGroup
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Group'
+        examples:
+          Group:
+            $ref: '#/components/examples/Group'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/Group'
+      description: 'The users was sent invite'
+    '400':
+      description: 'HTTP_400_BAD_REQUEST'
+    '403':
+      description: 'HTTP_403_FORBIDDEN'
+
+
+
+
+components:
+  schemas:
+    Group:
+      type: object
+      description: 'Group'
+      properties:
+        users_emails:
+          type: array
+          items:
+            type: string
+
+  examples:
+    Group:
+      summary: 'Group'
+      value:
+        users_emails: ["example@gmail.com", "example2@gmail.com"]

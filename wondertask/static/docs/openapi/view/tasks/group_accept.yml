@@ -1,0 +1,23 @@
+get:
+  summary: 'Accept invite'
+  tags: ['Group Invite/Accept']
+  operationId: AcceptInvite
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+    - name: email
+      in: query
+      required: true
+      description: 'The user email'
+      schema:
+        type: string
+  responses:
+    '200':
+      content:
+        application/json:
+          schema: []
+      description: 'You accepted invite in the group'
