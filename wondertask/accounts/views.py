@@ -44,9 +44,9 @@ class UserViewSet(mixins.RetrieveModelMixin,
         instance = get_object_or_404(User, id=self.kwargs['pk'])
         print(self.kwargs['pk'])
         avatar_delete(User, instance=instance)
-        return super(UserViewSet, self).update(request, pk)
+        return super(UserViewSet, self).update(request, pk, args, kwargs)
 
-    @action(methods=['GET'], detail=True, url_path="del-avatar", url_name="del_avatar",
+    @action(methods=['DELETE'], detail=True, url_path="del-avatar", url_name="del_avatar",
             permission_classes=[IsAuthenticatedOrReadOnly])
     def del_avatar(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)

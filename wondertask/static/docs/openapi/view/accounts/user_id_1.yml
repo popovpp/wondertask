@@ -1,0 +1,90 @@
+get:
+  summary: 'Getting the user has {user_id}'
+  tags: ['Accounts']
+  operationId: GetUser
+  parameters:
+    - name: user_id
+      in: path
+      required: true
+      description: 'The user id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/User'
+          examples:
+            User:
+              $ref: '#/components/examples/User'
+      description: 'The user info was got'
+put:
+  summary: "Set the user avatar"
+  tags: ['Accounts']
+  operationId: SetAvatar
+  parameters:
+    - name: user_id
+      in: path
+      required: true
+      description: 'The user id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            avatar_image:
+              type: string
+              format: binary
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/User'
+          examples:
+            User:
+              $ref: '#/components/examples/User'
+      description: 'The avatar was setted'
+
+components:
+  schemas:
+    User:
+      type: object
+      description: 'User'
+      properties:
+        url:
+          type: string
+        id:
+          type: integer
+        email:
+          type: string
+        full_name:
+          type: string
+        avatar_image:
+          type: string
+    Avatar:
+      type: object
+      description: 'Avatar'
+      properties:
+        avatar_image:
+          type: string
+          format: binary
+
+  examples:
+    User:
+      summary: 'User'
+      value:
+        url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+        id: 1
+        email: "test@test.com"
+        full_name: 'дон Педро'
+        avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
+    Avatar:
+      summary: 'Avatar'
+      value:
+        avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
+    

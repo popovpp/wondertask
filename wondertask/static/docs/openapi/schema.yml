@@ -19,6 +19,12 @@ paths:
     $ref: "./view/accounts/user_registration.yml"
   /v1/accounts/user/{user_id}/tags/:
     $ref: "./view/accounts/user_id_tags.yml"
+  /v1/accounts/user/:
+    $ref: "./view/accounts/user.yml"
+  /v1/accounts/user/{user_id}/:
+    $ref: "./view/accounts/user_id_1.yml"
+  /v1/accounts/user/{user_id}/del-avatar/:
+    $ref: "./view/accounts/user_id_del_avatar.yml"
 
   # Authentication
   /v1/authentication/token/obtaining/:
