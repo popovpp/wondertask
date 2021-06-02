@@ -1,0 +1,112 @@
+get:
+  summary: 'Getting the group'
+  tags: ['Group']
+  operationId: GetGroup
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Group'
+      description: 'The group was got'
+put:
+  summary: "Changing the group"
+  tags: ['Group']
+  operationId: ChangeGroup
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Group'
+        examples:
+          Group:
+            $ref: '#/components/examples/Group'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Group'
+      description: 'The group was created'
+patch:
+  summary: "Changing the field of the group"
+  tags: ['Group']
+  operationId: ChangeFieldGroup
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Group'
+        examples:
+          Task:
+            $ref: '#/components/examples/Group'
+    description: 'Changing any from presented fields'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Group'
+      description: 'The group was created'
+delete:
+  summary: 'Deleting the group'
+  tags: ['Group']
+  operationId: DeleteGroup
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+  description: 'The group will delete with all subtasks'
+  responses:
+    '204':
+      content:
+      description: 'The group was deleted'
+
+components:
+  schemas:
+    Group:
+      type: object
+      description: 'Group'
+      properties:
+        id:
+          type: integer
+        group_name:
+          type: string
+        is_system:
+          type: string
+        creator:
+          type: integer
+        group_members:
+          type: array
+          items:
+            type: integer
+
+  examples:
+    Group:
+      summary: 'Group'
+      value:
+        group_name: 'Some group name'

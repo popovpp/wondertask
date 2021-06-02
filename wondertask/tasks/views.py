@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import get_object_or_404
 
+from accounts.models import User
+from tasks import tasks
 from tasks.models import (Task, TaskSystemTags,
                           Group, Doc, Image, Audio, Comment, TaskTag)
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
@@ -17,7 +19,7 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                TaskTreeSerializer, ExecutorListSerializer,
                                ObserverListSerializer, DocSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
-                               CommentTreeSerializer, TagSerializer)
+                               CommentTreeSerializer, TagSerializer, GroupInviteSerializer)
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 
 
@@ -153,6 +155,43 @@ class GroupViewSet(ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
+
+    @action(methods=["POST"], detail=True, url_path="invite", url_name="invite_users_in_group",
+            serializer_class=GroupInviteSerializer, permission_classes=[IsAuthenticated])
+    def invite_users_in_group(self, request, pk=None):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        group = get_object_or_404(Group, pk=pk)
+
+        if group.creator != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        users = User.objects.filter(email__in=serializer.data['users_emails'])
+        if not users:
+            return Response(data={"detail": "No users found for these emails"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        url = request.build_absolute_uri().replace("invite", "accept-invite")
+        for user in users:
+            tasks.send_invite_in_group.delay(group_name=group.group_name,
+                                             url=f'{url}?email={user.email}',
+                                             email=user.email)
+        return Response(data={"detail": "Invitations will be mailed"}, status=status.HTTP_200_OK)
+
+    @action(methods=["GET"], detail=True, url_path="accept-invite", url_name="accept_invite")
+    def accept_invite(self, request, pk=None):
+        if 'email' not in request.query_params:
+            return Response(data={"detail": "email query param is required"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        email = request.query_params['email']
+        user = get_object_or_404(User, email=email)
+        group = Group.objects.get(pk=pk)
+        group.group_members.add(user)
+
+        return Response(status=status.HTTP_200_OK)
 
 
 class CommentViewSet(ModelViewSet):
