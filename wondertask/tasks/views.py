@@ -64,7 +64,7 @@ class TaskFilters(django_filters.FilterSet):
 
 
 class TaskViewSet(ModelViewSet):
-    queryset = Task.objects.all().order_by('-creation_date')
+    
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -72,6 +72,9 @@ class TaskViewSet(ModelViewSet):
     search_fields = ['$title']
     ordering_fields = ["status", "priority", "creation_date",
                        "deadline", "start_date", "finish_date"]
+
+    def get_queryset(self):
+        return Task.objects.all().filter(creator=self.request.user).order_by('-creation_date')
 
     @action(methods=['GET'], detail=False, url_path="my", url_name="my_tasks",
             permission_classes=[IsAuthenticated])
@@ -117,7 +120,7 @@ class TaskTreeViewSet(RetrieveListViewSet):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        queryset = Task.objects.filter(level=0).order_by('-creation_date')
+        queryset = Task.objects.filter(creator=self.request.user, level=0).order_by('-creation_date')
         return queryset
 
     def list(self, request):

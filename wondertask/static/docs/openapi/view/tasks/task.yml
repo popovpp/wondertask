@@ -11,7 +11,8 @@ post:
         examples:
           Task:
             $ref: '#/components/examples/Task'
-    description: '"Creator" is id of the user which create the task. "Group" is id of choiced group. If "group"== null then group is created "FREE_TASKS". Required fields are "title" and "creator"' 
+    description: '"Group" is id of choiced group. If "group"== null then group is created "FREE_TASKS". 
+                 Required field is "title"' 
   responses:
     '200':
       content:
@@ -94,8 +95,6 @@ components:
           type: string
         priority:
           type: integer
-        creator:
-          type: integer
         parent:
           type: integer
 
@@ -107,5 +106,4 @@ components:
         group:
         deadline: '2021-05-13T01:00:59.502847Z'
         priority: 0
-        creator: 1
         parent: 
