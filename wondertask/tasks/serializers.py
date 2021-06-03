@@ -53,15 +53,7 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
-    user_tags = TagListSerializerField(required=False, read_only=True)
-    title = serializers.CharField(required=True)
-    creation_date = serializers.CharField(read_only=True)
-    start_date = serializers.CharField(read_only=True)
-    last_start_time = serializers.CharField(read_only=True)
-    finish_date = serializers.CharField(read_only=True)
-    sum_elapsed_time = serializers.CharField(read_only=True)
-    status = serializers.IntegerField(read_only=True)
-    level = serializers.IntegerField(read_only=True)
+    user_tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Task
@@ -69,14 +61,18 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
                   'start_date', 'finish_date', 'last_start_time',
                   'sum_elapsed_time', 'status', 'priority', 'creator',
                   'user_tags', 'level', 'parent']
+        read_only_fields = ['title', 'creation_date', 
+                  'start_date', 'finish_date', 'last_start_time',
+                  'sum_elapsed_time', 'status', 'creator',
+                  'user_tags', 'level']
 
     def create(self, validated_data):
         task = super(TaskSerializer, self).create(validated_data)
+        task.creator = self.context['request'].user
         if not task.group:
-            task.group, create = Group.objects.get_or_create(group_name='FREE_TASKS',
-                                                             creator=task.creator)
-            task.save()
-
+            task.group, create = Group.objects.get_or_create(group_name='FREE_TASKS', creator=task.creator)
+        task.save()
+        
         return task
 
     def to_representation(self, instance):

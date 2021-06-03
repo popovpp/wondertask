@@ -22,7 +22,7 @@ paths:
   /v1/accounts/user/:
     $ref: "./view/accounts/user.yml"
   /v1/accounts/user/{user_id}/:
-    $ref: "./view/accounts/user_id_1.yml"
+    $ref: "./view/accounts/user_id.yml"
   /v1/accounts/user/{user_id}/del-avatar/:
     $ref: "./view/accounts/user_id_del_avatar.yml"
 
@@ -50,8 +50,8 @@ paths:
 
   # Executor
   /v1/tasks/task/{task_id}/executors/:
-    $ref: "./view/tasks/task_id_executors1.yml"
-  /v1/tasks/task/{task_id}/executors/{pk}:
+    $ref: "./view/tasks/task_id_executors.yml"
+  /v1/tasks/task/{task_id}/executors/{pk}/:
     $ref: "./view/tasks/task_id_executors_pk.yml"
 
   # Observer

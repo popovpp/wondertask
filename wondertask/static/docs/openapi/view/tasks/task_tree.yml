@@ -8,7 +8,16 @@ get:
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: '/static/docs/openapi/schema/response_single_task.yml#/components/schemas/SingleTask'
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: integer
+              previous:
+                type: integer
+              results:
+                type: array
+                items:
+                  $ref: '/static/docs/openapi/schema/response_single_task_1.yml#/components/schemas/SingleTask'
       description: 'The list was got'

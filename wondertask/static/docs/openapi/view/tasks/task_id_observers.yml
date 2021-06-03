@@ -49,12 +49,18 @@ get:
       content:
         application/json:
           schema:
-            type: array
-            items:
-              - $ref: '#/components/schemas/Observer'
-          examples:
-            Observer:
-              $ref: '#/components/examples/Observer'
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: integer
+              previous:
+                type: integer
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Observer'
       description: 'The list of observers was got. The id is pk of observer table here.'
 
 components:
@@ -68,6 +74,12 @@ components:
         observer:
           type: object
           properties:
+            url:
+              type: string
+            id:
+              type: integer
+            email:
+              type: string
             full_name:
               type: string
             avatar_image:
@@ -76,7 +88,14 @@ components:
     Observer:
       summary: 'Observer'
       value:
-        id: 6
-        observer:
-          full_name: 'дон Педро'
-          avatar_image: 
+        count: 3
+        next: 
+        previous:
+        results:
+          id: 6
+          executor:
+            url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+            id: 1
+            email: "test@test.com"
+            full_name: 'дон Педро'
+            avatar_image: 
