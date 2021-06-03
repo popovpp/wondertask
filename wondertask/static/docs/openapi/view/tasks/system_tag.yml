@@ -1,0 +1,53 @@
+get:
+  summary: "Getting the list of system tags"
+  tags: ['SystemTag']
+  operationId: GetListSystemTag
+  parameters: []
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/SystemTag'
+      description: 'The list was got'
+post:
+  summary: "Creating a new system tag"
+  tags: ['SystemTag']
+  operationId: CreateNewSystemTag
+  parameters: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/SystemTag'
+        examples:
+          Tag:
+            $ref: '#/components/examples/SystemTag'
+  responses:
+    '201':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/SystemTag'
+      description: 'The system tag was created'
+
+components:
+  schemas:
+    SystemTag:
+      type: object
+      description: 'SystemTag'
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+
+  examples:
+    SystemTag:
+      summary: 'SystemTag'
+      value:
+        name: 'Some system tag'

@@ -80,6 +80,8 @@ class Task(models.Model):
                                 related_name='task_authors',
                                 blank=True, null=True)
     user_tags = TaggableManager(through=TaggedTask, blank=True)
+    system_tags = TaggableManager(blank=True)
+
     group = models.ForeignKey(Group, on_delete=models.CASCADE,
                               related_name='group_tasks', blank=True, null=True)
 
@@ -96,15 +98,6 @@ class Task(models.Model):
 TreeForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(Task,
                                                                                           'parent')
 mptt.register(Task, order_insertion_by=['id'])
-
-
-class TaskSystemTags(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE,
-                             related_name='task_field')
-    system_tags = TaggableManager()
-
-    class Meta:
-        db_table = 'task_system_tags'
 
 
 class Executor(models.Model):

@@ -1,4 +1,5 @@
 import django_filters
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import action
@@ -8,18 +9,19 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import get_object_or_404
+from taggit.models import Tag
 
 from accounts.models import User
 from tasks import tasks
-from tasks.models import (Task, TaskSystemTags,
-                          Group, Doc, Image, Audio, Comment, TaskTag)
+from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag)
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
                                GroupSerializer,
                                TaskTreeSerializer, ExecutorListSerializer,
                                ObserverListSerializer, DocSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
-                               CommentTreeSerializer, TagSerializer, GroupInviteSerializer)
+                               CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
+                               ActionTagSerializer)
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 
 
@@ -60,11 +62,13 @@ class TaskFilters(django_filters.FilterSet):
 
     @staticmethod
     def filter_tags(queryset, name, value):
-        return queryset.filter(user_tags__name__in=value.split(',')).distinct()
+        tags = value.split(',')
+        return queryset.filter(Q(user_tags__name__in=tags) |
+                               Q(system_tags__name__in=tags)).distinct()
 
 
 class TaskViewSet(ModelViewSet):
-    
+
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -91,26 +95,35 @@ class TaskViewSet(ModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=True, url_path="add-tags", url_name="add_tags",
-            permission_classes=[IsAuthenticatedOrReadOnly])
+            permission_classes=[IsAuthenticatedOrReadOnly], serializer_class=ActionTagSerializer)
     def add_tags(self, request, pk=None):
-        try:
-            tags = request.data['tags']
-        except KeyError:
-            return Response(data={"detail": "Request has no 'tags' attached"},
-                            status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tags = serializer.data['tags']
+        system_tag = []
+        for tag_name in tags.copy():
+            if '$' in tag_name:
+                tags.remove(tag_name)
+                system_tag.append(tag_name.replace('$', ''))
+        check_existing_sys_tags = Tag.objects.filter(name__in=system_tag)
+        existing_system_tag_names = [tag.name for tag in check_existing_sys_tags]
+        if existing_system_tag_names != system_tag:
+            return Response({"detail": f"This system tags: "
+                                       f"{set(system_tag)-set(existing_system_tag_names)}"
+                                       f" not existing"})
         task = get_object_or_404(Task, pk=pk)
+        task.system_tags.add(*check_existing_sys_tags)
         task.user_tags.add(*tags, tag_kwargs={"user": request.user})
         return Response(status=status.HTTP_200_OK)
 
     @action(methods=['DELETE'], detail=True, url_path="del-tags", url_name="del_tags",
-            permission_classes=[IsAuthenticatedOrReadOnly])
+            permission_classes=[IsAuthenticatedOrReadOnly], serializer_class=ActionTagSerializer)
     def del_tags(self, request, pk=None):
-        try:
-            tags = request.data['tags']
-        except KeyError:
-            return Response(data={"detail": 'Request has no "tags" attached'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tags = serializer.data['tags']
         task = get_object_or_404(Task, pk=pk)
+        task.system_tags.remove(*tags)
         task.user_tags.remove(*tags)
         return Response(status=status.HTTP_200_OK)
 
@@ -129,7 +142,7 @@ class TaskTreeViewSet(RetrieveListViewSet):
 
 
 class TaskSystemTagsViewSet(ModelViewSet):
-    queryset = TaskSystemTags.objects.all()
+    queryset = Tag.objects.all()
     serializer_class = TaskSystemTagsSerializer
     permission_classes = [AllowAny]
 

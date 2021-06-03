@@ -1,0 +1,106 @@
+get:
+  summary: 'Getting the system tag'
+  tags: ['SystemTag']
+  operationId: GetSystemTag
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The system tag id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SystemTag'
+      description: 'The system tag was got'
+put:
+  summary: "Changing the system tag"
+  tags: ['SystemTag']
+  operationId: ChangeGroup
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The system tag id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/SystemTag'
+        examples:
+          Group:
+            $ref: '#/components/examples/SystemTag'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SystemTag'
+      description: 'The system tag was created'
+patch:
+  summary: "Changing the field of the system tag"
+  tags: ['SystemTag']
+  operationId: ChangeFieldSystemTag
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The system tag id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/SystemTag'
+        examples:
+          Task:
+            $ref: '#/components/examples/SystemTag'
+    description: 'Changing any from presented fields'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SystemTag'
+      description: 'The system tag was updated'
+delete:
+  summary: 'Deleting the system tag'
+  tags: ['SystemTag']
+  operationId: DeleteSystemTag
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The system tag id'
+      schema:
+        type: integer
+  description: 'The system tag will delete'
+  responses:
+    '204':
+      content:
+      description: 'The system tag was deleted'
+
+components:
+  schemas:
+    SystemTag:
+      type: object
+      description: 'SystemTag'
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+
+  examples:
+    SystemTag:
+      summary: 'SystemTag'
+      value:
+        name: 'Some system tag'
