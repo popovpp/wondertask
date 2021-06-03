@@ -7,6 +7,7 @@ from rest_framework import mixins, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from taggit.models import Tag
 
 from tasks.models import TaskTag
 from tasks.serializers import TagSerializer
@@ -30,7 +31,9 @@ class UserRegistrationView(APIView):
 def get_user_tags(request, user_id):
     serializer = TagSerializer(data=TaskTag.objects.filter(user_id=user_id), many=True)
     serializer.is_valid()
-    return Response(data=serializer.data, status=200)
+    system_tags = [f'${tag.name}' for tag in Tag.objects.all()]
+    return Response(data={"tags": serializer.data, "system_tags": system_tags}, status=200)
+
 
 class UserViewSet(mixins.RetrieveModelMixin,
                   mixins.ListModelMixin,

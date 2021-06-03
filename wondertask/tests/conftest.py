@@ -44,3 +44,10 @@ def create_group(user_client):
     data = {'group_name': 'some group'}
     response = user_client.post(f'/v1/tasks/groups/', data=data).json()
     return response
+
+
+@pytest.fixture
+def create_system_tag(user_client):
+    data = {'name': 'regular'}
+    response = user_client.post(f'/v1/tasks/systemtags/', data=data).json()
+    return response

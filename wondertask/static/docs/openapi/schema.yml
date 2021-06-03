@@ -102,6 +102,12 @@ paths:
   /v1/tasks/tags/{id}/:
     $ref: "./view/tasks/tag_id.yml"
 
+  # SystemTag
+  /v1/tasks/systemtags/:
+    $ref: "./view/tasks/system_tag.yml"
+  /v1/tasks/systemtags/{id}/:
+    $ref: "./view/tasks/system_tag_id.yml"
+
   # TaskTag
   /v1/tasks/task/{task_id}/add-tags/:
     $ref: "./view/tasks/task_id_tag_add.yml"

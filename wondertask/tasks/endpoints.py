@@ -15,7 +15,7 @@ task_router.register(r'task/(?P<task_id>\d+)/executors', ExecutorViewSet, 'execu
 task_router.register(r'task/(?P<task_id>\d+)/executors/<int:pk>/', ExecutorViewSet, 'executor')
 task_router.register(r'task/(?P<task_id>\d+)/observers', ObserverViewSet, 'observer')
 task_router.register(r'task/(?P<task_id>\d+)/observers/<int:pk>/', ObserverViewSet, 'observer')
-task_router.register('tasksystemtags', TaskSystemTagsViewSet, 'tasksystemtags')
+task_router.register('systemtags', TaskSystemTagsViewSet, 'systemtags')
 task_router.register('groups', GroupViewSet, 'groups')
 
 task_router.register(r'task/(?P<task_id>\d+)/comment', CommentViewSet, 'comment')
