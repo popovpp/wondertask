@@ -1,7 +1,7 @@
 get:
   summary: "Getting the list of tags"
   tags: ['Tag']
-  operationId: GetListTag
+  operationId: GetListTags
   parameters: []
   responses:
     '200':

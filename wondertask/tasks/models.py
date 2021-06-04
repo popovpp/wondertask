@@ -88,11 +88,36 @@ class Task(models.Model):
     class Meta:
         db_table = 'tasks'
 
-    def set_status(self):
-        pass
+    def set_status(self, status):
+        self.status = status
 
     def set_sum_elapsed_time(self):
         pass
+
+    def start_task(self):
+        current_time = timezone.now
+        if self.status == self.CREATED:
+            self.start_date = current_time
+        else:
+            self.last_start_time = current_time
+        if self.deadline > current_time:
+            self.set_status(self.IN_PROGRESS)
+        else:
+            self.set_status(self.IN_PROGRESS_OVERDUE)
+
+    def stop_task(self):
+        current_time = timezone.now
+        if self.deadline > current_time:
+            self.set_status(self.IN_WAITING)
+        else:
+            self.set_status(self.IN_WAITING_OVERDUE)
+        self.set_sum_elapsed_time()
+
+    def finish_task(self):
+        self.finish_date = timezone.now
+        self.set_status(self.DONE)
+        self.set_sum_elapsed_time()
+
 
 
 TreeForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(Task,
