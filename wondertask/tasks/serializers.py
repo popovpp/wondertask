@@ -73,7 +73,12 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         task = super(TaskSerializer, self).create(validated_data)
         task.creator = self.context['request'].user
         if not task.group:
-            task.group, create = Group.objects.get_or_create(group_name='FREE_TASKS', creator=task.creator)
+            group, create = Group.objects.get_or_create(group_name='FREE_TASKS')
+            if create:
+                group.creator = task.creator
+            group.group_members.add(task.creator)
+            group.save()
+            task.group = group
         task.save()
 
         return task

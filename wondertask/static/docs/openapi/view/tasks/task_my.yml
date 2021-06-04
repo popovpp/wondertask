@@ -3,6 +3,11 @@ get:
   tags: ['Tasks']
   operationId: GetListMyTasks
   parameters:
+    - name: tags
+      in: query
+      description: 'Filtering by tags'
+      schema:
+        type: string
     - name: search
       in: query
       description: 'Search in title field'
