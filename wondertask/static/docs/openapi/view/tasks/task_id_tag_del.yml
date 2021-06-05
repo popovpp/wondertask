@@ -27,8 +27,5 @@ delete:
       content:
         application/json:
           schema:
-            tags:
-              type: array
-              items:
-                type string
+            $ref: '/static/docs/openapi/schema/response_single_task_1.yml#/components/schemas/SingleTask'
       description: 'Tags was removed from task'

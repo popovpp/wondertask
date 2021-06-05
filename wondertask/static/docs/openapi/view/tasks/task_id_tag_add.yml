@@ -26,8 +26,5 @@ post:
       content:
         application/json:
           schema:
-            tags:
-              type: array
-              items:
-                type string
-      description: 'Tags was added to task'
+            $ref: '/static/docs/openapi/schema/response_single_task_1.yml#/components/schemas/SingleTask'
+      description: 'The tags was added to task'

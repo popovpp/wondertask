@@ -8,9 +8,7 @@ get:
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/SystemTag'
+            $ref: '#/components/schemas/SystemTagPagination'
       description: 'The list was got'
 post:
   summary: "Creating a new system tag"
@@ -30,11 +28,32 @@ post:
       content:
         application/json:
           schema:
-            - $ref: '#/components/schemas/SystemTag'
+            $ref: '#/components/schemas/SystemTag'
       description: 'The system tag was created'
 
 components:
   schemas:
+    SystemTagPagination:
+      type: object
+      description: 'SystemTag'
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+        previous:
+          type: string
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              slug:
+                type: string
     SystemTag:
       type: object
       description: 'SystemTag'
@@ -45,7 +64,6 @@ components:
           type: string
         slug:
           type: string
-
   examples:
     SystemTag:
       summary: 'SystemTag'
