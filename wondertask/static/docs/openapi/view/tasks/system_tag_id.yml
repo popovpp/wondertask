@@ -19,7 +19,7 @@ get:
 put:
   summary: "Changing the system tag"
   tags: ['SystemTag']
-  operationId: ChangeGroup
+  operationId: ChangeSystemTag
   parameters:
     - name: id
       in: path

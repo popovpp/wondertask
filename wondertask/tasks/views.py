@@ -114,7 +114,9 @@ class TaskViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=pk)
         task.system_tags.add(*check_existing_sys_tags)
         task.user_tags.add(*tags, tag_kwargs={"user": request.user})
-        return Response(status=status.HTTP_200_OK)
+
+        serializer_task = TaskSerializer(instance=task, context=self.get_serializer_context())
+        return Response(data=serializer_task.data, status=status.HTTP_200_OK)
 
     @action(methods=['DELETE'], detail=True, url_path="del-tags", url_name="del_tags",
             permission_classes=[IsAuthenticatedOrReadOnly], serializer_class=ActionTagSerializer)
@@ -125,7 +127,9 @@ class TaskViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=pk)
         task.system_tags.remove(*tags)
         task.user_tags.remove(*tags)
-        return Response(status=status.HTTP_200_OK)
+
+        serializer_task = TaskSerializer(instance=task, context=self.get_serializer_context())
+        return Response(data=serializer_task.data, status=status.HTTP_200_OK)
 
 
 class TaskTreeViewSet(RetrieveListViewSet):

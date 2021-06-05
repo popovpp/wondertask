@@ -8,9 +8,7 @@ get:
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/Tag'
+              $ref: '#/components/schemas/TagPagination'
       description: 'The list was got'
 post:
   summary: "Creating a new tag"
@@ -30,11 +28,34 @@ post:
       content:
         application/json:
           schema:
-            - $ref: '#/components/schemas/Tag'
+            $ref: '#/components/schemas/Tag'
       description: 'The tag was created'
 
 components:
   schemas:
+    TagPagination:
+      type: object
+      description: 'TagPagination'
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+        previous:
+          type: string
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              slug:
+                type: string
+              user:
+                type: integer
     Tag:
       type: object
       description: 'Tag'

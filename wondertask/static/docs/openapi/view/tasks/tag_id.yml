@@ -42,11 +42,11 @@ put:
         application/json:
           schema:
             $ref: '#/components/schemas/Tag'
-      description: 'The task was created'
+      description: 'The task was updated'
 patch:
   summary: "Changing the field of the tag"
   tags: ['Tag']
-  operationId: ChangeField
+  operationId: ChangeTagField
   parameters:
     - name: id
       in: path
@@ -69,7 +69,7 @@ patch:
         application/json:
           schema:
             $ref: '#/components/schemas/Tag'
-      description: 'The task was created'
+      description: 'The tag was created'
 delete:
   summary: 'Deleting the tag'
   tags: ['Tag']
@@ -81,11 +81,11 @@ delete:
       description: 'The task id'
       schema:
         type: integer
-  description: The task will delete with all subtasks
+  description: The tag will delete with all subtasks
   responses:
     '204':
       content:
-      description: 'The task was deleted'
+      description: 'The tag was deleted'
 
 components:
   schemas:
@@ -99,6 +99,8 @@ components:
           type: string
         slug:
           type: string
+        user:
+          type: integer
 
   examples:
     Tag:

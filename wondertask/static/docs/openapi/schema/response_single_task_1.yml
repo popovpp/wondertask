@@ -47,6 +47,11 @@ components:
           items:
             type: string
           example: []
+        system_tags:
+          type: array
+          items:
+            type: string
+          example: [ ]
         level:
           type: integer
           example: 0
@@ -134,6 +139,11 @@ components:
           items:
             type: string
           example: []
+        system_tags:
+          type: array
+          items:
+            type: string
+          example: [ ]
         level:
           type: integer
           example: 0
@@ -223,6 +233,11 @@ components:
                 items:
                   type: string
                 example: []
+              system_tags:
+                type: array
+                items:
+                  type: string
+                example: [ ]
               level:
                 type: integer
                 example: 1
