@@ -5,6 +5,7 @@ from taggit.managers import TaggableManager
 import mptt
 from mptt.fields import TreeForeignKey
 from taggit.models import TagBase, GenericTaggedItemBase
+from datetime import timedelta
 
 from accounts.models import User
 
@@ -73,7 +74,7 @@ class Task(models.Model):
     start_date = models.DateTimeField(blank=True, null=True)
     finish_date = models.DateTimeField(blank=True, null=True)
     last_start_time = models.DateTimeField(blank=True, null=True)
-    sum_elapsed_time = models.DateTimeField(blank=True, null=True)
+    sum_elapsed_time = models.DurationField(default=timedelta())
     status = models.IntegerField(default=CREATED)
     priority = models.PositiveIntegerField(default=0)
     creator = models.ForeignKey(User, on_delete=models.CASCADE,
@@ -91,32 +92,39 @@ class Task(models.Model):
     def set_status(self, status):
         self.status = status
 
-    def set_sum_elapsed_time(self):
-        pass
+    def set_sum_elapsed_time(self, current_time):
+        if not self.last_start_time:
+            self.sum_elapsed_time = self.sum_elapsed_time + (current_time - self.start_date)
+        else:
+            self.sum_elapsed_time = self.sum_elapsed_time + (current_time - self.last_start_time)
 
     def start_task(self):
-        current_time = timezone.now
-        if self.status == self.CREATED:
-            self.start_date = current_time
-        else:
-            self.last_start_time = current_time
-        if self.deadline > current_time:
-            self.set_status(self.IN_PROGRESS)
-        else:
-            self.set_status(self.IN_PROGRESS_OVERDUE)
+        if self.status not in (self.DONE, self.IN_PROGRESS, self.IN_PROGRESS_OVERDUE):
+            current_time = timezone.now()
+            if self.status == self.CREATED:
+                self.start_date = current_time
+            else:
+                self.last_start_time = current_time
+            if self.deadline > current_time:
+                self.set_status(self.IN_PROGRESS)
+            else:
+                self.set_status(self.IN_PROGRESS_OVERDUE)
 
     def stop_task(self):
-        current_time = timezone.now
-        if self.deadline > current_time:
-            self.set_status(self.IN_WAITING)
-        else:
-            self.set_status(self.IN_WAITING_OVERDUE)
-        self.set_sum_elapsed_time()
+        if self.status not in (self.DONE, self.IN_WAITING, self.IN_WAITING_OVERDUE, self.CREATED):
+            current_time = timezone.now()
+            if self.deadline > current_time:
+                self.set_status(self.IN_WAITING)
+            else:
+                self.set_status(self.IN_WAITING_OVERDUE)
+            self.set_sum_elapsed_time(current_time)
 
     def finish_task(self):
-        self.finish_date = timezone.now
-        self.set_status(self.DONE)
-        self.set_sum_elapsed_time()
+        if self.status not in (self.DONE, self.CREATED):
+            current_time = timezone.now()
+            self.finish_date = current_time
+            self.set_status(self.DONE)
+            self.set_sum_elapsed_time(current_time)
 
 
 TreeForeignKey(Task, on_delete=models.CASCADE,
@@ -142,17 +150,6 @@ class Observer(models.Model):
 
     class Meta:
         db_table = 'observers'
-
-
-# class TaskGroup(models.Model):
-#     task = models.ForeignKey(Task, on_delete=models.CASCADE,
-#                              related_name='groups')
-#     group = models.ForeignKey(Group, on_delete=models.CASCADE,
-#                               related_name='tasks')
-
-#    class Meta:
-#        db_table = 'taskgroups'
-#        unique_together = ('task', 'group')
 
 
 class Comment(models.Model):

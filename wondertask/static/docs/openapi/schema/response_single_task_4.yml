@@ -23,16 +23,16 @@ components:
           example: '2021-05-15T10:55:56.525330Z'
         start_date:
           type: string
-          example: null
+          example: '2021-05-15T10:55:56.525330Z'
         finish_date:
           type: string
-          example: null
+          example: '2021-05-15T10:55:56.525330Z'
         sum_elapsed_time:
           type: string
-          example: null
+          example: "02:28:01.565579"
         status:
           type: string
-          example: 'CREATED'
+          example: 'DONE'
         priority:
           type: integer
           example: 0
@@ -116,12 +116,15 @@ components:
         finish_date:
           type: string
           example: null
+        last_start_time:
+          type: string
+          example: null
         sum_elapsed_time:
           type: string
           example: null
         status:
-          type: string
-          example: 'CREATED'
+          type: integer
+          example: 0
         priority:
           type: integer
           example: 0
@@ -207,12 +210,15 @@ components:
               finish_date:
                 type: string
                 example: null
+              last_start_time:
+                type: string
+                example: null
               sum_elapsed_time:
                 type: string
                 example: null
               status:
-                type: string
-                example: 'CREATED'
+                type: integer
+                example: 0
               priority:
                 type: integer
                 example: 0
@@ -252,7 +258,7 @@ components:
                         avatar_image:
                           type: string
                           example: null
-              observers:
+              oservers:
                 type: array
                 items:
                   type: object

@@ -118,6 +118,33 @@ class TaskViewSet(ModelViewSet):
         serializer_task = TaskSerializer(instance=task, context=self.get_serializer_context())
         return Response(data=serializer_task.data, status=status.HTTP_200_OK)
 
+    @action(methods=['GET'], detail=True, url_path="start-task", url_name="start_task",
+            permission_classes=[IsAuthenticatedOrReadOnly])
+    def start_task(self, request, pk=None):
+        task = get_object_or_404(Task, pk=pk)
+        task.start_task()
+        task.save()
+        serializer = TaskSerializer(task, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=True, url_path="stop-task", url_name="stop_task",
+            permission_classes=[IsAuthenticatedOrReadOnly])
+    def stop_task(self, request, pk=None):
+        task = get_object_or_404(Task, pk=pk)
+        task.stop_task()
+        task.save()
+        serializer = TaskSerializer(task, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=True, url_path="finish-task", url_name="finish_task",
+            permission_classes=[IsAuthenticatedOrReadOnly])
+    def finish_task(self, request, pk=None):
+        task = get_object_or_404(Task, pk=pk)
+        task.finish_task()
+        task.save()
+        serializer = TaskSerializer(task, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class TaskTreeViewSet(RetrieveListViewSet):
     serializer_class = TaskTreeSerializer
