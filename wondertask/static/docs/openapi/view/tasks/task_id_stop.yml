@@ -1,0 +1,19 @@
+get:
+  summary: 'Stop the task has id'
+  tags: ['Tasks']
+  operationId: StopTask
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '/static/docs/openapi/schema/response_single_task_3.yml#/components/schemas/SingleTask'
+      description: 'The task stoped'
+      

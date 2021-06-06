@@ -23,7 +23,7 @@ components:
           example: '2021-05-15T10:55:56.525330Z'
         start_date:
           type: string
-          example: null
+          example: '2021-05-15T10:55:56.525330Z'
         finish_date:
           type: string
           example: null
@@ -35,7 +35,7 @@ components:
           example: null
         status:
           type: string
-          example: 'CREATED'
+          example: 'IN_WAITING'
         priority:
           type: integer
           example: 0
@@ -126,8 +126,8 @@ components:
           type: string
           example: null
         status:
-          type: string
-          example: 'CREATED'
+          type: integer
+          example: 0
         priority:
           type: integer
           example: 0
@@ -220,8 +220,8 @@ components:
                 type: string
                 example: null
               status:
-                type: string
-                example: 'CREATED'
+                type: integer
+                example: 0
               priority:
                 type: integer
                 example: 0
@@ -261,7 +261,7 @@ components:
                         avatar_image:
                           type: string
                           example: null
-              observers:
+              oservers:
                 type: array
                 items:
                   type: object

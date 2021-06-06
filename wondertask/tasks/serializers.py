@@ -72,6 +72,9 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         return task
 
     def to_representation(self, instance):
+        if instance.status in (instance.IN_PROGRESS, instance.IN_PROGRESS_OVERDUE):
+            instance.stop_task()
+            instance.start_task()
         output_data = super().to_representation(instance)
         output_data['group'] = instance.group.group_name
 
@@ -82,6 +85,8 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         observers = instance.observers.all()
         list_observers = [ObserverListSerializer(el).data for el in observers]
         output_data['observers'] = list_observers
+
+        output_data['status'] = instance.STATUS_DICT[instance.status]
 
         return output_data
 

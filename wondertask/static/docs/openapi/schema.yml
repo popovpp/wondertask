@@ -41,6 +41,12 @@ paths:
     $ref: "./view/tasks/task_my.yml"
   /v1/tasks/task/{id}/:
     $ref: "./view/tasks/task_id.yml"
+  /v1/tasks/task/{id}/start-task/:
+    $ref: "./view/tasks/task_id_start.yml"
+  /v1/tasks/task/{id}/stop-task/:
+    $ref: "./view/tasks/task_id_stop.yml"
+  /v1/tasks/task/{id}/finish-task/:
+    $ref: "./view/tasks/task_id_finish.yml"
 
   # Tasktree
   /v1/tasks/tasktree/:
