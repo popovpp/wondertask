@@ -11,9 +11,8 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import get_object_or_404
 from taggit.models import Tag
 
-from accounts.models import User
-from tasks import tasks
 from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag)
+from tasks.permissions import IsOwner
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
                                GroupSerializer,
@@ -22,6 +21,7 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
                                ActionTagSerializer)
+from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 
 
@@ -68,7 +68,6 @@ class TaskFilters(django_filters.FilterSet):
 
 
 class TaskViewSet(ModelViewSet):
-
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -99,22 +98,14 @@ class TaskViewSet(ModelViewSet):
     def add_tags(self, request, pk=None):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        tags = serializer.data['tags']
-        system_tag = []
-        for tag_name in tags.copy():
-            if '$' in tag_name:
-                tags.remove(tag_name)
-                system_tag.append(tag_name.replace('$', ''))
-        check_existing_sys_tags = Tag.objects.filter(name__in=system_tag)
-        existing_system_tag_names = [tag.name for tag in check_existing_sys_tags]
-        if existing_system_tag_names != system_tag:
-            return Response({"detail": f"This system tags: "
-                                       f"{set(system_tag)-set(existing_system_tag_names)}"
-                                       f" not existing"})
-        task = get_object_or_404(Task, pk=pk)
-        task.system_tags.add(*check_existing_sys_tags)
-        task.user_tags.add(*tags, tag_kwargs={"user": request.user})
+        user_tags, system_tags = tag_service.filtering_tags(serializer.data['tags'])
 
+        non_existent_system_tags = tag_service.get_non_existent_system_tags(system_tags)
+        if non_existent_system_tags:
+            return Response({"detail": f"This system tags: {non_existent_system_tags} not existing"})
+
+        task = tag_service.add_tags_to_task(task_id=pk, user_id=request.user.id,
+                                            user_tags=user_tags, system_tags=system_tags)
         serializer_task = TaskSerializer(instance=task, context=self.get_serializer_context())
         return Response(data=serializer_task.data, status=status.HTTP_200_OK)
 
@@ -123,11 +114,7 @@ class TaskViewSet(ModelViewSet):
     def del_tags(self, request, pk=None):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        tags = serializer.data['tags']
-        task = get_object_or_404(Task, pk=pk)
-        task.system_tags.remove(*tags)
-        task.user_tags.remove(*tags)
-
+        task = tag_service.remove_tags_from_task(task_id=pk, tags=serializer.data['tags'])
         serializer_task = TaskSerializer(instance=task, context=self.get_serializer_context())
         return Response(data=serializer_task.data, status=status.HTTP_200_OK)
 
@@ -180,26 +167,22 @@ class GroupViewSet(ModelViewSet):
         serializer.save(creator=self.request.user)
 
     @action(methods=["POST"], detail=True, url_path="invite", url_name="invite_users_in_group",
-            serializer_class=GroupInviteSerializer, permission_classes=[IsAuthenticated])
+            serializer_class=GroupInviteSerializer, permission_classes=[IsAuthenticated, IsOwner])
     def invite_users_in_group(self, request, pk=None):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        group = get_object_or_404(Group, pk=pk)
+        emails = serializer.data['users_emails']
 
-        if group.creator != request.user:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        users = User.objects.filter(email__in=serializer.data['users_emails'])
-        if not users:
-            return Response(data={"detail": "No users found for these emails"},
-                            status=status.HTTP_400_BAD_REQUEST)
-
+        non_existent_emails = group_service.get_non_existent_user_emails(emails=emails)
+        if non_existent_emails:
+            return Response(
+                data={"detail": f"No users found for these emails: {non_existent_emails}"},
+                status=status.HTTP_400_BAD_REQUEST)
+        # create accept invite url
         url = request.build_absolute_uri().replace("invite", "accept-invite")
-        for user in users:
-            tasks.send_invite_in_group.delay(group_name=group.group_name,
-                                             url=f'{url}?email={user.email}',
-                                             email=user.email)
-        return Response(data={"detail": "Invitations will be mailed"}, status=status.HTTP_200_OK)
+        group = get_object_or_404(Group, pk=pk)
+        group_service.invite_users_in_group(name=group.group_name, url=url, emails=emails)
+        return Response(data={"msg": "Invitations will be mailed"}, status=status.HTTP_200_OK)
 
     @action(methods=["GET"], detail=True, url_path="accept-invite", url_name="accept_invite")
     def accept_invite(self, request, pk=None):
@@ -207,10 +190,7 @@ class GroupViewSet(ModelViewSet):
             return Response(data={"detail": "email query param is required"},
                             status=status.HTTP_400_BAD_REQUEST)
         email = request.query_params['email']
-        user = get_object_or_404(User, email=email)
-        group = Group.objects.get(pk=pk)
-        group.group_members.add(user)
-
+        group_service.add_user_in_group(group_id=pk, email=email)
         return Response(status=status.HTTP_200_OK)
 
 

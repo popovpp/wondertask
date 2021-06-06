@@ -48,4 +48,4 @@ def test_06_del_tags_from_task(user_client, create_task):
 def test_07_get_user_tags_by_user_id(user_client, create_tag):
     response = user_client.get(f'/v1/accounts/user/1/tags/')
     assert response.status_code == 200
-    assert response.json() == [create_tag]
+    assert response.json()['tags'] == [create_tag]
