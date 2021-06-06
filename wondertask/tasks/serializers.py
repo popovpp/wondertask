@@ -35,22 +35,10 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
                   'sum_elapsed_time', 'status', 'priority', 'creator',
                   'user_tags', 'level', 'parent']
 
-    def to_representation(self, instance):
-
-        output_data = TaskSerializer(instance, context={'request': self.context['request']}).data
-
-        all_descendants = instance.get_descendants(include_self=False).order_by('-creation_date')
-        lst = []
-        for el in all_descendants:
-            lst.append(TaskSerializer(el, context={'request': self.context['request']}).data)
-        for el in lst:
-            for ele in lst:
-                if el['id'] == ele['parent']:
-                    el['children'] = ele
-                    lst.remove(ele)
-        output_data['children'] = lst
-
-        return output_data
+    def get_fields(self):
+        fields = super(TaskTreeSerializer, self).get_fields()
+        fields['children'] = TaskTreeSerializer(read_only=True, many=True)
+        return fields
 
 
 class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -157,19 +145,10 @@ class CommentTreeSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent']
 
-    def to_representation(self, instance):
-        children_comments = instance.get_descendants(include_self=False)
-        comments_list = []
-        for comment in children_comments:
-            comments_list.append(super().to_representation(comment))
-        for child in comments_list:
-            for parent in comments_list:
-                if parent['id'] == child['parent']:
-                    parent['children'] = child
-                    comments_list.remove(child)
-        comment = super().to_representation(instance)
-        comment['children'] = comments_list
-        return comment
+    def get_fields(self):
+        fields = super(CommentTreeSerializer, self).get_fields()
+        fields['children'] = CommentTreeSerializer(read_only=True, many=True)
+        return fields
 
 
 class CommentSerializer(serializers.ModelSerializer):

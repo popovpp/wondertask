@@ -119,9 +119,8 @@ class Task(models.Model):
         self.set_sum_elapsed_time()
 
 
-
-TreeForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(Task,
-                                                                                          'parent')
+TreeForeignKey(Task, on_delete=models.CASCADE,
+               related_name="children", blank=True, null=True).contribute_to_class(Task, 'parent')
 mptt.register(Task, order_insertion_by=['id'])
 
 
@@ -168,8 +167,8 @@ class Comment(models.Model):
         ordering = ['-id']
 
 
-TreeForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True).contribute_to_class(
-    Comment, 'parent')
+TreeForeignKey(Comment, on_delete=models.CASCADE, related_name="children",
+               blank=True, null=True).contribute_to_class(Comment, 'parent')
 mptt.register(Comment, order_insertion_by=['id'])
 
 
