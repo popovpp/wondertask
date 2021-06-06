@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from tasks.models import Task, Comment, Doc, Image, Audio
+from tasks.models import Task, Comment, Doc, Image, Audio, TaskSchedule
 
 
 class TaskModelAdmin(admin.ModelAdmin):
@@ -50,3 +50,4 @@ admin.site.register(Comment, CommentModelAdmin)
 admin.site.register(Doc, DocModelAdmin)
 admin.site.register(Image, ImageModelAdmin)
 admin.site.register(Audio, AudioModelAdmin)
+admin.site.register(TaskSchedule)

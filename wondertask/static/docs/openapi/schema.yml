@@ -143,3 +143,9 @@ paths:
     $ref: "./view/tasks/group_invite.yml"
   /v1/tasks/groups/{id}/accept-invite/:
     $ref: "./view/tasks/group_accept.yml"
+
+  # TaskSchedule
+  /v1/tasks/repeats/:
+    $ref: "./view/tasks/task_schedule.yml"
+  /v1/tasks/repeats/{id}/:
+    $ref: "./view/tasks/task_schedule_id.yml"

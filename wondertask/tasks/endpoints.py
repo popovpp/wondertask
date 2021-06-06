@@ -2,10 +2,11 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from tasks.views import (TaskViewSet, ExecutorViewSet, ObserverViewSet,
-                         TaskSystemTagsViewSet, GroupViewSet, 
-                         TaskTreeViewSet, 
+                         TaskSystemTagsViewSet, GroupViewSet,
+                         TaskTreeViewSet,
                          TaskDocViewSet, TaskImageViewSet, TaskAudioViewSet, CommentViewSet,
-                         CommentDocViewSet, CommentImageViewSet, CommentAudioViewSet, TagViewSet)
+                         CommentDocViewSet, CommentImageViewSet, CommentAudioViewSet, TagViewSet,
+                         TaskScheduleViewSet)
 
 
 task_router = DefaultRouter()
@@ -30,6 +31,7 @@ task_router.register(r'task/(?P<task_id>\d+)/comment/(?P<comment_id>\d+)/audio',
                      CommentAudioViewSet, 'comment_audio')
 
 task_router.register('tags', TagViewSet, 'tags')
+task_router.register('repeats', TaskScheduleViewSet, 'repeats')
 
 task_endpoints = [
     path('', include([path('', include(task_router.urls)), ]))

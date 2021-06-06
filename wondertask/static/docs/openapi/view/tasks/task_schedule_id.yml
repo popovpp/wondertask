@@ -1,0 +1,136 @@
+get:
+  summary: 'Getting the task schedule'
+  tags: ['TaskSchedule']
+  operationId: GetTaskSchedule
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task schedule id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskSchedule'
+      description: 'The task schedule was got'
+put:
+  summary: "Changing the task schedule"
+  tags: ['TaskSchedule']
+  operationId: ChangeTaskSchedule
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task schedule id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/TaskSchedule'
+        examples:
+          TaskSchedule:
+            $ref: '#/components/examples/TaskSchedule'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskSchedule'
+      description: 'The task schedule was created'
+patch:
+  summary: "Changing the field of the task schedule"
+  tags: ['TaskSchedule']
+  operationId: ChangeFieldTaskSchedule
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task schedule id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/TaskSchedule'
+        examples:
+          Task:
+            $ref: '#/components/examples/TaskSchedule'
+    description: 'Changing any from presented fields'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskSchedule'
+      description: 'The task schedule was created'
+delete:
+  summary: 'Deleting the task schedule'
+  tags: ['TaskSchedule']
+  operationId: DeleteTaskSchedule
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task schedule id'
+      schema:
+        type: integer
+  description: 'The task schedule will delete'
+  responses:
+    '204':
+      content:
+      description: 'The task schedule was deleted'
+
+components:
+  schemas:
+    TaskSchedule:
+      type: object
+      description: 'TaskSchedule'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        task:
+          type: integer
+        number_of_times:
+          type: integer
+        end_date:
+          type: string
+          format: date_time
+        crontab:
+          type: object
+          properties:
+            minute:
+              type: string
+            hour:
+              type: string
+            day_of_week:
+              type: string
+            day_of_month:
+              type: string
+            month_of_year:
+              type: string
+            timezone:
+              type: string
+
+
+  examples:
+    TaskSchedule:
+      summary: 'TaskSchedule'
+      value:
+        task: 10
+        number_of_times: 15
+        end_date: "2021-06-5T01:00:59.502847Z"
+        crontab:
+          minute: "*"
+          hour: "*"
+          day_of_week: "*"
+          day_of_month: "*"
+          month_of_year: "*"
+          timezone: "Europe/Moscow"
+

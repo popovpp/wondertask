@@ -1,11 +1,13 @@
+from django_celery_beat.models import PeriodicTask, CrontabSchedule, ClockedSchedule
 from rest_framework import serializers
 from taggit.models import Tag
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer, )
 from django.shortcuts import get_object_or_404
 
+from tasks import tasks
 from tasks.models import (Task, Executor, Observer,
-                          Group, Doc, Image, Audio, Comment, TaskTag)
+                          Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
                               VALID_AUDIO_FILES, )
 from accounts.serializers import UserTaskSerializer
@@ -266,3 +268,45 @@ class GroupInviteSerializer(serializers.Serializer):
 
 class ActionTagSerializer(serializers.Serializer):
     tags = serializers.ListField(child=serializers.CharField())
+
+
+class CrontabSerializer(serializers.ModelSerializer):
+    timezone = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = CrontabSchedule
+        fields = ["minute", "hour", "day_of_week", "day_of_month", "month_of_year", "timezone"]
+
+
+class TaskScheduleSerializer(serializers.ModelSerializer):
+    crontab = CrontabSerializer()
+
+    class Meta:
+        model = TaskSchedule
+        fields = ["id", "task", "number_of_times", "end_date", "crontab"]
+
+    def create(self, validated_data):
+        crontab = validated_data.pop("crontab")
+        crontab_instance, _ = CrontabSchedule.objects.get_or_create(**crontab)
+        tasks.create_repeats_tasks.delay(validated_data['task'].id)
+        task_schedule, _ = TaskSchedule.objects.get_or_create(**validated_data, crontab=crontab_instance)
+        return task_schedule
+
+    def update(self, instance, validated_data):
+        crontab = validated_data.pop("crontab")
+        instance.crontab.minute = crontab.get('minute', instance.crontab.minute)
+        instance.crontab.hour = crontab.get('hour', instance.crontab.hour)
+        instance.crontab.day_of_week = crontab.get('day_of_week', instance.crontab.day_of_week)
+        instance.crontab.day_of_month = crontab.get('day_of_month', instance.crontab.day_of_month)
+        instance.crontab.month_of_year = crontab.get('month_of_year', instance.crontab.month_of_year)
+        instance.crontab.timezone = crontab.get('timezone', instance.crontab.timezone)
+
+        instance.task = validated_data.get('task', instance.task)
+        instance.number_of_times = validated_data.get('number_of_times', instance.number_of_times)
+        instance.end_date = validated_data.get('end_date', instance.end_date)
+
+        instance.repeated_tasks.all().delete()
+        tasks.create_repeats_tasks.delay(validated_data['task'].id)
+
+        instance.save()
+        return instance

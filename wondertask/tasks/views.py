@@ -12,8 +12,8 @@ from rest_framework.generics import get_object_or_404
 from taggit.models import Tag
 from django.utils import timezone
 
-from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag)
 from tasks.permissions import IsOwner
+from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule)
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
                                GroupSerializer,
@@ -21,7 +21,7 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverListSerializer, DocSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
-                               ActionTagSerializer)
+                               ActionTagSerializer, TaskScheduleSerializer)
 from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 
@@ -396,3 +396,15 @@ class TagViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class TaskScheduleViewSet(ModelViewSet):
+    queryset = TaskSchedule.objects.all()
+    serializer_class = TaskScheduleSerializer
+    permission_classes = [AllowAny]
+
+
+def destroy(self, request, *args, **kwargs):
+    instance = self.get_object()
+    instance.repeated_tasks.all().delete()
+    return super(TaskScheduleViewSet, self).destroy(request, *args, **kwargs)
