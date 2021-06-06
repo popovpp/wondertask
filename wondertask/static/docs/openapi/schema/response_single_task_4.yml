@@ -27,9 +27,6 @@ components:
         finish_date:
           type: string
           example: '2021-05-15T10:55:56.525330Z'
-        last_start_time: 
-          type: string
-          example: '2021-05-15T10:55:56.525330Z'
         sum_elapsed_time:
           type: string
           example: "02:28:01.565579"

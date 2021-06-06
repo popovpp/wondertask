@@ -27,9 +27,6 @@ components:
         finish_date:
           type: string
           example: null
-        last_start_time:
-          type: string
-          example: null
         sum_elapsed_time:
           type: string
           example: null
@@ -117,9 +114,6 @@ components:
           type: string
           example: null
         finish_date:
-          type: string
-          example: null
-        last_start_time:
           type: string
           example: null
         sum_elapsed_time:
@@ -211,9 +205,6 @@ components:
                 type: string
                 example: null
               finish_date:
-                type: string
-                example: null
-              last_start_time:
                 type: string
                 example: null
               sum_elapsed_time:
