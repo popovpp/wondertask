@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import get_object_or_404
 from taggit.models import Tag
+from django.utils import timezone
 
 from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag)
 from tasks.permissions import IsOwner
@@ -143,6 +144,22 @@ class TaskViewSet(ModelViewSet):
         task.finish_task()
         task.save()
         serializer = TaskSerializer(task, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=True, url_path="doubling-task", url_name="doubling_task",
+            permission_classes=[IsAuthenticatedOrReadOnly])
+    def doubling_task(self, request, pk=None):
+        task = get_object_or_404(Task, pk=pk)
+        duplicated_task = Task.objects.create(creator=task.creator,
+                                              title=task.title,
+                                              deadline=(timezone.now()+(task.deadline-task.creation_date)),
+                                              priority=task.priority,
+                                              user_tags=task.user_tags,
+                                              system_tags=task.system_tags,
+                                              group=task.group,
+                                              parent=task.parent)
+        duplicated_task.save()
+        serializer = TaskSerializer(duplicated_task, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

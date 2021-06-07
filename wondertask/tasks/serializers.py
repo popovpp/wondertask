@@ -59,14 +59,18 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
     def validate_group(self, value):
-        group = get_object_or_404(Group, id=value.id)
-        if group.creator != self.context['request'].user:
-            raise serializers.ValidationError("The user is not owner this selected group")
+        if value:
+            group = get_object_or_404(Group, id=value.id)
+            if group.creator != self.context['request'].user:
+                raise serializers.ValidationError("The user is not owner this selected group")
+
         return value
 
     def create(self, validated_data):
         task = super(TaskSerializer, self).create(validated_data)
         task.creator = self.context['request'].user
+        if task.deadline < task.creation_date:
+            raise serializers.ValidationError("A deadline must be younger then a creation_date.")
         task.save()
 
         return task
