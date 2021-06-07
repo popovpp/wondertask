@@ -1,0 +1,29 @@
+get:
+  summary: 'Getting the tasks list of selected group.'
+  tags: ['Group']
+  operationId: GetListGroupTasks
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: integer
+              previous:
+                type: integer
+              results:
+                type: array
+                items:
+                  $ref: '/static/docs/openapi/schema/response_single_task_1.yml#/components/schemas/SingleTask'
+      description: 'The list was got'

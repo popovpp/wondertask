@@ -125,6 +125,8 @@ paths:
     $ref: "./view/tasks/group.yml"
   /v1/tasks/groups/{id}/:
     $ref: "./view/tasks/group_id.yml"
+  /v1/tasks/groups/{id}/tasks-list/:
+    $ref: "./view/tasks/group_id_tasks_list.yml"
 
   # Group Invite/Accept
   /v1/tasks/groups/{id}/invite/:
