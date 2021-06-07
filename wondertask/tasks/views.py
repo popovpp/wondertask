@@ -186,9 +186,11 @@ class ObserverViewSet(ListCreateRetrieveDestroyViewSet):
 
 
 class GroupViewSet(ModelViewSet):
-    queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return Group.objects.all().filter(creator=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
@@ -219,6 +221,14 @@ class GroupViewSet(ModelViewSet):
         email = request.query_params['email']
         group_service.add_user_in_group(group_id=pk, email=email)
         return Response(status=status.HTTP_200_OK)
+
+    @action(methods=["GET"], detail=True, url_path="tasks-list", url_name="tasks_list")
+    def tasks_list(self, request, pk=None):
+        self.serializer_class = TaskSerializer
+        queryset = Task.objects.filter(group=pk).order_by('-creation_date')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
 
 
 class CommentViewSet(ModelViewSet):
