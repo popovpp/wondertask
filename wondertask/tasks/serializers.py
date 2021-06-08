@@ -40,6 +40,19 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
         fields['children'] = TaskTreeSerializer(read_only=True, many=True)
         return fields
 
+    def to_representation(self, instance):
+        if instance.status in (instance.IN_PROGRESS, instance.IN_PROGRESS_OVERDUE):
+            instance.stop_task()
+            instance.start_task()
+
+        output_data = super().to_representation(instance)
+        if instance.group:
+            output_data['group'] = instance.group.group_name
+        else:
+            output_data['group'] = "null"
+
+        return output_data
+
 
 class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
     user_tags = TagListSerializerField(required=False)

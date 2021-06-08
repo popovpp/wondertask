@@ -162,6 +162,19 @@ class TaskViewSet(ModelViewSet):
         serializer = TaskSerializer(duplicated_task, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(methods=['POST'], detail=True, url_path="add-parent", url_name="add_parent",
+            permission_classes=[IsAuthenticatedOrReadOnly], serializer_class=TaskSerializer)
+    def add_parent(self, request, pk=None):
+        parent_task = Task.objects.create(**request.data)
+        child_task = get_object_or_404(Task, pk=pk)
+        parent_task.group = child_task.group
+        parent_task.creator = request.user
+        child_task.parent = parent_task
+        parent_task.save()
+        child_task.save()       
+        serializer_task = TaskTreeSerializer(instance=parent_task, context=self.get_serializer_context())
+        return Response(data=serializer_task.data, status=status.HTTP_200_OK)
+
 
 class TaskTreeViewSet(RetrieveListViewSet):
     serializer_class = TaskTreeSerializer
