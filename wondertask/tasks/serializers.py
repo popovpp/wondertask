@@ -40,6 +40,19 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
         fields['children'] = TaskTreeSerializer(read_only=True, many=True)
         return fields
 
+    def to_representation(self, instance):
+        if instance.status in (instance.IN_PROGRESS, instance.IN_PROGRESS_OVERDUE):
+            instance.stop_task()
+            instance.start_task()
+
+        output_data = super().to_representation(instance)
+        if instance.group:
+            output_data['group'] = instance.group.group_name
+        else:
+            output_data['group'] = "null"
+
+        return output_data
+
 
 class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
     user_tags = TagListSerializerField(required=False)
@@ -59,14 +72,18 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
     def validate_group(self, value):
-        group = get_object_or_404(Group, id=value.id)
-        if group.creator != self.context['request'].user:
-            raise serializers.ValidationError("The user is not owner this selected group")
+        if value:
+            group = get_object_or_404(Group, id=value.id)
+            if group.creator != self.context['request'].user:
+                raise serializers.ValidationError("The user is not owner this selected group")
+
         return value
 
     def create(self, validated_data):
         task = super(TaskSerializer, self).create(validated_data)
         task.creator = self.context['request'].user
+        if task.deadline < task.creation_date:
+            raise serializers.ValidationError("A deadline must be younger then a creation_date.")
         task.save()
 
         return task

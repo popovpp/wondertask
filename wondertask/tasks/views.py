@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import get_object_or_404
 from taggit.models import Tag
+from django.utils import timezone
 
 from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag)
 from tasks.permissions import IsOwner
@@ -144,6 +145,35 @@ class TaskViewSet(ModelViewSet):
         task.save()
         serializer = TaskSerializer(task, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=True, url_path="doubling-task", url_name="doubling_task",
+            permission_classes=[IsAuthenticatedOrReadOnly])
+    def doubling_task(self, request, pk=None):
+        task = get_object_or_404(Task, pk=pk)
+        duplicated_task = Task.objects.create(creator=task.creator,
+                                              title=task.title,
+                                              deadline=(timezone.now()+(task.deadline-task.creation_date)),
+                                              priority=task.priority,
+                                              user_tags=task.user_tags,
+                                              system_tags=task.system_tags,
+                                              group=task.group,
+                                              parent=task.parent)
+        duplicated_task.save()
+        serializer = TaskSerializer(duplicated_task, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['POST'], detail=True, url_path="add-parent", url_name="add_parent",
+            permission_classes=[IsAuthenticatedOrReadOnly], serializer_class=TaskSerializer)
+    def add_parent(self, request, pk=None):
+        parent_task = Task.objects.create(**request.data)
+        child_task = get_object_or_404(Task, pk=pk)
+        parent_task.group = child_task.group
+        parent_task.creator = request.user
+        child_task.parent = parent_task
+        parent_task.save()
+        child_task.save()       
+        serializer_task = TaskTreeSerializer(instance=parent_task, context=self.get_serializer_context())
+        return Response(data=serializer_task.data, status=status.HTTP_200_OK)
 
 
 class TaskTreeViewSet(RetrieveListViewSet):

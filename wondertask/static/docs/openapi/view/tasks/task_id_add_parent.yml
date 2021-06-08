@@ -1,0 +1,55 @@
+post:
+  summary: "Creating a new task that is a parent for the current task."
+  tags: ['Tasks']
+  operationId: CreateParentTask
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Task'
+        examples:
+          Task:
+            $ref: '#/components/examples/Task'
+    description: '"Group" is id of choiced group. 
+                 Required field is "title"' 
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '/static/docs/openapi/schema/response_single_task_1.yml#/components/schemas/SingleTask'
+      description: 'The parent task was created'
+
+components:
+  schemas:
+    Task:
+      type: object
+      description: 'Task'
+      properties:
+        title:
+          type: string
+        group:
+          type: integer
+        deadline:
+          type: string
+        priority:
+          type: integer
+        parent:
+          type: integer
+
+  examples:
+    Task:
+      summary: 'Task'
+      value:
+        title: Новая задача
+        group:
+        deadline: '2021-05-13T01:00:59.502847Z'
+        priority: 0
+        parent: 
