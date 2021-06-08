@@ -30,8 +30,9 @@ def create_repeats_tasks(task_id: int):
     task = Task.objects.get(pk=task_id)
     system_tag, _ = Tag.objects.get_or_create(name="РЕГУЛЯРНАЯ")
     task.system_tags.add(system_tag)
+
     task_schedule = TaskSchedule.objects.get(task_id=task_id)
-    deadline = task.deadline - task.creation_date
+    task_duration = task.deadline - task.creation_date
 
     remaining_estimate = task_schedule.crontab.schedule.remaining_estimate(timezone.now())
     creation_date = timezone.now() + remaining_estimate
@@ -41,14 +42,11 @@ def create_repeats_tasks(task_id: int):
     while True:
         repeat_task = Task.objects.create(title=task.title, creator=task.creator)
         repeat_task.creation_date = creation_date
-        repeat_task.start_date = task.start_date
-        repeat_task.finish_date = task.finish_date
-        repeat_task.sum_elapsed_time = task.sum_elapsed_time
         repeat_task.priority = task.priority
         repeat_task.user_tags = task.user_tags
         repeat_task.system_tags = task.system_tags
         repeat_task.group = task.group
-        repeat_task.deadline = creation_date + deadline
+        repeat_task.deadline = creation_date + task_duration
 
         repeat_task.save()
         repeat_task_list.append(repeat_task)

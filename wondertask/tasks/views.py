@@ -115,7 +115,9 @@ class TaskViewSet(ModelViewSet):
     def del_tags(self, request, pk=None):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        task = tag_service.remove_tags_from_task(task_id=pk, tags=serializer.data['tags'])
+        user_tags, system_tags = tag_service.filtering_tags(serializer.data['tags'])
+        task = tag_service.remove_tags_from_task(task_id=pk, user_tags=user_tags,
+                                                 system_tags=system_tags)
         serializer_task = TaskSerializer(instance=task, context=self.get_serializer_context())
         return Response(data=serializer_task.data, status=status.HTTP_200_OK)
 
@@ -260,7 +262,6 @@ class GroupViewSet(ModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [AllowAny]
@@ -403,8 +404,3 @@ class TaskScheduleViewSet(ModelViewSet):
     serializer_class = TaskScheduleSerializer
     permission_classes = [AllowAny]
 
-
-def destroy(self, request, *args, **kwargs):
-    instance = self.get_object()
-    instance.repeated_tasks.all().delete()
-    return super(TaskScheduleViewSet, self).destroy(request, *args, **kwargs)

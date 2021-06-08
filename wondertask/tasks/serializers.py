@@ -1,4 +1,4 @@
-from django_celery_beat.models import PeriodicTask, CrontabSchedule, ClockedSchedule
+from django_celery_beat.models import CrontabSchedule
 from rest_framework import serializers
 from taggit.models import Tag
 from taggit_serializer.serializers import (TagListSerializerField,
@@ -64,14 +64,13 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ['url', 'id', 'title', 'group', 'creation_date', 'deadline',
-                  'start_date', 'finish_date', 
+                  'start_date', 'finish_date',
                   'sum_elapsed_time', 'status', 'priority', 'creator',
                   'user_tags', 'system_tags', 'level', 'parent']
         read_only_fields = ['creation_date',
-                            'start_date', 'finish_date', 
+                            'start_date', 'finish_date',
                             'sum_elapsed_time', 'status', 'creator',
                             'user_tags', 'system_tags', 'level']
-
 
     def validate_group(self, value):
         if value:
@@ -271,8 +270,6 @@ class ActionTagSerializer(serializers.Serializer):
 
 
 class CrontabSerializer(serializers.ModelSerializer):
-    timezone = serializers.CharField(write_only=True)
-
     class Meta:
         model = CrontabSchedule
         fields = ["minute", "hour", "day_of_week", "day_of_month", "month_of_year", "timezone"]
@@ -283,30 +280,39 @@ class TaskScheduleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TaskSchedule
-        fields = ["id", "task", "number_of_times", "end_date", "crontab"]
+        fields = ["id", "task", "number_of_times", "end_date", "crontab", "repeated_tasks"]
+        read_only_fields = ["repeated_tasks"]
 
     def create(self, validated_data):
         crontab = validated_data.pop("crontab")
         crontab_instance, _ = CrontabSchedule.objects.get_or_create(**crontab)
+        task_schedule = TaskSchedule.objects.create(**validated_data,
+                                                    crontab=crontab_instance)
         tasks.create_repeats_tasks.delay(validated_data['task'].id)
-        task_schedule, _ = TaskSchedule.objects.get_or_create(**validated_data, crontab=crontab_instance)
+
         return task_schedule
 
     def update(self, instance, validated_data):
+        instance.task = validated_data.get('task', instance.task)
+        instance.number_of_times = validated_data.get('number_of_times', instance.number_of_times)
+        instance.end_date = validated_data.get('end_date', instance.end_date)
+
         crontab = validated_data.pop("crontab")
         instance.crontab.minute = crontab.get('minute', instance.crontab.minute)
         instance.crontab.hour = crontab.get('hour', instance.crontab.hour)
         instance.crontab.day_of_week = crontab.get('day_of_week', instance.crontab.day_of_week)
         instance.crontab.day_of_month = crontab.get('day_of_month', instance.crontab.day_of_month)
-        instance.crontab.month_of_year = crontab.get('month_of_year', instance.crontab.month_of_year)
+        instance.crontab.month_of_year = crontab.get('month_of_year',
+                                                     instance.crontab.month_of_year)
         instance.crontab.timezone = crontab.get('timezone', instance.crontab.timezone)
 
-        instance.task = validated_data.get('task', instance.task)
-        instance.number_of_times = validated_data.get('number_of_times', instance.number_of_times)
-        instance.end_date = validated_data.get('end_date', instance.end_date)
-
+        # delete all repeated_tasks and create new repeated tasks
         instance.repeated_tasks.all().delete()
-        tasks.create_repeats_tasks.delay(validated_data['task'].id)
-
+        tasks.create_repeats_tasks.delay(instance.task.id)
         instance.save()
         return instance
+
+    def to_representation(self, instance):
+        output = super(TaskScheduleSerializer, self).to_representation(instance)
+        output['crontab']['timezone'] = str(instance.crontab.timezone)
+        return output
