@@ -58,3 +58,14 @@ class UserViewSet(mixins.RetrieveModelMixin,
         user.save()
         serializer = UserTaskSerializer(user, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=False, url_path="get-user", url_name="get_user",
+            permission_classes=[IsAuthenticatedOrReadOnly])
+    def get_user(self, request, **kwargs):
+        if 'email' not in request.query_params:
+            return Response(data={"detail": "email query param is required"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        email = request.query_params['email']
+        user = get_object_or_404(User, email=email)
+        serializer = UserTaskSerializer(user, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
