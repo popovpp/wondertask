@@ -21,6 +21,8 @@ paths:
     $ref: "./view/accounts/user_id_tags.yml"
   /v1/accounts/user/:
     $ref: "./view/accounts/user.yml"
+  /v1/accounts/user/get-user/:
+    $ref: "./view/accounts/get_user.yml"
   /v1/accounts/user/{user_id}/:
     $ref: "./view/accounts/user_id.yml"
   /v1/accounts/user/{user_id}/del-avatar/:
