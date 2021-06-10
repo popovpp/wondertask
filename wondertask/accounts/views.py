@@ -1,3 +1,4 @@
+import socket
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,12 +9,19 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from taggit.models import Tag
+from django.conf import settings
+from django.http import HttpResponseRedirect
+from django.core.mail import send_mail
+from http import HTTPStatus
 
 from tasks.models import TaskTag
 from tasks.serializers import TagSerializer
-from accounts.serializers import UserRegistrationSerializer, UserTaskSerializer, AvatarSerializer
+from accounts.serializers import (UserRegistrationSerializer, UserTaskSerializer, 
+                                  AvatarSerializer, UserSendEmailSerializer,
+                                  NewPasswordSerializer)
 from accounts.models import User
 from accounts.signals import avatar_delete
+from tasks.tasks import send_mail_thread
 
 
 class UserRegistrationView(APIView):
@@ -69,3 +77,85 @@ class UserViewSet(mixins.RetrieveModelMixin,
         user = get_object_or_404(User, email=email)
         serializer = UserTaskSerializer(user, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserSendEmailView(APIView):
+    permission_classes = [AllowAny]
+    
+    def get_recover_password_url(self, request, user):
+        hostname = socket.gethostname()
+        IP = socket.gethostbyname(hostname)
+        PORT = request.get_port()
+        recover_password_url = (f'http://{settings.DOMAIN}' + ':' + PORT + 
+                                '/v1/accounts/newpassword/' + user.secret_set() + '/')
+        return recover_password_url
+
+#    def send_mail_thread(self, url, email):
+
+#        send_mail('Go to the link', 
+#                  f'Go to the link: {url}', 
+#                  settings.EMAIL_HOST_USER,  [f'{email}'], fail_silently=False)
+
+    def post(self, request):            
+
+        serializer = UserSendEmailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = get_object_or_404(User, email=serializer.data['email'])
+        if user.is_active:
+            url = self.get_recover_password_url(request, user)
+            try:
+                send_mail_thread.delay(url, user.email)
+            except Exception as e:
+                print(f'Letter was not send to user {user.email}', e)
+                return Response({'result': f'The letter is not send to {user.email}'}, 
+                                      status=HTTPStatus.INTERNAL_SERVER_ERROR)
+        else:
+            return Response({'result': 'The user is not active'}, 
+                                status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            
+        return Response({'secret': f'{user.secret}', 'result': f'The letter send to {user.email}'}, 
+                        status=HTTPStatus.OK)
+
+
+class RedirectUserView(APIView):
+    permission_classes = [AllowAny]
+
+    def get_enter_email_url(self, request):
+        hostname = socket.gethostname()
+        IP = socket.gethostbyname(hostname)
+        PORT = request.get_port()
+        enter_email_url = (f'http://{settings.DOMAIN}' + ':' + PORT +
+                           '/restore-password')
+        return enter_email_url
+
+    def get_enter_password_url(self, request, secret):
+        hostname = socket.gethostname()
+        IP = socket.gethostbyname(hostname)
+        PORT = request.get_port()
+        enter_password_url = (f'http://{settings.DOMAIN}' + ':' + PORT +
+                              '/new-password/' + secret)
+        return enter_password_url
+
+    def get(self, request, **kwargs):
+        secret = kwargs['secret']
+        try:
+            user = User.objects.get(secret=secret)
+        except User.DoesNotExist:
+            return HttpResponseRedirect(self.get_enter_email_url(request))
+        print(self.get_enter_password_url(request, secret))
+        return HttpResponseRedirect(self.get_enter_password_url(request, secret))
+
+    def post(self, request, **kwargs):
+        serializer = NewPasswordSerializer(data=request.data)
+        secret = kwargs['secret']
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = User.objects.get(secret=secret)
+        except User.DoesNotExist:
+            return Response({'result': 'The secret is not valid.'}, 
+                            status=HTTPStatus.BAD_REQUEST)
+        user.set_password(serializer.data['password'])
+        user.secret_clear()
+        user.save()
+        return Response({'result': 'The password changed'}, 
+                        status=HTTPStatus.OK)

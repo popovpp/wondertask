@@ -27,6 +27,7 @@ from rest_framework_jwt.views import (
 
 from accounts.endpoints import registration_endpoint
 from tasks.endpoints import task_endpoints
+from accounts.endpoints import recover_password_endpoints
 
 
 authentication_endpoints = [
@@ -39,6 +40,7 @@ v1 = [
     path('authentication/', include(authentication_endpoints)),
     path('openapi/', TemplateView.as_view(template_name='swugger.html')),
     path('accounts/', include(registration_endpoint)),
+    path('accounts/', include(recover_password_endpoints)),
     path('tasks/', include(task_endpoints)),
 
 ] + static(settings.STATIC_URL)

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+import django.contrib.auth.password_validation as validators
 
 from accounts.models import User
 
@@ -38,3 +39,23 @@ class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'avatar_image']
+
+
+class UserSendEmailSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+
+    class Meta:
+        model = User
+        fields = ['email']
+
+
+class NewPasswordSerializer(serializers.ModelSerializer):
+    password = serializers.CharField()
+
+    class Meta:
+        model = User
+        fields = ['password']
+
+    def validate_password(self, data):
+        validators.validate_password(password=data, user=self.instance)
+        return data

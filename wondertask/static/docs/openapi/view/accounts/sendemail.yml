@@ -1,0 +1,47 @@
+post:
+  summary: "Get user email address and send recovering password link"
+  tags: ['Accounts']
+  operationId: SendRecoveringPasswordLink
+  parameters: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/UserEmail'
+        examples:
+          UserEmail:
+            $ref: '#/components/examples/UserEmail'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              secret:
+                type: string
+                description: Secret code for user identification 
+              result:
+                type: string
+                description: The letter send to {user.email}
+            example: 
+              secret: '65a57dacb3bb358c5f6d1ea1a6c338db'
+              result: The letter send to test@test.com
+      description: 'Email address recived, link transmited'
+
+components:
+  schemas:
+    UserEmail:
+      type: object
+      description: 'Email address'
+      properties:
+        email:
+          type: string
+      required:
+      - email
+
+  examples:
+    UserEmail:
+      summary: 'UserEmail'
+      value:
+        email: test@test.com

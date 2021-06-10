@@ -12,3 +12,10 @@ def send_invite_in_group(group_name, link, email):
         recipient_list=[email],
         fail_silently=False,
     )
+
+
+@app.task(name="send_mail_thread")
+def send_mail_thread(url, email):
+        send_mail('For recoverinr the passvord go to the link', 
+                  f'For recovering the password go to the link: {url}', 
+                  'expamole@example.com',  [f'{email}'], fail_silently=False)
