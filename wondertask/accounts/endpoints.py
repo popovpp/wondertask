@@ -1,8 +1,8 @@
-#from django.urls import path
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from accounts.views import UserRegistrationView, get_user_tags, UserViewSet
+from accounts.views import (UserRegistrationView, get_user_tags, UserViewSet,
+	                        UserSendEmailView, RedirectUserView)
 
 
 user_router = DefaultRouter()
@@ -14,9 +14,7 @@ registration_endpoint = [
     path('', include([path('', include(user_router.urls)), ]))
 ]
 
-
-
-#registration_endpoint = [
-#    path('registration/', UserRegistrationView.as_view()),
-#    path('', include([path('', include(user_router.urls)), ]))
-#]
+recover_password_endpoints = [
+    path('sendemail/', UserSendEmailView.as_view()),
+    path('newpassword/<str:secret>/', RedirectUserView.as_view())
+]

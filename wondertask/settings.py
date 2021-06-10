@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+import socket
 from pathlib import Path
 from datetime import timedelta
 
@@ -83,6 +84,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'wsgi.application'
+
+
+# This expresion is for production mode
+#DOMAIN = os.environ.get('DOMAIN')
+
+# This expresion is for develop mode
+DOMAIN = socket.gethostbyname(socket.gethostname())
 
 
 # Database

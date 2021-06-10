@@ -27,6 +27,10 @@ paths:
     $ref: "./view/accounts/user_id.yml"
   /v1/accounts/user/{user_id}/del-avatar/:
     $ref: "./view/accounts/user_id_del_avatar.yml"
+  /v1/accounts/sendemail/:
+    $ref: './view/accounts/sendemail.yml'
+  /v1/accounts/newpassword/{secret}/:
+    $ref: './view/accounts/newpassword.yml'
 
   # Authentication
   /v1/authentication/token/obtaining/:
