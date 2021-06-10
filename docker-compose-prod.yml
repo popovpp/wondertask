@@ -8,5 +8,15 @@ services:
     command: python3 /code/manage.py runserver 0.0.0.0:9007
     ports:
       - "9007:9007"
+  redis:
+    image: redis:6.2.4
+    container_name: redis
+  celery:
+    container_name: celery
+    image: registry.gitlab.com/auditor2/production/wondertaskbackend:latest
+    command: celery -A django_celery worker -l info
+    depends_on:
+      - redis
+      - db
 volumes:
   pgdata:
