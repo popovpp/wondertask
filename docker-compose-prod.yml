@@ -17,6 +17,5 @@ services:
     command: celery -A django_celery worker -l info
     depends_on:
       - redis
-      - db
 volumes:
   pgdata:
