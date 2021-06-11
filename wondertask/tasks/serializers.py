@@ -100,11 +100,13 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
             output_data['group'] = "null"
 
         executors = instance.executors.all()
-        list_executors = [ExecutorListSerializer(el).data for el in executors]
+        list_executors = [ExecutorListSerializer(el, 
+            context={'request': self.context['request']}).data for el in executors]
         output_data['executors'] = list_executors
 
         observers = instance.observers.all()
-        list_observers = [ObserverListSerializer(el).data for el in observers]
+        list_observers = [ObserverListSerializer(el, 
+            context={'request': self.context['request']}).data for el in observers]
         output_data['observers'] = list_observers
 
         output_data['status'] = instance.STATUS_DICT[instance.status]
