@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django_celery_beat.models import PeriodicTask, CrontabSchedule
 from rest_framework.generics import get_object_or_404
 from taggit.managers import TaggableManager
 import mptt
@@ -233,3 +234,18 @@ class Audio(FileSave):
 
     class Meta:
         db_table = 'audio'
+
+
+class TaskSchedule(models.Model):
+    number_of_times = models.SmallIntegerField("Number of times execution of the interval",
+                                               blank=True, null=True)
+    end_date = models.DateTimeField("End date the last execution of the interval",
+                                    blank=True, null=True)
+
+    task = models.OneToOneField(Task, on_delete=models.CASCADE)
+    crontab = models.ForeignKey(CrontabSchedule, on_delete=models.CASCADE)
+    repeated_tasks = models.ManyToManyField(Task, related_name="repeated_tasks")
+    periodic_tasks = models.ManyToManyField(PeriodicTask)
+
+    def __repr__(self):
+        return f"TaskSchedule({self.id}) - {self.task.title}"

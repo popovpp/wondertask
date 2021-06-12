@@ -12,8 +12,8 @@ from rest_framework.generics import get_object_or_404
 from taggit.models import Tag
 from django.utils import timezone
 
-from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag)
 from tasks.permissions import IsOwner
+from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule)
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
                                GroupSerializer,
@@ -21,7 +21,7 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverListSerializer, DocSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
-                               ActionTagSerializer)
+                               ActionTagSerializer, TaskScheduleSerializer)
 from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 
@@ -63,7 +63,7 @@ class TaskFilters(django_filters.FilterSet):
 
     @staticmethod
     def filter_tags(queryset, name, value):
-        tags = value.split(',')
+        tags = value.replace(' ', '').upper().split(',')
         return queryset.filter(Q(user_tags__name__in=tags) |
                                Q(system_tags__name__in=tags)).distinct()
 
@@ -115,7 +115,9 @@ class TaskViewSet(ModelViewSet):
     def del_tags(self, request, pk=None):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        task = tag_service.remove_tags_from_task(task_id=pk, tags=serializer.data['tags'])
+        user_tags, system_tags = tag_service.filtering_tags(serializer.data['tags'])
+        task = tag_service.remove_tags_from_task(task_id=pk, user_tags=user_tags,
+                                                 system_tags=system_tags)
         serializer_task = TaskSerializer(instance=task, context=self.get_serializer_context())
         return Response(data=serializer_task.data, status=status.HTTP_200_OK)
 
@@ -260,7 +262,6 @@ class GroupViewSet(ModelViewSet):
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
-
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [AllowAny]
@@ -396,3 +397,10 @@ class TagViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class TaskScheduleViewSet(ModelViewSet):
+    queryset = TaskSchedule.objects.all()
+    serializer_class = TaskScheduleSerializer
+    permission_classes = [AllowAny]
+

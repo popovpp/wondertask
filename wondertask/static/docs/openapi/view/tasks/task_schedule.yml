@@ -1,0 +1,94 @@
+get:
+  summary: "Getting the list of tasks schedules"
+  tags: ['TaskSchedule']
+  operationId: GetListTaskSchedules
+  parameters: []
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TaskSchedule'
+      description: 'The list was got'
+post:
+  summary: "Creating a new task schedule"
+  tags: ['TaskSchedule']
+  operationId: CreateNewTaskSchedule
+  parameters: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/TaskSchedule'
+        examples:
+          TaskSchedule:
+            $ref: '#/components/examples/TaskSchedule'
+  responses:
+    '201':
+      content:
+        application/json:
+          examples:
+            TaskSchedule:
+              $ref: '#/components/examples/TaskSchedule'
+      description: 'The task schedule was created'
+
+components:
+  schemas:
+    TaskSchedule:
+      type: object
+      description: 'TaskSchedule'
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+          format: uri
+        previous:
+          type: string
+          format: uri
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                readOnly: true
+              task:
+                type: integer
+              number_of_times:
+                type: integer
+              end_date:
+                type: string
+                format: date_time
+              crontab:
+                properties:
+                  minute:
+                    type: string
+                  hour:
+                    type: string
+                  day_of_week:
+                    type: string
+                  day_of_month:
+                    type: string
+                  month_of_year:
+                    type: string
+                  timezone:
+                    type: string
+
+
+  examples:
+    TaskSchedule:
+      summary: 'TaskSchedule'
+      value:
+        task: 10
+        number_of_times: 15
+        end_date: "2021-06-5T01:00:59.502847Z"
+        crontab:
+          minute: "*"
+          hour: "*"
+          day_of_week: "*"
+          day_of_month: "*"
+          month_of_year: "*"
+          timezone: "Europe/Moscow"
+

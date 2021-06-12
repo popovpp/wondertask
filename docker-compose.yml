@@ -57,6 +57,26 @@ services:
       API_PG_DB: postgres
       API_PG_HOST: db
       API_PG_PORT: 5432
+  celery-beat:
+    container_name: celery-beat
+    build:
+      context: ./wondertask
+    command: celery -A django_celery beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - ./wondertask:/code/
+    depends_on:
+      - redis
+      - db
+    environment:
+      SECRET_KEY: bigsecretkey
+      DJANGO_CONFIGURATION: Develop
+      DJANGO_SETTINGS_MODULE:
+      DEBUG: 'true'
+      API_PG_USER: postgres
+      API_PG_PASSWORD: postgres
+      API_PG_DB: postgres
+      API_PG_HOST: db
+      API_PG_PORT: 5432
 
 volumes:
   pgdata:

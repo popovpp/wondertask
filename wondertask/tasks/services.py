@@ -3,7 +3,7 @@ from taggit.models import Tag
 
 from accounts.models import User
 from tasks.tasks import send_invite_in_group
-from tasks.models import Task, Group
+from tasks.models import Task, Group, TaskSchedule
 
 
 class TagService:
@@ -16,7 +16,7 @@ class TagService:
         system_tag = []
         for tag_name in tags.copy():
             if '$' in tag_name:
-                system_tag.append(tag_name.replace('$', ''))
+                system_tag.append(tag_name)
                 tags.remove(tag_name)
         return tags, system_tag
 
@@ -35,12 +35,22 @@ class TagService:
             task.system_tags.add(*system_tags)
         return task
 
-    @staticmethod
-    def remove_tags_from_task(task_id, tags: list) -> Task:
+    def remove_tags_from_task(self, task_id, user_tags: list, system_tags: list) -> Task:
         task = get_object_or_404(Task, pk=task_id)
-        task.user_tags.remove(*tags)
-        task.system_tags.remove(*tags)
+        if user_tags:
+            task.user_tags.remove(*user_tags)
+        if system_tags:
+            if "$РЕГУЛЯРНАЯ" in system_tags:
+                self.remove_task_schedule_and_remove_m2m_related_obj(task.id)
+            task.system_tags.remove(*system_tags)
         return task
+
+    @staticmethod
+    def remove_task_schedule_and_remove_m2m_related_obj(task_id: int) -> None:
+        task_schedule = TaskSchedule.objects.get(task_id=task_id)
+        task_schedule.repeated_tasks.all().delete()
+        task_schedule.periodic_tasks.all().delete()
+        task_schedule.delete()
 
 
 tag_service = TagService()
