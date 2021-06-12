@@ -96,8 +96,6 @@ components:
           type: integer
         name:
           type: string
-        slug:
-          type: string
 
   examples:
     SystemTag:

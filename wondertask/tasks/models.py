@@ -242,9 +242,10 @@ class TaskSchedule(models.Model):
     end_date = models.DateTimeField("End date the last execution of the interval",
                                     blank=True, null=True)
 
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, unique=True)
+    task = models.OneToOneField(Task, on_delete=models.CASCADE)
     crontab = models.ForeignKey(CrontabSchedule, on_delete=models.CASCADE)
     repeated_tasks = models.ManyToManyField(Task, related_name="repeated_tasks")
+    periodic_tasks = models.ManyToManyField(PeriodicTask)
 
     def __repr__(self):
         return f"TaskSchedule({self.id}) - {self.task.title}"

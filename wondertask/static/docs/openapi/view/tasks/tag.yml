@@ -52,8 +52,6 @@ components:
                 type: integer
               name:
                 type: string
-              slug:
-                type: string
               user:
                 type: integer
     Tag:
@@ -63,8 +61,6 @@ components:
         id:
           type: integer
         name:
-          type: string
-        slug:
           type: string
         user:
           type: integer

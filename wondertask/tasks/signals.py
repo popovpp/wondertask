@@ -1,8 +1,8 @@
-from django.db.models.signals import pre_delete, post_save
+from django.db.models.signals import pre_delete, pre_save
 from django.dispatch.dispatcher import receiver
+from taggit.models import Tag
 
-from tasks import tasks
-from tasks.models import Doc, Image, Audio, TaskSchedule
+from tasks.models import Doc, Image, Audio, TaskSchedule, TaskTag
 
 
 @receiver(pre_delete, sender=Doc)
@@ -24,5 +24,17 @@ def audio_file_delete(sender, instance, **kwargs):
 
 
 @receiver(pre_delete, sender=TaskSchedule)
-def delete_repeated_tasks(sender, instance, *args, **kwargs):
+def delete_m2m_related_objects(sender, instance, *args, **kwargs):
     instance.repeated_tasks.all().delete()
+    instance.periodic_tasks.all().delete()
+    instance.task.system_tags.remove("$РЕГУЛЯРНАЯ")
+
+
+@receiver(pre_save, sender=Tag)
+def change_system_tag_name_to_upper(sender, instance, *args, **kwargs):
+    instance.name = instance.name.upper()
+
+
+@receiver(pre_save, sender=TaskTag)
+def change_tag_name_to_upper(sender, instance, *args, **kwargs):
+    instance.name = instance.name.upper()

@@ -63,7 +63,7 @@ class TaskFilters(django_filters.FilterSet):
 
     @staticmethod
     def filter_tags(queryset, name, value):
-        tags = value.split(',')
+        tags = value.replace(' ', '').upper().split(',')
         return queryset.filter(Q(user_tags__name__in=tags) |
                                Q(system_tags__name__in=tags)).distinct()
 

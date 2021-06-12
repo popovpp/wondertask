@@ -16,7 +16,7 @@ class TagService:
         system_tag = []
         for tag_name in tags.copy():
             if '$' in tag_name:
-                system_tag.append(tag_name.replace('$', ''))
+                system_tag.append(tag_name)
                 tags.remove(tag_name)
         return tags, system_tag
 
@@ -40,15 +40,16 @@ class TagService:
         if user_tags:
             task.user_tags.remove(*user_tags)
         if system_tags:
-            if "РЕГУЛЯРНАЯ" in system_tags:
-                self.remove_repeated_tasks_and_task_schedule(task.id)
+            if "$РЕГУЛЯРНАЯ" in system_tags:
+                self.remove_task_schedule_and_remove_m2m_related_obj(task.id)
             task.system_tags.remove(*system_tags)
         return task
 
     @staticmethod
-    def remove_repeated_tasks_and_task_schedule(task_id: int) -> None:
+    def remove_task_schedule_and_remove_m2m_related_obj(task_id: int) -> None:
         task_schedule = TaskSchedule.objects.get(task_id=task_id)
         task_schedule.repeated_tasks.all().delete()
+        task_schedule.periodic_tasks.all().delete()
         task_schedule.delete()
 
 

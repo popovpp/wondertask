@@ -17,7 +17,7 @@ def test_02_get_single_tag(user_client, create_tag):
 
 @pytest.mark.django_db()
 def test_03_tag_create(user_client):
-    data = {"name": "work"}
+    data = {"name": "WORK"}
     response = user_client.post(f'/v1/tasks/tags/', data=data)
     assert response.status_code == 201
     assert response.json()['name'] == data['name']

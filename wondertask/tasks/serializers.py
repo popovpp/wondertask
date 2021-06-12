@@ -116,8 +116,7 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 class TaskSystemTagsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug']
-        read_only_fields = ['slug']
+        fields = ['id', 'name']
 
 
 class ExecutorSerializer(serializers.ModelSerializer):
@@ -257,8 +256,8 @@ class AudioSerializer(serializers.ModelSerializer):
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskTag
-        fields = ['id', 'name', 'slug', 'user']
-        read_only_fields = ['slug', 'user']
+        fields = ['id', 'name', 'user']
+        read_only_fields = ['user']
 
 
 class GroupInviteSerializer(serializers.Serializer):
@@ -308,6 +307,7 @@ class TaskScheduleSerializer(serializers.ModelSerializer):
 
         # delete all repeated_tasks and create new repeated tasks
         instance.repeated_tasks.all().delete()
+        instance.periodic_tasks.all().delete()
         tasks.create_repeats_tasks.delay(instance.task.id)
         instance.save()
         return instance

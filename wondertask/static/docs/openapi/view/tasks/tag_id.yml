@@ -97,8 +97,6 @@ components:
           type: integer
         name:
           type: string
-        slug:
-          type: string
         user:
           type: integer
 
