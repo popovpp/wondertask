@@ -1,0 +1,15 @@
+post:
+  summary: "Read notification"
+  tags: ['Notification']
+  operationId: ReadNotification
+  parameters:
+    - name: id
+      in: path
+      description: "Notification id"
+      schema:
+        type: integer
+  requestBody:
+
+  responses:
+    '201':
+      description: 'The notification was read'
