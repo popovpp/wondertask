@@ -82,6 +82,28 @@ class NotificationService:
         self._create_notification(message=message, task=task, recipients=recipients,
                                   group=task.group, type="DEADLINE")
 
+    def send_repeated_task_notification(self, task: Task):
+        message = self._repeated_task_message(task=task)
+        recipients = self._users_who_receive_notification(
+            creator=task.creator,
+            executors=task.executors.all(),
+            observers=task.observers.all(),
+            group_members=task.group.group_members.all() if task.group else None
+        )
+        self._create_notification(message=message, task=task, recipients=recipients,
+                                  group=task.group, type="ACTION")
+
+    def send_add_object_notifications(self, task: Task, object_name: str):
+        message = self._add_object_message(task=task, object_name=object_name)
+        recipients = self._users_who_receive_notification(
+            creator=task.creator,
+            executors=task.executors.all(),
+            observers=task.observers.all(),
+            group_members=task.group.group_members.all() if task.group else None
+        )
+        self._create_notification(message=message, task=task, recipients=recipients,
+                                  group=task.group, type="ACTION")
+
     @staticmethod
     def read_notifications_bulk(notification_list_ids: int, user: User) -> None:
         notifications_m2m_users = NotificationToUser.objects.filter(
@@ -157,6 +179,22 @@ class NotificationService:
                    f"deadline наступает через {hour_before_deadline} час(ов)"
         else:
             return f"Для задачи '{task.title}' deadline наступает через {hour_before_deadline} час(ов)"
+
+    @staticmethod
+    def _repeated_task_message(task: Task):
+        if task.group:
+            return f"{task.creator.full_name} создал в группе '{task.group.group_name}'" \
+                   f" повторяющуюся задачу {task.title}"
+        else:
+            return f"{task.creator.full_name} создал повторяющаяся задача '{task.title}'"
+
+    @staticmethod
+    def _add_object_message(task: Task, object_name):
+        if task.group:
+            return f"{task.creator.full_name} добавил {object_name} к задаче '{task.title}'" \
+                   f" в группе '{task.group.group_name}'"
+        else:
+            return f"{task.creator.full_name} добавил {object_name} к задаче '{task.title}'" \
 
     @staticmethod
     def _users_who_receive_notification(creator: User = None,

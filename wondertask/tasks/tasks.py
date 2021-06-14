@@ -49,21 +49,24 @@ def create_repeats_tasks(task_id: int):
 
     crontab_timezone = task_schedule.crontab.timezone
 
-    remaining_estimate = task_schedule.crontab.schedule.remaining_estimate(now().astimezone(crontab_timezone))
+    remaining_estimate = task_schedule.crontab.schedule.remaining_estimate(
+        now().astimezone(crontab_timezone))
     creation_date = now().astimezone(crontab_timezone) + remaining_estimate
 
     repeat_task_list = []
     periodic_task_list = []
     counter = 0
     while True:
-        repeat_task = Task.objects.create(title=task.title, creator=task.creator)
+        repeat_task = Task.objects.create(
+            title=task.title,
+            creator=task.creator,
+            priority=task.priority,
+            user_tags=task.user_tags,
+            system_tags=task.system_tags,
+            group=task.group,
+            deadline=creation_date + task_duration,
+        )
         repeat_task.creation_date = creation_date
-        repeat_task.priority = task.priority
-        repeat_task.user_tags = task.user_tags
-        repeat_task.system_tags = task.system_tags
-        repeat_task.group = task.group
-        repeat_task.deadline = creation_date + task_duration
-
         repeat_task.save()
         repeat_task_list.append(repeat_task)
 
@@ -90,6 +93,7 @@ def create_repeats_tasks(task_id: int):
 
     task_schedule.periodic_tasks.add(*periodic_task_list)
     task_schedule.repeated_tasks.add(*repeat_task_list)
+    notify_service.send_repeated_task_notification(task=task)
 
 
 @app.task(name="deadline_notification")
