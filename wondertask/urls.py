@@ -28,6 +28,7 @@ from rest_framework_jwt.views import (
 from accounts.endpoints import registration_endpoint
 from tasks.endpoints import task_endpoints
 from accounts.endpoints import recover_password_endpoints
+from journals.endpoints import journal_endpoints
 
 
 authentication_endpoints = [
@@ -42,6 +43,7 @@ v1 = [
     path('accounts/', include(registration_endpoint)),
     path('accounts/', include(recover_password_endpoints)),
     path('tasks/', include(task_endpoints)),
+    path('journals/', include(journal_endpoints)),
 
 ] + static(settings.STATIC_URL)
 

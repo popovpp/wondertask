@@ -1,0 +1,122 @@
+get:
+  summary: 'Getting the notification'
+  tags: ['Notification']
+  operationId: GetNotification
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The notification id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Notification'
+      description: 'The notification was got'
+put:
+  summary: "Changing the notification"
+  tags: ['Notification']
+  operationId: ChangeNotification
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The notification id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Notification'
+        examples:
+          Group:
+            $ref: '#/components/examples/Notification'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Notification'
+      description: 'The notification was updated'
+patch:
+  summary: "Changing the field of the notification"
+  tags: ['Notification']
+  operationId: ChangeFieldNotification
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The notification id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Notification'
+        examples:
+          Task:
+            $ref: '#/components/examples/Notification'
+    description: 'Changing any from presented fields'
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Notification'
+      description: 'The notification was updated'
+delete:
+  summary: 'Deleting the notification'
+  tags: ['Notification']
+  operationId: DeleteNotification
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The notification id'
+      schema:
+        type: integer
+  description: 'The notification will delete'
+  responses:
+    '204':
+      content:
+      description: 'The notification was deleted'
+
+components:
+  schemas:
+    Notification:
+      type: object
+      description: 'Notification'
+      properties:
+        id:
+          type: integer
+        message:
+          type: string
+        type:
+          type: string
+        task:
+          type: integer
+        group:
+          type: integer
+        is_read:
+          type: boolean
+        created:
+          type: string
+          fromate: date_time
+        recipients:
+          type: array
+          items:
+            type: integer
+
+  examples:
+    Notification:
+      summary: 'Notification'
+      value:
+        message: '[КТО] [ЧТО СДЕЛАЛ] [НАД ЧЕМ]'
+        type: 'ACTION'
+        task: 1
+        group: 1

@@ -1,16 +1,19 @@
+from datetime import timedelta
+
+from django.shortcuts import get_object_or_404
 from django_celery_beat.models import CrontabSchedule
+from django_celery_beat.models import PeriodicTask, ClockedSchedule
 from rest_framework import serializers
 from taggit.models import Tag
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer, )
-from django.shortcuts import get_object_or_404
 
+from accounts.serializers import UserTaskSerializer
 from tasks import tasks
 from tasks.models import (Task, Executor, Observer,
                           Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
                               VALID_AUDIO_FILES, )
-from accounts.serializers import UserTaskSerializer
 
 
 class GroupNameSerializer(serializers.ModelSerializer):
@@ -87,6 +90,27 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
             raise serializers.ValidationError("A deadline must be younger then a creation_date.")
         task.save()
 
+        if not task.deadline:
+            return task
+        for hour in [12, 6, 1]:
+            if (task.deadline - task.creation_date) > timedelta(hours=hour):
+                time_start_task = task.deadline - timedelta(hours=hour)
+                PeriodicTask.objects.create(
+                    name=f"Notification {hour} hours before the deadline for TaskID({task.id})",
+                    task="deadline_notification",
+                    clocked=ClockedSchedule.objects.create(clocked_time=time_start_task),
+                    start_time=time_start_task,
+                    args=[task.id, hour],
+                    one_off=True,
+                )
+        PeriodicTask.objects.create(
+            name=f"Notification task deadline overdue for TaskID({task.id})",
+            task="deadline_notification",
+            clocked=ClockedSchedule.objects.create(clocked_time=task.deadline),
+            start_time=task.deadline,
+            args=[task.id, 0],
+            one_off=True,
+        )
         return task
 
     def to_representation(self, instance):

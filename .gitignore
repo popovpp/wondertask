@@ -142,3 +142,4 @@ dmypy.json
 cython_debug/
 wondertask/accounts/migrations/*.*
 wondertask/tasks/migrations/*.*
+wondertask/journals/migrations/*.*

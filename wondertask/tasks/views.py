@@ -1,19 +1,20 @@
 import django_filters
 from django.db.models import Q
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import mixins
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework import mixins
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.generics import get_object_or_404
 from taggit.models import Tag
-from django.utils import timezone
 
-from tasks.permissions import IsOwner
+from journals.services import notify_service
 from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule)
+from tasks.permissions import IsOwner
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
                                GroupSerializer,
@@ -127,6 +128,7 @@ class TaskViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=pk)
         task.start_task()
         task.save()
+        notify_service.send_notification(task=task, task_action="start_task")
         serializer = TaskSerializer(task, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -136,6 +138,7 @@ class TaskViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=pk)
         task.stop_task()
         task.save()
+        notify_service.send_notification(task=task, task_action="stop_task")
         serializer = TaskSerializer(task, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -145,6 +148,7 @@ class TaskViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=pk)
         task.finish_task()
         task.save()
+        notify_service.send_notification(task=task, task_action="finish_task")
         serializer = TaskSerializer(task, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
