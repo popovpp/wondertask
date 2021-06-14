@@ -3,7 +3,7 @@ from django.dispatch.dispatcher import receiver
 from taggit.models import Tag
 
 from journals.services import notify_service
-from tasks.models import Doc, Image, Audio, Task
+from tasks.models import Doc, Image, Audio, Task, Comment
 from tasks.models import TaskSchedule, TaskTag
 
 
@@ -61,3 +61,23 @@ def create_notification_task_delete_action(sender, instance, **kwargs):
     if not instance.creator:
         return None
     notify_service.send_notification(task=instance)
+
+
+@receiver(pre_save, sender=Doc)
+def doc_file_add_send_notification(sender, instance, **kwargs):
+    notify_service.send_add_object_notifications(task=instance.task, object_name="файл")
+
+
+@receiver(pre_save, sender=Image)
+def image_file_add_send_notification(sender, instance, **kwargs):
+    notify_service.send_add_object_notifications(task=instance.task, object_name="изображение")
+
+
+@receiver(pre_save, sender=Audio)
+def audio_file_add_send_notification(sender, instance, **kwargs):
+    notify_service.send_add_object_notifications(task=instance.task, object_name="аудио")
+
+
+@receiver(pre_save, sender=Comment)
+def comment_add_send_notification(sender, instance, **kwargs):
+    notify_service.send_add_object_notifications(task=instance.task, object_name="комментарий")

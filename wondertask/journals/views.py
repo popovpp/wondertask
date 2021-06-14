@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from journals.models import Notification, NotificationToUser
-from journals.serializer import NotificationSerializer, ActionReadNotificationsSerializer
+from journals.serializers import NotificationSerializer, ActionReadNotificationsSerializer
 from journals.services import notify_service
 
 
@@ -18,9 +18,17 @@ class NotificationViewSet(ModelViewSet):
         queryset = self.get_queryset()
         queryset = queryset.filter(recipients__user=request.user)
 
+        reads_notifications = NotificationToUser.objects.filter(user=request.user, is_read=True)
+        reads_notifications = [obj.notification.id for obj in reads_notifications]
+
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
+            for obj in serializer.data:
+                if obj["id"] in reads_notifications:
+                    obj["is_read"] = True
+                else:
+                    obj["is_read"] = False
             return self.get_paginated_response(data={
                 "unread": NotificationToUser.objects.filter(user=request.user,
                                                             is_read=False).count(),
