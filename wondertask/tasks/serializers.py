@@ -1,4 +1,5 @@
 from datetime import timedelta
+from django.utils import timezone
 
 from django.shortcuts import get_object_or_404
 from django_celery_beat.models import CrontabSchedule
@@ -7,6 +8,7 @@ from rest_framework import serializers
 from taggit.models import Tag
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer, )
+from django.conf import settings
 
 from accounts.serializers import UserTaskSerializer
 from tasks import tasks
@@ -83,34 +85,43 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
         return value
 
+    def validate_deadline(self, value):
+        if value < timezone.now():
+            raise serializers.ValidationError("A deadline must be younger then a creation_date.")
+
     def create(self, validated_data):
         task = super(TaskSerializer, self).create(validated_data)
         task.creator = self.context['request'].user
-        if task.deadline < task.creation_date:
-            raise serializers.ValidationError("A deadline must be younger then a creation_date.")
-        task.save()
 
+        periodic_task_list = []
+        clocked_list = []
         if not task.deadline:
             return task
         for hour in [12, 6, 1]:
             if (task.deadline - task.creation_date) > timedelta(hours=hour):
                 time_start_task = task.deadline - timedelta(hours=hour)
-                PeriodicTask.objects.create(
+                clocked_list.insert(0, ClockedSchedule.objects.create(clocked_time=time_start_task))
+                periodic_task_list.append(PeriodicTask.objects.create(
                     name=f"Notification {hour} hours before the deadline for TaskID({task.id})",
                     task="deadline_notification",
-                    clocked=ClockedSchedule.objects.create(clocked_time=time_start_task),
+                    clocked=clocked_list[0],
                     start_time=time_start_task,
                     args=[task.id, hour],
                     one_off=True,
-                )
-        PeriodicTask.objects.create(
+                ))
+        clocked_list.insert(0, ClockedSchedule.objects.create(clocked_time=task.deadline))
+        periodic_task_list.append(PeriodicTask.objects.create(
             name=f"Notification task deadline overdue for TaskID({task.id})",
             task="deadline_notification",
-            clocked=ClockedSchedule.objects.create(clocked_time=task.deadline),
+            clocked=clocked_list[0],
             start_time=task.deadline,
             args=[task.id, 0],
             one_off=True,
-        )
+        ))
+        task.periodic_tasks.add(*periodic_task_list)
+        task.clocked_shedule.add(*clocked_list)
+        task.save()
+
         return task
 
     def to_representation(self, instance):

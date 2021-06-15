@@ -10,7 +10,7 @@ class Notification(models.Model):
     type = models.CharField(max_length=8, default=None, null=True)
     message = models.CharField(max_length=500)
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
+    group = models.ForeignKey(Group, on_delete=models.SET_NULL, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -90,11 +90,6 @@ class UserSendEmailView(APIView):
                                 '/v1/accounts/newpassword/' + user.secret_set() + '/')
         return recover_password_url
 
-#    def send_mail_thread(self, url, email):
-
-#        send_mail('Go to the link', 
-#                  f'Go to the link: {url}', 
-#                  settings.EMAIL_HOST_USER,  [f'{email}'], fail_silently=False)
 
     def post(self, request):            
 
@@ -124,7 +119,7 @@ class RedirectUserView(APIView):
         hostname = socket.gethostname()
         IP = socket.gethostbyname(hostname)
         PORT = request.get_port()
-        enter_email_url = (f'http://{settings.DOMAIN}' + ':' + PORT +
+        enter_email_url = ('http://178.154.203.204' + ':' + '3000' +
                            '/restore-password')
         return enter_email_url
 
@@ -132,7 +127,7 @@ class RedirectUserView(APIView):
         hostname = socket.gethostname()
         IP = socket.gethostbyname(hostname)
         PORT = request.get_port()
-        enter_password_url = (f'http://{settings.DOMAIN}' + ':' + PORT +
+        enter_password_url = ('http://78.154.203.204' + ':' + '3000' +
                               '/new-password/' + secret)
         return enter_password_url
 
