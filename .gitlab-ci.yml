@@ -55,6 +55,8 @@ wondertask_api deploy:
     - docker pull registry.gitlab.com/auditor2/production/wondertaskbackend:latest
     - docker-compose -f docker-compose-prod.yml up -d --build
     - echo 'y' | docker system prune
+    - chmod +x migrate.sh
+    - sh migrate.sh
   when: manual
   tags:
     - wondertaskbackend-dev
