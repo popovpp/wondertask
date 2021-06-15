@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
-from django_celery_beat.models import PeriodicTask, CrontabSchedule
+from django_celery_beat.models import (PeriodicTask, CrontabSchedule, 
+                                       ClockedSchedule)
 from rest_framework.generics import get_object_or_404
 from taggit.managers import TaggableManager
 import mptt
@@ -86,6 +87,8 @@ class Task(models.Model):
 
     group = models.ForeignKey(Group, on_delete=models.CASCADE,
                               related_name='group_tasks', blank=True, null=True)
+    periodic_tasks = models.ManyToManyField(PeriodicTask, related_name='deadline_periiodic')
+    clocked_shedule = models.ManyToManyField(ClockedSchedule)
 
     class Meta:
         db_table = 'tasks'

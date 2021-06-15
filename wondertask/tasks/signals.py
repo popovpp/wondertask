@@ -81,3 +81,9 @@ def audio_file_add_send_notification(sender, instance, **kwargs):
 @receiver(pre_save, sender=Comment)
 def comment_add_send_notification(sender, instance, **kwargs):
     notify_service.send_add_object_notifications(task=instance.task, object_name="комментарий")
+
+
+@receiver(pre_delete, sender=Task)
+def delete_m2m_related_objects(sender, instance, *args, **kwargs):
+    instance.periodic_tasks.all().delete()
+    instance.clocked_shedule.all().delete()
