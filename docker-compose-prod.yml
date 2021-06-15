@@ -14,7 +14,7 @@ services:
   celery:
     container_name: celery
     image: registry.gitlab.com/auditor2/production/wondertaskbackend:latest
-    command: celery -A django_celery worker -l info
+    command: celery -A django_celery worker --beat --scheduler django --loglevel=info
     depends_on:
       - redis
 volumes:
