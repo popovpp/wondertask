@@ -93,7 +93,12 @@ class TaskViewSet(ModelViewSet):
             login(self.request, anonimous_user)
             return Task.objects.all().filter(creator=anonimous_user).order_by('-creation_date')
         else:
-            return Task.objects.all().filter(creator=self.request.user).order_by('-creation_date')
+            queryset = Task.objects.all().filter(creator=self.request.user).order_by('-creation_date')
+            groups = Group.objects.all()
+            for group in groups:
+                if self.request.user in group.group_members.all():
+                    queryset = queryset | Task.objects.all().filter(group=group).order_by('-creation_date')
+            return queryset.order_by('-creation_date') 
 
     @action(methods=['GET'], detail=False, url_path="my", url_name="my_tasks",
             permission_classes=[IsAuthenticated])
@@ -207,7 +212,11 @@ class TaskTreeViewSet(RetrieveListViewSet):
 
     def get_queryset(self):
         queryset = Task.objects.filter(creator=self.request.user, level=0).order_by('-creation_date')
-        return queryset
+        groups = Group.objects.all()
+        for group in groups:
+            if self.request.user in group.group_members.all():
+                queryset = queryset | Task.objects.all().filter(group=group, level=0).order_by('-creation_date')
+        return queryset.order_by('-creation_date')
 
     def list(self, request):
         self.serializer_class = TaskSerializer

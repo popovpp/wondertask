@@ -135,6 +135,16 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
             
         return task
 
+    def update(self, instance, validated_data):
+        try:
+            if instance.group != validated_data['group']:
+                validated_data['group'].group_members.add(instance.creator)
+                for executor in instance.executors.all():
+                    validated_data['group'].group_members.add(executor.executor)
+        except KeyError:
+            pass
+        return super(TaskSerializer, self).update(instance, validated_data)
+
     def to_representation(self, instance):
         if instance.status in (instance.IN_PROGRESS, instance.IN_PROGRESS_OVERDUE):
             instance.stop_task()
