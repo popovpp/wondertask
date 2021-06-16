@@ -11,10 +11,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from taggit.models import Tag
+from django.contrib.auth import login
 
 from journals.services import notify_service
 from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule)
-from tasks.permissions import IsOwner
+from tasks.permissions import IsOwner, PermissionPost
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
                                GroupSerializer,
@@ -25,6 +26,15 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ActionTagSerializer, TaskScheduleSerializer)
 from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
+from accounts.models import User
+
+
+try:
+    anonimous_user = User.objects.get(email='anonimous@anonimous.com')
+except User.DoesNotExist:
+    anonimous_user = User.objects.create_user(email='anonimous@anonimous.com', password='qwerty:)', 
+                                    full_name='Anonimous User')
+    anonimous_user.save()
 
 
 class ListCreateRetrieveDestroyViewSet(mixins.CreateModelMixin,
@@ -71,7 +81,7 @@ class TaskFilters(django_filters.FilterSet):
 
 class TaskViewSet(ModelViewSet):
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [PermissionPost|IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = TaskFilters
     search_fields = ['$title']
@@ -79,7 +89,11 @@ class TaskViewSet(ModelViewSet):
                        "deadline", "start_date", "finish_date"]
 
     def get_queryset(self):
-        return Task.objects.all().filter(creator=self.request.user).order_by('-creation_date')
+        if self.request.user.is_authenticated == False:
+            login(self.request, anonimous_user)
+            return Task.objects.all().filter(creator=anonimous_user).order_by('-creation_date')
+        else:
+            return Task.objects.all().filter(creator=self.request.user).order_by('-creation_date')
 
     @action(methods=['GET'], detail=False, url_path="my", url_name="my_tasks",
             permission_classes=[IsAuthenticated])
@@ -180,6 +194,11 @@ class TaskViewSet(ModelViewSet):
         child_task.save()       
         serializer_task = TaskTreeSerializer(instance=parent_task, context=self.get_serializer_context())
         return Response(data=serializer_task.data, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        if self.request.user.is_authenticated == False:
+            login(self.request, anonimous_user)
+        return super(TaskViewSet, self).create(request, permission_classes=[AllowAny])
 
 
 class TaskTreeViewSet(RetrieveListViewSet):
