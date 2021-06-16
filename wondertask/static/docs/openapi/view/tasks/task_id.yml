@@ -71,7 +71,7 @@ patch:
             $ref: '/static/docs/openapi/schema/response_single_task_1.yml#/components/schemas/SingleTask'
       description: 'The task was created'
 delete:
-  summary: 'Deleting the list of tasks sorted descending by "creation_date"'
+  summary: 'Deleting the task has identificator id'
   tags: ['Tasks']
   operationId: DeleteTask
   parameters:
