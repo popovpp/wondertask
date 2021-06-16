@@ -27,7 +27,8 @@ class NotificationService:
             group_members=task.group.group_members.all() if task.group else None
         )
 
-        if request and resolve(request.path_info).url_name in ["task-list", "task-detail"]:
+        if (request and resolve(request.path_info).url_name 
+                                in ["task-list", "task-detail"]) and not task_action:
             message = self._action_message(user_name=request.user.full_name,
                                            method=request.method,
                                            task=task)

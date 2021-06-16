@@ -10,7 +10,9 @@ from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer, )
 from django.conf import settings
 
+from accounts.models import User
 from accounts.serializers import UserTaskSerializer
+from journals.services import notify_service
 from tasks import tasks
 from tasks.models import (Task, Executor, Observer,
                           Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule)
@@ -89,6 +91,8 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         if value < timezone.now():
             raise serializers.ValidationError("A deadline must be younger then a creation_date.")
 
+        return value
+
     def create(self, validated_data):
         task = super(TaskSerializer, self).create(validated_data)
         task.creator = self.context['request'].user
@@ -119,9 +123,16 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
             one_off=True,
         ))
         task.periodic_tasks.add(*periodic_task_list)
-        task.clocked_shedule.add(*clocked_list)
-        task.save()
+        task.clocked_shedule.add(*clocked_list)     
 
+        anonimous_user = User.objects.get(email='anonimous@anonimous.com')
+        if task.creator == anonimous_user:
+            task.start_task()
+            task.save()
+            notify_service.send_notification(task=task, task_action="start_task")
+        else:
+            task.save()
+            
         return task
 
     def to_representation(self, instance):
