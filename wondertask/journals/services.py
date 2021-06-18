@@ -53,7 +53,8 @@ class NotificationService:
     def send_changed_group_notification(self, task: Task, previous_task: Task) -> None:
         # send notification for OLD group members
         if bool(previous_task.group):
-            message = self._changed_group_message(task=task, old_group=previous_task.group)
+            message = self._changed_group_message(task=task, old_group=previous_task.group,
+                                                  new_group=task.group)
             recipients = self._users_who_receive_notification(
                 creator=previous_task.creator,
                 group_members=previous_task.group.group_members.all(),
@@ -144,7 +145,7 @@ class NotificationService:
             return Exception("Request method unknown")
 
         if task.group:
-            return f"{user_name} {action} задачу '{task.title}' в групе '{task.group.group_name}'"
+            return f"{user_name} {action} задачу '{task.title}' в группе '{task.group.group_name}'"
         else:
             return f"{user_name} {action} задачу '{task.title}'"
 
@@ -163,9 +164,10 @@ class NotificationService:
     @staticmethod
     def _changed_group_message(task: Task, old_group: Group = None, new_group: Group = None) -> str:
         if old_group:
-            return f"Из группы '{old_group.group_name}' перенесена задача '{task.title}'"
+            return f"{old_group.creator.full_name} перенес задачу '{task.title}' " \
+                   f"из группы '{old_group.group_name}' в группу '{new_group.group_name}'"
         else:
-            return f"Задача '{task.title}' перенесена в групу '{new_group.group_name}'"
+            return f"Задача '{task.title}' добавлена в группу '{new_group.group_name}'"
 
     @staticmethod
     def _deadline_message(task: Task, hour_before_deadline: int) -> str:
@@ -217,6 +219,17 @@ class NotificationService:
         if group_members:
             recipient.extend(group_members)
         return list(set(recipient))
+
+    def send_add_group_notifications(self, group: Group):
+        message = self._add_group_message(group=group)
+        recipients = self._users_who_receive_notification(
+            creator=group.creator)
+        self._create_notification(message=message, recipients=recipients,
+                                  group=group, type="ACTION")
+
+    @staticmethod
+    def _add_group_message(group: Group):
+        return f"{group.creator.full_name} создал группу {group.group_name}"
 
 
 notify_service = NotificationService()
