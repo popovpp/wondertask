@@ -14,7 +14,6 @@ class PermissionPost(permissions.BasePermission):
     Custom permission to only allow owners of an object to edit it.
     """
     def has_permission(self, request, view):
-        print(request.method)
         if request.method == 'POST':
             return True
         else:

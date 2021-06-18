@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from tasks.models import Task, Comment, Doc, Image, Audio, TaskSchedule
+from tasks.models import Task, Comment, Doc, Image, Audio, TaskSchedule, Group
 
 
 class TaskModelAdmin(admin.ModelAdmin):
@@ -45,9 +45,18 @@ class AudioModelAdmin(admin.ModelAdmin):
         model = Doc
 
 
+class GroupModelAdmin(admin.ModelAdmin):
+    list_display = ['id', 'group_name', 'creator']
+    list_display_links = ['id']
+
+    class Meta:
+        model = Group
+
+
 admin.site.register(Task, TaskModelAdmin)
 admin.site.register(Comment, CommentModelAdmin)
 admin.site.register(Doc, DocModelAdmin)
 admin.site.register(Image, ImageModelAdmin)
 admin.site.register(Audio, AudioModelAdmin)
 admin.site.register(TaskSchedule)
+admin.site.register(Group, GroupModelAdmin)

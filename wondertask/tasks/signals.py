@@ -4,7 +4,7 @@ from taggit.models import Tag
 
 from journals.services import notify_service
 from tasks.models import Doc, Image, Audio, Task, Comment
-from tasks.models import TaskSchedule, TaskTag
+from tasks.models import TaskSchedule, TaskTag, Group
 
 
 @receiver(pre_delete, sender=Doc)
@@ -87,3 +87,10 @@ def comment_add_send_notification(sender, instance, **kwargs):
 def delete_m2m_related_objects(sender, instance, *args, **kwargs):
     instance.periodic_tasks.all().delete()
     instance.clocked_shedule.all().delete()
+
+
+@receiver(post_save, sender=Group)
+def group_add_send_notification(sender, instance, **kwargs):
+    if instance.creator not in instance.group_members.all():
+        return None
+    notify_service.send_add_group_notifications(group=instance)
