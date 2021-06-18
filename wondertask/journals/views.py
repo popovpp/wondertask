@@ -15,9 +15,8 @@ class NotificationViewSet(ModelViewSet):
     @action(methods=["GET"], url_path="actions-journal", url_name="actions_journal", detail=False,
             permission_classes=[permissions.IsAuthenticated])
     def actions_journal(self, request):
-        print('in action_journals $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
         queryset = self.get_queryset()
-        queryset = queryset.filter(type='ACTION')
+        queryset = queryset.filter(recipients__user=request.user).filter(type='ACTION')
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
