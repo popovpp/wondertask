@@ -12,6 +12,19 @@ class NotificationViewSet(ModelViewSet):
     queryset = Notification.objects.all().prefetch_related("recipients").order_by("-created")
     serializer_class = NotificationSerializer
 
+    @action(methods=["GET"], url_path="actions-journal", url_name="actions_journal", detail=False,
+            permission_classes=[permissions.IsAuthenticated])
+    def actions_journal(self, request):
+        print('in action_journals $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        queryset = self.get_queryset()
+        queryset = queryset.filter(type='ACTION')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(data=serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(methods=["GET"], url_path="my", url_name="my", detail=False,
             permission_classes=[permissions.IsAuthenticated])
     def get_my_notifications(self, request):

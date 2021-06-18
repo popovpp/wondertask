@@ -161,3 +161,5 @@ paths:
     $ref: "./view/journals/notification_read.yml"
   /v1/journals/notifications/read/bulk/:
     $ref: "./view/journals/notification_read_bulk.yml"
+  /v1/journals/notifications/actions-journal/:
+    $ref: "./view/journals/notification_actions_journal.yml"

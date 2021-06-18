@@ -340,6 +340,12 @@ class TaskScheduleSerializer(serializers.ModelSerializer):
         fields = ["id", "task", "number_of_times", "end_date", "crontab", "repeated_tasks"]
         read_only_fields = ["repeated_tasks"]
 
+    def validate_end_date(self, value):
+        if value < timezone.now():
+            raise serializers.ValidationError("A end_date must be older then a current moment.")
+
+        return value
+
     def create(self, validated_data):
         crontab = validated_data.pop("crontab")
         crontab_instance, _ = CrontabSchedule.objects.get_or_create(**crontab)

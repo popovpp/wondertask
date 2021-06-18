@@ -432,7 +432,7 @@ class TagViewSet(ModelViewSet):
 
 
 class TaskScheduleViewSet(ModelViewSet):
-    queryset = TaskSchedule.objects.all()
+    queryset = TaskSchedule.objects.all().order_by('-id')
     serializer_class = TaskScheduleSerializer
     permission_classes = [AllowAny]
 
