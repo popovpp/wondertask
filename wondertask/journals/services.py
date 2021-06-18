@@ -186,18 +186,18 @@ class NotificationService:
     @staticmethod
     def _repeated_task_message(task: Task):
         if task.group:
-            return f"{task.creator.full_name} создал в группе '{task.group.group_name}'" \
+            return f"{task.creator.full_name} создал(а) в группе '{task.group.group_name}'" \
                    f" повторяющуюся задачу {task.title}"
         else:
-            return f"{task.creator.full_name} создал повторяющаяся задача '{task.title}'"
+            return f"{task.creator.full_name} создал(а) повторяющаяся задача '{task.title}'"
 
     @staticmethod
     def _add_object_message(task: Task, object_name):
         if task.group:
-            return f"{task.creator.full_name} добавил {object_name} к задаче '{task.title}'" \
+            return f"{task.creator.full_name} добавил(а) {object_name} к задаче '{task.title}'" \
                    f" в группе '{task.group.group_name}'"
         else:
-            return f"{task.creator.full_name} добавил {object_name} к задаче '{task.title}'" \
+            return f"{task.creator.full_name} добавил(а) {object_name} к задаче '{task.title}'" \
 
     @staticmethod
     def _users_who_receive_notification(creator: User = None,

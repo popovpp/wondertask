@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.urls import resolve
 
 from journals.models import Notification
 
@@ -15,10 +16,13 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         output_data = super().to_representation(instance)
-        if self.context['request'].user in [x.user for x in instance.recipients.all()]:
-        	output_data['message'] = output_data['message'].replace(
-        		                     self.context['request'].user.full_name, 'Вы').replace(
-        		                     'л(а)', 'ли')
+        if not (self.context['request'] and 'actions_journal' in 
+                                             resolve(self.context['request'].path_info).url_name):
+            if self.context['request'].user in [x.user for x in instance.recipients.all()]:
+        	    output_data['message'] = output_data['message'].replace(
+        		                         self.context['request'].user.full_name, 'Вы').replace(
+        		                         'л(а)', 'ли').replace(
+                                         'перенес', 'перенесли')
         return output_data
 
 

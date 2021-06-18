@@ -11,7 +11,7 @@ post:
         examples:
           Task:
             $ref: '#/components/examples/Task'
-    description: '"Group" is id of choiced group. If "group"== null then group is created "FREE_TASKS". 
+    description: '"Group" is id of choiced group. Field "group" may be == null. It means the task without a group". 
                  Required field is "title"' 
   responses:
     '200':

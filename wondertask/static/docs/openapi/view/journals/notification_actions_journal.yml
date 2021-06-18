@@ -1,0 +1,87 @@
+get:
+  summary: "Getting the actions journal (ordered new first)"
+  tags: ['Notification']
+  operationId: GetActionsJournal
+  parameters: []
+#    - name: page
+#      in: query
+#      description: "Pagination page"
+#      schema:
+#        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotificationPagination'
+      description: 'The journal was got'
+
+components:
+  schemas:
+    NotificationPagination:
+      type: object
+      description: 'Notification'
+      properties:
+        count:
+          type: integer
+        next:
+          type: string
+        previous:
+          type: string
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              message:
+                type: string
+              type:
+                type: string
+              task:
+                type: integer
+              group:
+                type: integer
+              is_read:
+                type: boolean
+              created:
+                type: string
+                fromate: date_time
+              recipients:
+                type: array
+                items:
+                  type: integer
+
+    Notification:
+      type: object
+      description: 'Notification'
+      properties:
+        id:
+          type: integer
+        message:
+          type: string
+        type:
+          type: string
+        task:
+          type: integer
+        group:
+          type: integer
+        is_read:
+          type: boolean
+        created:
+          type: string
+          fromate: date_time
+        recipients:
+          type: array
+          items:
+            type: integer
+
+  examples:
+    Notification:
+      summary: 'Notification'
+      value:
+        message: '[КТО] [ЧТО СДЕЛАЛ] [НАД ЧЕМ]'
+        type: 'ACTION'
+        task: 1
+        group: 1
