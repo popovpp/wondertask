@@ -208,7 +208,7 @@ class TaskViewSet(ModelViewSet):
 
 class TaskTreeViewSet(RetrieveListViewSet):
     serializer_class = TaskTreeSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         queryset = Task.objects.filter(creator=self.request.user, level=0).order_by('-creation_date')
@@ -226,12 +226,12 @@ class TaskTreeViewSet(RetrieveListViewSet):
 class TaskSystemTagsViewSet(ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TaskSystemTagsSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class ExecutorViewSet(ListCreateRetrieveDestroyViewSet):
     serializer_class = ExecutorSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return self.get_task_queryset(ExecutorListSerializer,
@@ -241,7 +241,7 @@ class ExecutorViewSet(ListCreateRetrieveDestroyViewSet):
 
 class ObserverViewSet(ListCreateRetrieveDestroyViewSet):
     serializer_class = ObserverSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         return self.get_task_queryset(ObserverListSerializer,
@@ -251,10 +251,15 @@ class ObserverViewSet(ListCreateRetrieveDestroyViewSet):
 
 class GroupViewSet(ModelViewSet):
     serializer_class = GroupSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Group.objects.all().filter(creator=self.request.user)
+        groups = Group.objects.all()
+        queryset = groups.filter(creator=self.request.user)
+        for group in groups:
+            if self.request.user in group.group_members.all():
+                queryset = queryset | groups.filter(id=group.id)
+        return queryset.order_by('id')
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
@@ -296,7 +301,7 @@ class GroupViewSet(ModelViewSet):
 
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         task = get_object_or_404(Task, pk=self.kwargs['task_id'])
@@ -314,7 +319,7 @@ class CommentViewSet(ModelViewSet):
 
 class TaskDocViewSet(ModelViewSet):
     serializer_class = DocSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         task = get_object_or_404(Task, pk=self.kwargs['task_id'])
@@ -331,7 +336,7 @@ class TaskDocViewSet(ModelViewSet):
 
 class CommentDocViewSet(ModelViewSet):
     serializer_class = DocSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         comment = get_object_or_404(Comment, id=self.kwargs['comment_id'],
@@ -351,7 +356,7 @@ class CommentDocViewSet(ModelViewSet):
 
 class TaskImageViewSet(ModelViewSet):
     serializer_class = ImageSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         task = get_object_or_404(Task, pk=self.kwargs['task_id'])
@@ -368,7 +373,7 @@ class TaskImageViewSet(ModelViewSet):
 
 class CommentImageViewSet(ModelViewSet):
     serializer_class = ImageSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         comment = get_object_or_404(Comment, id=self.kwargs['comment_id'])
@@ -387,7 +392,7 @@ class CommentImageViewSet(ModelViewSet):
 
 class TaskAudioViewSet(ModelViewSet):
     serializer_class = AudioSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         task = get_object_or_404(Task, pk=self.kwargs['task_id'])
@@ -404,7 +409,7 @@ class TaskAudioViewSet(ModelViewSet):
 
 class CommentAudioViewSet(ModelViewSet):
     serializer_class = AudioSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         comment = get_object_or_404(Comment, id=self.kwargs['comment_id'],
