@@ -53,7 +53,6 @@ class UserViewSet(mixins.RetrieveModelMixin,
 
     def update(self, request, pk=None, *args, **kwargs):
         instance = get_object_or_404(User, id=self.kwargs['pk'])
-        print(self.kwargs['pk'])
         avatar_delete(User, instance=instance)
         return super(UserViewSet, self).update(request, pk, args, kwargs)
 
