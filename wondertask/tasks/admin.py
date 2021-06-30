@@ -14,7 +14,7 @@ class TaskModelAdmin(admin.ModelAdmin):
 
 
 class CommentModelAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author', 'task', 'text', 'parent']
+    list_display = ['id', 'author', 'task', 'text', 'parent', 'creation_date']
     list_display_links = ['id']
 
     class Meta:

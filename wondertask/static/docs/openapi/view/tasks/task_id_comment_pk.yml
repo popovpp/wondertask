@@ -45,7 +45,7 @@ patch:
         type: integer
   requestBody:
     content:
-      multipart/form-data:
+      application/json:
         schema:
           type: object
           properties:
@@ -53,6 +53,7 @@ patch:
               type: string
             parent:
               type: integer
+              example: null
     description: "Changing Comment data"
   responses:
     "200":
@@ -120,6 +121,8 @@ components:
           type: integer
         parent:
           type: integer
+        creation_date:
+          type: string
 
   examples:
     CommentTree:
@@ -132,6 +135,7 @@ components:
         tree_id: 1
         level: 0
         parent: null
+        creation_date: "2021-06-18T18:40:00.000140+03:00"
         children:
           id: 7
           author: 2
@@ -140,6 +144,7 @@ components:
           tree_id: 1
           level: 1
           parent: 6
+          creation_date: "2021-06-18T18:40:00.000140+03:00"
           children:
             id: 8
             author: 2
@@ -148,6 +153,7 @@ components:
             tree_id: 1
             level: 2
             parent: 7
+            creation_date: "2021-06-18T18:40:00.000140+03:00"
     Comment:
       summary: "Comment"
       value:
@@ -158,3 +164,4 @@ components:
         tree_id: 1
         level: 0
         parent: null
+        creation_date: "2021-06-18T18:40:00.000140+03:00"
