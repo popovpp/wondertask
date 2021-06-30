@@ -227,7 +227,7 @@ class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
 class CommentTreeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent']
+        fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent', 'creation_date']
 
     def get_fields(self):
         fields = super(CommentTreeSerializer, self).get_fields()
@@ -243,7 +243,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent']
+        fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent', 'creation_date']
 
 
 class DocSerializer(serializers.ModelSerializer):

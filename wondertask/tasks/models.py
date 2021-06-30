@@ -162,6 +162,7 @@ class Comment(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE,
                              related_name='comments')
     text = models.TextField(default='', blank=True, null=True)
+    creation_date = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
         db_table = 'comments'

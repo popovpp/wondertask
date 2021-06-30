@@ -36,23 +36,19 @@ post:
     content:
       application/json:
         schema:
-          - $ref: "#/components/schemas/Comment"
+          - $ref: "#/components/schemas/Comment1"
         examples:
           Task:
-            $ref: "#/components/examples/Comment"
+            $ref: "#/components/examples/Comment1"
   responses:
     "201":
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              id:
-                type: integer
-                example: 5
-              task:
-                type: integer
-                example: 2
+            - $ref: "#/components/schemas/Comment"
+          examples:
+            Task:
+              $ref: "#/components/examples/Comment"
       description: "Comment is created. The id is id of comment table here."
 
 components:
@@ -75,13 +71,33 @@ components:
           type: integer
         parent:
           type: integer
+        creation_date:
+          type: string
+    Comment1:
+      type: object
+      description: "Comment1"
+      properties:
+        author:
+          type: integer
+        text:
+          type: string
+        parent:
+          type: integer
 
   examples:
     Comment:
       summary: "Comment"
       value:
         author: 1
+        task: 1
         text: "comment text"
         tree_id: 1
         level: 0
-        parent: 0
+        parent: null
+        creation_date: "2021-06-18T18:40:00.000140+03:00"
+    Comment1:
+      summary: "Comment1"
+      value:
+        author: 1
+        text: "comment text"
+        parent: null
