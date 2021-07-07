@@ -1,11 +1,17 @@
 import pytest
+from django.contrib.auth import get_user_model
+
+from tasks.models import Task
+
+User = get_user_model()
 
 
-@pytest.mark.django_db()
-def test_01_task_schedule_create(user_client, create_task):
+@pytest.mark.django_db(transaction=True)
+def test_01_task_schedule_create(user_client, celery_worker, create_user):
+    task = Task.objects.create(title="title", creator=create_user)
     data = {
-        "task": create_task["id"],
-        "number_of_times": 15,
+        "task": task.id,
+        "number_of_times": 5,
         "crontab": {
             "minute": "0",
             "hour": "0",
@@ -70,5 +76,3 @@ def test_05_task_schedule_patch(user_client, create_schedule_task):
 def test_06_task_schedule_delete(user_client, create_schedule_task):
     response = user_client.delete(f'/v1/tasks/repeats/{create_schedule_task["id"]}/')
     assert response.status_code == 204
-
-

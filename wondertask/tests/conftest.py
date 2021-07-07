@@ -5,6 +5,15 @@ from rest_framework.test import APIClient
 User = get_user_model()
 
 
+@pytest.fixture(scope='session')
+def celery_config():
+    import settings
+    return {
+        'broker_url': settings.CELERY_BROKER_URL,
+        'result_backend': settings.CELERY_RESULT_BACKEND,
+    }
+
+
 @pytest.fixture(scope="session")
 def create_user(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
