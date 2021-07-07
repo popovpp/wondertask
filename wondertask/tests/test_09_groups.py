@@ -1,20 +1,18 @@
 import pytest
 
-from accounts.models import User
-
 
 @pytest.mark.django_db()
 def test_01_get_group_list(user_client, create_group):
     response = user_client.get(f'/v1/tasks/groups/')
     assert response.status_code == 200
-    assert response.json()['results'] == [create_group]
+    assert response.json()['results'][0]['group_name'] == create_group["group_name"]
 
 
 @pytest.mark.django_db()
 def test_02_get_single_group(user_client, create_group):
     response = user_client.get(f'/v1/tasks/groups/{create_group["id"]}/')
     assert response.status_code == 200
-    assert response.json() == create_group
+    assert response.json()['group_name'] == create_group["group_name"]
 
 
 @pytest.mark.django_db()
@@ -32,8 +30,8 @@ def test_04_group_delete(user_client, create_group):
 
 
 @pytest.mark.django_db()
-def test_05_invite_users_in_group(user_client, create_group):
-    data = {"users_emails": ["user@gmail.com"]}
+def test_05_invite_users_in_group(user_client, create_group, create_user):
+    data = {"users_emails": [create_user.email]}
     response = user_client.post(f'/v1/tasks/groups/{create_group["id"]}/invite/', data=data)
     assert response.status_code == 200
 
@@ -46,11 +44,10 @@ def test_06_invalid_invite_users_in_group(user_client, create_group):
 
 
 @pytest.mark.django_db()
-def test_07_accept_group_invite(user_client, create_group):
-    user = User.objects.create(email='user2@gmail.com', password='1234567')
+def test_07_accept_group_invite(user_client, create_group, create_user):
     response = user_client.get(
-        f'/v1/tasks/groups/{create_group["id"]}/accept-invite/?email=user2@gmail.com'
+        f'/v1/tasks/groups/{create_group["id"]}/accept-invite/?email={create_user.email}'
     )
     group = user_client.get(f'/v1/tasks/groups/{create_group["id"]}/').json()
-    assert user.id in group["group_members"]
+    assert create_user.id in group["group_members"]
     assert response.status_code == 200

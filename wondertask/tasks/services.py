@@ -14,6 +14,7 @@ class TagService:
         Splits tags into user tags and system tags. System tag must contains '$'
         """
         system_tag = []
+        tags = list(map(str, tags))
         for tag_name in tags.copy():
             if '$' in tag_name:
                 system_tag.append(tag_name)
@@ -27,15 +28,17 @@ class TagService:
         return set(system_tag) - set(list_tags_names)
 
     @staticmethod
-    def add_tags_to_task(task_id, user_id, user_tags: list, system_tags: list) -> Task:
+    def add_tags_to_task(task_id, user_id, user_tags: list = None, system_tags: list = None) -> Task:
         task = get_object_or_404(Task, pk=task_id)
         if user_tags:
-            task.user_tags.add(*user_tags, tag_kwargs={"user_id": user_id})
+            task.user_tags.add(*list(map(str, user_tags)), tag_kwargs={"user_id": user_id})
         if system_tags:
-            task.system_tags.add(*system_tags)
+            task.system_tags.add(*list(map(str, system_tags)))
         return task
 
     def remove_tags_from_task(self, task_id, user_tags: list, system_tags: list) -> Task:
+        user_tags = list(map(lambda x: x.upper(), user_tags))
+        system_tags = list(map(lambda x: x.upper(), system_tags))
         task = get_object_or_404(Task, pk=task_id)
         if user_tags:
             task.user_tags.remove(*user_tags)
@@ -47,7 +50,7 @@ class TagService:
 
     @staticmethod
     def remove_task_schedule_and_remove_m2m_related_obj(task_id: int) -> None:
-        task_schedule = TaskSchedule.objects.get(task_id=task_id)
+        task_schedule = get_object_or_404(TaskSchedule, task_id=task_id)
         task_schedule.repeated_tasks.all().delete()
         task_schedule.periodic_tasks.all().delete()
         task_schedule.delete()

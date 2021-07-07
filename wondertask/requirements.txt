@@ -14,5 +14,6 @@ psycopg2-binary==2.8.6
 django-filter==2.4.0
 celery==5.0.5
 redis==3.5.3
-pytest-django
+pytest-django==4.4.0
 django-celery-beat==2.2.0
+pytest-celery==0.0.0
