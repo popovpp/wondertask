@@ -28,7 +28,7 @@ class TestTagService:
 
     def test_03_add_tags_to_task(self, create_task):
         result: Task = tag_service.add_tags_to_task(task_id=create_task["id"],
-                                                    user_id=create_task["creator"],
+                                                    user_id=create_task["creator"]['id'],
                                                     user_tags=["хобби", "проект", 44, 55],
                                                     system_tags=['$регулярная'])
         for item in ['44', '55', "ХОББИ", "ПРОЕКТ"]:

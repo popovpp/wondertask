@@ -60,7 +60,18 @@ components:
         id:
           type: integer
         author:
-          type: integer
+          type: object
+          properties:
+            url:
+              type: string
+            id:
+              type: integer
+            email:
+              type: string
+            full_name:
+              type: string
+            avatar_image:
+              type: string
         task:
           type: integer
         text:
@@ -78,7 +89,18 @@ components:
       description: "Comment1"
       properties:
         author:
-          type: integer
+          type: object
+          properties:
+            url:
+              type: string
+            id:
+              type: integer
+            email:
+              type: string
+            full_name:
+              type: string
+            avatar_image:
+              type: string
         text:
           type: string
         parent:
@@ -88,7 +110,12 @@ components:
     Comment:
       summary: "Comment"
       value:
-        author: 1
+        author: 
+          url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+          id: 1
+          email: "test@test.com"
+          full_name: 'дон Педро'
+          avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
         task: 1
         text: "comment text"
         tree_id: 1
@@ -98,6 +125,11 @@ components:
     Comment1:
       summary: "Comment1"
       value:
-        author: 1
+        author: 
+          url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+          id: 1
+          email: "test@test.com"
+          full_name: 'дон Педро'
+          avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
         text: "comment text"
         parent: null

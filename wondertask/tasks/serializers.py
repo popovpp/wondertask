@@ -36,6 +36,7 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
     sum_elapsed_time = serializers.CharField(read_only=True)
     status = serializers.IntegerField(read_only=True)
     level = serializers.IntegerField(read_only=True)
+    creator = UserTaskSerializer(read_only=True)
 
     class Meta:
         model = Task
@@ -82,7 +83,9 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
     def validate_group(self, value):
         if value:
             group = get_object_or_404(Group, id=value.id)
-            if group.creator != self.context['request'].user:
+            email = 'anonimous@anonimous.com'
+            if group.creator != self.context['request'].user and (
+               self.context['request'].user.email != email):
                 raise serializers.ValidationError("The user is not owner this selected group")
 
         return value
@@ -127,10 +130,23 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
         anonimous_user = User.objects.get(email='anonimous@anonimous.com')
         if task.creator == anonimous_user:
+            try:
+                email = 'anonimous_group_' + str(task.group.id) + '@anonimous.com'
+                anonimous_group_user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                full_name = 'Anonimous_' + task.group.group_name
+                anonimous_group_user = User.objects.create_user(email=email, 
+                                                                password='qwerty:)', 
+                                                                full_name=full_name)
+                anonimous_group_user.save()
+            executor = Executor.objects.create(task=task,
+                                         executor=anonimous_group_user)
             task.start_task()
             task.save()
             notify_service.send_notification(task=task, task_action="start_task")
         else:
+            executor, created = Executor.objects.get_or_create(task=task,
+                                         executor=task.creator)
             task.save()
             
         return task
@@ -156,6 +172,9 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         else:
             output_data['group'] = "null"
 
+        output_data['creator'] = UserTaskSerializer(instance.creator,
+            context={'request': self.context['request']}).data
+
         executors = instance.executors.all()
         list_executors = [ExecutorListSerializer(el, 
             context={'request': self.context['request']}).data for el in executors]
@@ -169,6 +188,10 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         output_data['status'] = instance.STATUS_DICT[instance.status]
 
         return output_data
+
+
+class TaskListSerializer(TaskSerializer):
+    creator = UserTaskSerializer()
 
 
 class TaskSystemTagsSerializer(serializers.ModelSerializer):
@@ -212,6 +235,9 @@ class ObserverListSerializer(ObserverSerializer):
 
 
 class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
+    
+    creator = UserTaskSerializer(required=False)
+
     class Meta:
         model = Group
         fields = '__all__'
@@ -225,6 +251,9 @@ class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class CommentTreeSerializer(serializers.ModelSerializer):
+    
+    author = UserTaskSerializer(read_only=True)
+
     class Meta:
         model = Comment
         fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent', 'creation_date']
@@ -244,6 +273,18 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent', 'creation_date']
+
+    def to_representation(self, instance):
+        
+        output_data = super().to_representation(instance)
+        output_data['author'] = UserTaskSerializer(instance.author,
+            context={'request': self.context['request']}).data
+
+        return output_data
+
+
+class CommentListSerializer(CommentSerializer):
+    author = UserTaskSerializer()
 
 
 class DocSerializer(serializers.ModelSerializer):
