@@ -102,7 +102,18 @@ components:
         priority:
           type: integer
         creator:
-          type: integer
+          type: object
+          properties:
+            url:
+              type: string
+            id:
+              type: integer
+            email:
+              type: string
+            full_name:
+              type: string
+            avatar_image:
+              type: string
         parent:
           type: integer
 
@@ -114,5 +125,10 @@ components:
         group: 1
         deadline: '2021-05-13T01:00:59.502847Z'
         priority: 0
-        creator: 1
+        creator: 
+            url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+            id: 1
+            email: "test@test.com"
+            full_name: 'дон Педро'
+            avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
         parent: null

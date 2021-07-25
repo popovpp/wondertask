@@ -37,8 +37,24 @@ components:
           type: integer
           example: 0
         creator:
-          type: integer
-          example: 0
+          type: object
+          properties:
+            url:
+              type: string
+            id:
+              type: integer
+            email:
+              type: string
+            full_name:
+              type: string
+            avatar_image:
+              type: string
+          example: 
+            url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+            id: 1
+            email: "test@test.com"
+            full_name: 'дон Педро'
+            avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
         user_tags:
           type: array
           items:

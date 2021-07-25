@@ -83,7 +83,9 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
     def validate_group(self, value):
         if value:
             group = get_object_or_404(Group, id=value.id)
-            if group.creator != self.context['request'].user:
+            email = 'anonimous@anonimous.com'
+            if group.creator != self.context['request'].user and (
+               self.context['request'].user.email != email):
                 raise serializers.ValidationError("The user is not owner this selected group")
 
         return value
@@ -128,10 +130,23 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
         anonimous_user = User.objects.get(email='anonimous@anonimous.com')
         if task.creator == anonimous_user:
+            try:
+                email = 'anonimous_group_' + str(task.group.id) + '@anonimous.com'
+                anonimous_group_user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                full_name = 'Anonimous_' + task.group.group_name
+                anonimous_group_user = User.objects.create_user(email=email, 
+                                                                password='qwerty:)', 
+                                                                full_name=full_name)
+                anonimous_group_user.save()
+            executor = Executor.objects.create(task=task,
+                                         executor=anonimous_group_user)
             task.start_task()
             task.save()
             notify_service.send_notification(task=task, task_action="start_task")
         else:
+            executor, created = Executor.objects.get_or_create(task=task,
+                                         executor=task.creator)
             task.save()
             
         return task
@@ -220,6 +235,9 @@ class ObserverListSerializer(ObserverSerializer):
 
 
 class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
+    
+    creator = UserTaskSerializer(required=False)
+
     class Meta:
         model = Group
         fields = '__all__'

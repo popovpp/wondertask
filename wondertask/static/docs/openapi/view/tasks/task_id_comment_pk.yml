@@ -98,7 +98,18 @@ components:
         id:
           type: integer
         author:
-          type: integer
+          type: object
+          properties:
+            url:
+              type: string
+            id:
+              type: integer
+            email:
+              type: string
+            full_name:
+              type: string
+            avatar_image:
+              type: string
         task:
           type: integer
         text:
@@ -110,7 +121,18 @@ components:
         id:
           type: integer
         author:
-          type: integer
+          type: object
+          properties:
+            url:
+              type: string
+            id:
+              type: integer
+            email:
+              type: string
+            full_name:
+              type: string
+            avatar_image:
+              type: string
         task:
           type: integer
         text:
@@ -129,7 +151,12 @@ components:
       summary: "Comment"
       value:
         id: 6
-        author: 2
+        author: 
+          url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+          id: 1
+          email: "test@test.com"
+          full_name: 'дон Педро'
+          avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
         task: 1
         text: "comment text"
         tree_id: 1
@@ -138,7 +165,12 @@ components:
         creation_date: "2021-06-18T18:40:00.000140+03:00"
         children:
           id: 7
-          author: 2
+          author: 
+            url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+            id: 1
+            email: "test@test.com"
+            full_name: 'дон Педро'
+            avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
           task: 1
           text: "comment text"
           tree_id: 1
@@ -147,7 +179,12 @@ components:
           creation_date: "2021-06-18T18:40:00.000140+03:00"
           children:
             id: 8
-            author: 2
+            author: 
+              url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+              id: 1
+              email: "test@test.com"
+              full_name: 'дон Педро'
+              avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
             task: 1
             text: "comment text"
             tree_id: 1
@@ -158,7 +195,12 @@ components:
       summary: "Comment"
       value:
         id: 6
-        author: 2
+        author: 
+          url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+          id: 1
+          email: "test@test.com"
+          full_name: 'дон Педро'
+          avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
         task: 1
         text: "comment text"
         tree_id: 1

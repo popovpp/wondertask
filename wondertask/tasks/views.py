@@ -205,7 +205,7 @@ class TaskViewSet(ModelViewSet):
     def create(self, request):
         if self.request.user.is_authenticated == False:
             login(self.request, anonimous_user)
-        return super(TaskViewSet, self).create(request, permission_classes=[AllowAny])
+        return super(TaskViewSet, self).create(request, permission_classes=[IsAuthenticatedOrReadOnly])
 
 
 class TaskTreeViewSet(RetrieveListViewSet):
@@ -278,7 +278,7 @@ class GroupViewSet(ModelViewSet):
             return Response(
                 data={"detail": f"No users found for these emails: {non_existent_emails}"},
                 status=status.HTTP_400_BAD_REQUEST)
-        # create accept invite url
+
         url = request.build_absolute_uri().replace("invite", "accept-invite")
         group = get_object_or_404(Group, pk=pk)
         group_service.invite_users_in_group(name=group.group_name, url=url, emails=emails)
