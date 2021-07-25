@@ -23,7 +23,8 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverListSerializer, DocSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
-                               ActionTagSerializer, TaskScheduleSerializer)
+                               ActionTagSerializer, TaskScheduleSerializer,
+                               TaskListSerializer)
 from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 from accounts.models import User
@@ -103,6 +104,7 @@ class TaskViewSet(ModelViewSet):
     @action(methods=['GET'], detail=False, url_path="my", url_name="my_tasks",
             permission_classes=[IsAuthenticated])
     def my_tasks(self, request):
+        self.serializer_class = TaskListSerializer
         filter_queryset = self.filter_queryset(self.get_queryset())
         queryset = filter_queryset.filter(creator=request.user)
 
@@ -219,7 +221,7 @@ class TaskTreeViewSet(RetrieveListViewSet):
         return queryset.order_by('-creation_date')
 
     def list(self, request):
-        self.serializer_class = TaskSerializer
+        self.serializer_class = TaskListSerializer
         return super(TaskTreeViewSet, self).list(request)
 
 
@@ -293,8 +295,15 @@ class GroupViewSet(ModelViewSet):
 
     @action(methods=["GET"], detail=True, url_path="tasks-list", url_name="tasks_list")
     def tasks_list(self, request, pk=None):
+
         self.serializer_class = TaskSerializer
         queryset = Task.objects.filter(group=pk).order_by('-creation_date')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = self.get_serializer(queryset, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -309,7 +318,7 @@ class CommentViewSet(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = CommentTreeSerializer(instance)
+        serializer = CommentTreeSerializer(instance, context={'request': request})
         return Response(serializer.data)
 
     def perform_create(self, serializer):

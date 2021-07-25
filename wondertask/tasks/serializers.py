@@ -36,6 +36,7 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
     sum_elapsed_time = serializers.CharField(read_only=True)
     status = serializers.IntegerField(read_only=True)
     level = serializers.IntegerField(read_only=True)
+    creator = UserTaskSerializer(read_only=True)
 
     class Meta:
         model = Task
@@ -156,6 +157,9 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         else:
             output_data['group'] = "null"
 
+        output_data['creator'] = UserTaskSerializer(instance.creator,
+            context={'request': self.context['request']}).data
+
         executors = instance.executors.all()
         list_executors = [ExecutorListSerializer(el, 
             context={'request': self.context['request']}).data for el in executors]
@@ -169,6 +173,10 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         output_data['status'] = instance.STATUS_DICT[instance.status]
 
         return output_data
+
+
+class TaskListSerializer(TaskSerializer):
+    creator = UserTaskSerializer()
 
 
 class TaskSystemTagsSerializer(serializers.ModelSerializer):
@@ -225,6 +233,9 @@ class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class CommentTreeSerializer(serializers.ModelSerializer):
+    
+    author = UserTaskSerializer(read_only=True)
+
     class Meta:
         model = Comment
         fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent', 'creation_date']
@@ -244,6 +255,18 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent', 'creation_date']
+
+    def to_representation(self, instance):
+        
+        output_data = super().to_representation(instance)
+        output_data['author'] = UserTaskSerializer(instance.author,
+            context={'request': self.context['request']}).data
+
+        return output_data
+
+
+class CommentListSerializer(CommentSerializer):
+    author = UserTaskSerializer()
 
 
 class DocSerializer(serializers.ModelSerializer):
