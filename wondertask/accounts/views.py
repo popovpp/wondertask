@@ -49,11 +49,15 @@ class UserViewSet(mixins.RetrieveModelMixin,
                   GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserTaskSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def update(self, request, pk=None, *args, **kwargs):
         instance = get_object_or_404(User, id=self.kwargs['pk'])
-        avatar_delete(User, instance=instance)
+        try: 
+            request.data['avatar_image']
+            avatar_delete(User, instance=instance)
+        except KeyError:
+            pass
         return super(UserViewSet, self).update(request, pk, args, kwargs)
 
     @action(methods=['DELETE'], detail=True, url_path="del-avatar", url_name="del_avatar",
@@ -126,7 +130,7 @@ class RedirectUserView(APIView):
         hostname = socket.gethostname()
         IP = socket.gethostbyname(hostname)
         PORT = request.get_port()
-        enter_password_url = ('http://78.154.203.204' + ':' + '3000' +
+        enter_password_url = ('http://178.154.203.204' + ':' + '3000' +
                               '/new-password/' + secret)
         return enter_password_url
 
