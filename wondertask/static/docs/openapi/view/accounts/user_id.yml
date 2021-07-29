@@ -20,7 +20,7 @@ get:
               $ref: '#/components/examples/User'
       description: 'The user info was got'
 put:
-  summary: "Set the user avatar"
+  summary: "Setting the user avatar"
   tags: ['Accounts']
   operationId: SetAvatar
   parameters:
@@ -39,6 +39,36 @@ put:
             avatar_image:
               type: string
               format: binary
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            - $ref: '#/components/schemas/User'
+          examples:
+            User:
+              $ref: '#/components/examples/User'
+      description: 'The avatar was setted'
+
+patch:
+  summary: "Changing any field of user object"
+  tags: ['Accounts']
+  operationId: ChangeAnyField
+  parameters:
+    - name: user_id
+      in: path
+      required: true
+      description: 'The user id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            full_name:
+              type: string
   responses:
     '200':
       content:
