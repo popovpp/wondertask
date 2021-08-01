@@ -1,5 +1,6 @@
 import socket
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
@@ -50,6 +51,8 @@ class UserViewSet(mixins.RetrieveModelMixin,
     queryset = User.objects.all()
     serializer_class = UserTaskSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [SearchFilter]
+    search_fields = ['$full_name', '$email']
 
     def update(self, request, pk=None, *args, **kwargs):
         instance = get_object_or_404(User, id=self.kwargs['pk'])
