@@ -33,8 +33,6 @@ class NotificationService:
                                            method=request.method,
                                            task=task)
             group = task.group
-            if request.method == "DELETE":
-                task = None
             self._create_notification(message=message, recipients=recipients, task=task,
                                       group=group, type="ACTION")
         elif task_action:
@@ -123,7 +121,24 @@ class NotificationService:
     @staticmethod
     def _create_notification(message: str, type: str, recipients: List[User], task: Task = None,
                              group: Group = None) -> None:
-        notification = Notification.objects.create(message=message, task=task, group=group)
+        request = get_request()
+        if not task:
+            task_id_del = None
+        else:
+            task_id_del = task.id
+        if not group:
+            group_name_del = None
+        else:
+            group_name_del = group.group_name
+        if (request and resolve(request.path_info).url_name 
+                                in ["task-detail", ]):
+            task = None
+        if (request and resolve(request.path_info).url_name 
+                                in ["groups-detail", ]):
+            group = None
+        notification = Notification.objects.create(message=message, task=task, 
+                                        task_id_del=task_id_del, group=group,
+                                        group_name_del=group_name_del)
         notification.recipients.bulk_create(
             NotificationToUser(user=user, notification=notification) for user in recipients
         )
@@ -229,7 +244,20 @@ class NotificationService:
 
     @staticmethod
     def _add_group_message(group: Group):
-        return f"{group.creator.full_name} создал группу {group.group_name}"
+        return f"{group.creator.full_name} создал(а) группу {group.group_name}"
+
+
+    @staticmethod
+    def _del_group_message(group: Group):
+        return f"{group.creator.full_name} удалил(а) группу {group.group_name}"
+
+
+    def send_del_group_notifications(self, group: Group):
+        message = self._del_group_message(group=group)
+        recipients = self._users_who_receive_notification(
+            creator=group.creator)
+        self._create_notification(message=message, recipients=recipients,
+                                  group=group, type="ACTION")
 
 
 notify_service = NotificationService()

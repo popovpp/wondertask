@@ -94,3 +94,10 @@ def group_add_send_notification(sender, instance, **kwargs):
     if instance.creator not in instance.group_members.all():
         return None
     notify_service.send_add_group_notifications(group=instance)
+
+
+@receiver(pre_delete, sender=Group)
+def group_del_send_notification(sender, instance, **kwargs):
+    if instance.creator not in instance.group_members.all():
+        return None
+    notify_service.send_del_group_notifications(group=instance)
