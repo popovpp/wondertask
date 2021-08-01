@@ -22,17 +22,31 @@ class NotificationSerializer(serializers.ModelSerializer):
                     'л(а)', 'ли').replace(
                     'перенес', 'перенесли')
         output_data["recipients"] = [obj.user.id for obj in instance.recipients.all()]
+        if not instance.task:
+            output_data['task'] = instance.task_id_del
+        if not instance.group:
+            output_data['group'] = instance.group_name_del
         return output_data
 
     def create(self, validated_data):
         if "recipients" not in validated_data:
-            return super(NotificationSerializer, self).create(validated_data)
-        recipients = validated_data.pop("recipients")
-        notification = super(NotificationSerializer, self).create(validated_data)
-        notification.recipients.bulk_create(
-            NotificationToUser(user_id=recipient_id, notification=notification)
-            for recipient_id in recipients
-        )
+            notification = super(NotificationSerializer, self).create(validated_data)
+        else:
+            recipients = validated_data.pop("recipients")
+            notification = super(NotificationSerializer, self).create(validated_data)
+            notification.recipients.bulk_create(
+                NotificationToUser(user_id=recipient_id, notification=notification)
+                for recipient_id in recipients
+            )
+        if not notification.task:
+            notification.task_id_del = None
+        else:
+            notification.task_id_del = notification.task.id
+        if not notification.group:
+            notification.group_name_del = None
+        else:
+            notification.group_name_del = notification.group.group_name
+        notification.save()
         return notification
 
 

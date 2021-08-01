@@ -12,6 +12,8 @@ class Notification(models.Model):
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True)
     group = models.ForeignKey(Group, on_delete=models.SET_NULL, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
+    group_name_del = models.CharField(max_length=255, default='', blank=True, null=True)
+    task_id_del = models.IntegerField(null=True)
 
     class Meta:
         db_table = "notification"
