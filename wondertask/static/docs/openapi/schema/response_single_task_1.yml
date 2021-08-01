@@ -13,8 +13,15 @@ components:
           type: string
           example: Новая задача
         group:
-          type: string
-          example: "FREE_TASKS"
+          type: object
+          properties:
+            id:
+              type: integer
+            group_name:
+              type: string
+          example:
+            id: 1
+            group_name: "Banda"
         creation_date:
           type: string
           example: '2021-05-15T10:55:56.532291Z'
@@ -118,8 +125,15 @@ components:
           type: string
           example: Новая задача
         group:
-          type: string
-          example: "FREE_TASKS"
+          type: object
+          properties:
+            id:
+              type: integer
+            group_name:
+              type: string
+          example:
+            id: 1
+            group_name: "Banda"
         creation_date:
           type: string
           example: '2021-05-15T10:55:56.532291Z'
@@ -209,8 +223,15 @@ components:
                 type: string
                 example: Новая задача1
               group:
-                type: string
-                example: "FREE_TASKS"
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  group_name:
+                    type: string
+                example:
+                  id: 1
+                  group_name: "Banda"
               creation_date:
                 type: string
                 example: '2021-05-15T10:55:56.532291Z'
