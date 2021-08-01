@@ -122,7 +122,6 @@ class TaskViewSet(ModelViewSet):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user_tags, system_tags = tag_service.filtering_tags(serializer.data['tags'])
-
         non_existent_system_tags = tag_service.get_non_existent_system_tags(system_tags)
         if non_existent_system_tags:
             return Response({"detail": f"This system tags: {non_existent_system_tags} not existing"})

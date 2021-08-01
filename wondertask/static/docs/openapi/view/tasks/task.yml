@@ -102,6 +102,10 @@ components:
           type: integer
         parent:
           type: integer
+        user_tags:
+          type: array
+          items:
+            type: string
 
   examples:
     Task:
@@ -112,3 +116,4 @@ components:
         deadline: '2021-05-13T01:00:59.502847Z'
         priority: 0
         parent: 
+        user_tags: ['tag1', 'tag2', 'tag3']

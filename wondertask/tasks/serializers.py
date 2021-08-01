@@ -23,7 +23,7 @@ from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
 class GroupNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ['group_name']
+        fields = ['id', 'group_name']
 
 
 class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -56,10 +56,6 @@ class TaskTreeSerializer(TaggitSerializer, serializers.ModelSerializer):
             instance.start_task()
 
         output_data = super().to_representation(instance)
-        if instance.group:
-            output_data['group'] = instance.group.group_name
-        else:
-            output_data['group'] = "null"
 
         return output_data
 
@@ -68,6 +64,7 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
     user_tags = TagListSerializerField(required=False)
     system_tags = TagListSerializerField(required=False)
     title = serializers.CharField(required=True)
+#    group = GroupNameSerializer()
 
     class Meta:
         model = Task
@@ -78,7 +75,7 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         read_only_fields = ['creation_date',
                             'start_date', 'finish_date',
                             'sum_elapsed_time', 'status', 'creator',
-                            'user_tags', 'system_tags', 'level']
+                             'system_tags', 'level']
 
     def validate_group(self, value):
         if value:
@@ -97,6 +94,13 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        user_tags = None
+        try:
+            user_tags = validated_data['user_tags']
+            del validated_data['user_tags']
+        except KeyError:
+            pass
+
         task = super(TaskSerializer, self).create(validated_data)
         task.creator = self.context['request'].user
 
@@ -142,12 +146,15 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
             executor = Executor.objects.create(task=task,
                                          executor=anonimous_group_user)
             task.start_task()
-            task.save()
             notify_service.send_notification(task=task, task_action="start_task")
         else:
             executor, created = Executor.objects.get_or_create(task=task,
                                          executor=task.creator)
-            task.save()
+
+        if user_tags:
+            task.user_tags.add(*list(map(str, user_tags)), tag_kwargs={"user_id": task.creator.id})
+
+        task.save()
             
         return task
 
@@ -167,10 +174,10 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
             instance.start_task()
 
         output_data = super().to_representation(instance)
+
         if instance.group:
-            output_data['group'] = instance.group.group_name
-        else:
-            output_data['group'] = "null"
+            output_data['group'] = GroupNameSerializer(instance.group,
+                context={'request': self.context['request']}).data
 
         output_data['creator'] = UserTaskSerializer(instance.creator,
             context={'request': self.context['request']}).data
