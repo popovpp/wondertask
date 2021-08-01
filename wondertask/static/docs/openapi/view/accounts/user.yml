@@ -2,7 +2,12 @@ get:
   summary: 'Getting the list of users'
   tags: ['Accounts']
   operationId: GetUsersList
-  parameters: []
+  parameters:
+    - name: search
+      in: query
+      description: 'Searching by full name and email'
+      schema:
+        type: string
   responses:
     '200':
       content:
