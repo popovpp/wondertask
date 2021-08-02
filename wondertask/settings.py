@@ -207,7 +207,14 @@ AUTH_USER_MODEL = 'accounts.User'
 TAGGIT_CASE_INSENSITIVE = True
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+DEFAULT_FROM_EMAIL = 'support@wondertask.ru'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'support@wondertask.ru'
+EMAIL_HOST_PASSWORD = 'IAyAayUsi52-'
 
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/0"
