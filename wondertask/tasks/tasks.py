@@ -3,6 +3,7 @@ import json
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.utils.timezone import now
+from django.conf import settings
 
 from django_celery_beat.models import PeriodicTask
 from taggit.models import Tag
@@ -17,7 +18,7 @@ def send_invite_in_group(group_name, link, email):
     send_mail(
         subject=f'Your invited in {group_name} group',
         message=f'Click if you want to accept invite: {link}',
-        from_email="example@gmail.com",
+        from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[email],
         fail_silently=False,
     )
@@ -25,9 +26,9 @@ def send_invite_in_group(group_name, link, email):
 
 @app.task(name="send_mail_thread")
 def send_mail_thread(url, email):
-    send_mail('For recoverinr the passvord go to the link',
+    send_mail('For recovering the passvord go to the link',
               f'For recovering the password go to the link: {url}',
-              'expamole@example.com', [f'{email}'], fail_silently=False)
+              settings.DEFAULT_FROM_EMAIL, [f'{email}'], fail_silently=False)
 
 
 @app.task(name="start_repeat_task")
