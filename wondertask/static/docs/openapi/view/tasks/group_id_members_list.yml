@@ -1,0 +1,56 @@
+get:
+  summary: 'Getting the members list of selected group.'
+  tags: ['Group']
+  operationId: GetMembersListGroup
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: integer
+              previous:
+                type: integer
+              results:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      description: 'The list was got'
+
+components:
+  schemas:
+    User:
+      type: object
+      description: 'User'
+      properties:
+        url:
+          type: string
+        id:
+          type: integer
+        email:
+          type: string
+        full_name:
+          type: string
+        avatar_image:
+          type: string
+
+  examples:
+    User:
+      summary: 'User'
+      value:
+        url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+        id: 1
+        email: "test@test.com"
+        full_name: 'дон Педро'
+        avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
