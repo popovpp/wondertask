@@ -28,6 +28,7 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
 from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 from accounts.models import User
+from accounts.serializers import UserTaskSerializer
 
 
 try:
@@ -297,6 +298,22 @@ class GroupViewSet(ModelViewSet):
 
         self.serializer_class = TaskSerializer
         queryset = Task.objects.filter(group=pk).order_by('-creation_date')
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=["GET"], detail=True, url_path="members-list", url_name="members_list")
+    def members_list(self, request, pk=None):
+
+        self.serializer_class = UserTaskSerializer
+        group = Group.objects.get(pk=pk)
+        group_members = [user.id for user in group.group_members.all()]
+        queryset = User.objects.filter(pk__in=group_members)
 
         page = self.paginate_queryset(queryset)
         if page is not None:
