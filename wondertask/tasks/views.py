@@ -311,7 +311,7 @@ class GroupViewSet(ModelViewSet):
     def members_list(self, request, pk=None):
 
         self.serializer_class = UserTaskSerializer
-        group = Group.objects.get(pk=pk)
+        group = get_object_or_404(Group, pk=pk)
         group_members = [user.id for user in group.group_members.all()]
         queryset = User.objects.filter(pk__in=group_members)
 
