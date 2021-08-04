@@ -17,15 +17,11 @@ post:
         application/json:
           schema:
             type: object
-            properties:
-              secret:
-                type: string
-                description: Secret code for user identification 
+            properties: 
               result:
                 type: string
                 description: The letter send to {user.email}
             example: 
-              secret: '65a57dacb3bb358c5f6d1ea1a6c338db'
               result: The letter send to test@test.com
       description: 'Email address recived, link transmited'
 
