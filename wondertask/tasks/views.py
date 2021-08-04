@@ -149,7 +149,6 @@ class TaskViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=pk)
         task.start_task()
         task.save()
-        notify_service.send_notification(task=task, task_action="start_task")
         serializer = TaskSerializer(task, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -159,7 +158,6 @@ class TaskViewSet(ModelViewSet):
         task = get_object_or_404(Task, pk=pk)
         task.stop_task()
         task.save()
-        notify_service.send_notification(task=task, task_action="stop_task")
         serializer = TaskSerializer(task, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 

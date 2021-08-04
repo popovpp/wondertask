@@ -4,6 +4,7 @@ from django.urls import resolve
 from rest_framework.generics import get_object_or_404
 
 from accounts.models import User
+from . import tasks
 from journals.models import Notification, NotificationToUser
 from tasks.models import Executor, Observer, Task, Group
 
@@ -27,8 +28,8 @@ class NotificationService:
             group_members=task.group.group_members.all() if task.group else None
         )
 
-        if (request and resolve(request.path_info).url_name 
-                                in ["task-list", "task-detail"]) and not task_action:
+        if (request and resolve(request.path_info).url_name
+            in ["task-list", "task-detail"]) and not task_action:
             message = self._action_message(user_name=request.user.full_name,
                                            method=request.method,
                                            task=task)
@@ -37,10 +38,10 @@ class NotificationService:
                                       group=group, type="ACTION")
         elif task_action:
             if request:
-                user_name = request.user.full_name
+                full_name = request.user.full_name
             else:
-                user_name = task.creator.full_name
-            message = self._task_action_message(user_name=user_name,
+                full_name = task.creator.full_name
+            message = self._task_action_message(username=full_name,
                                                 task_action=task_action,
                                                 task=task)
             self._create_notification(message=message, recipients=recipients, task=task,
@@ -94,7 +95,10 @@ class NotificationService:
                                   group=task.group, type="ACTION")
 
     def send_add_object_notifications(self, task: Task, object_name: str):
-        message = self._add_object_message(task=task, object_name=object_name)
+        request = get_request()
+        message = self._add_object_message(
+            task=task, object_name=object_name, username=request.user.full_name
+        )
         recipients = self._users_who_receive_notification(
             creator=task.creator,
             executors=task.executors.all(),
@@ -119,8 +123,9 @@ class NotificationService:
         notify.save()
 
     @staticmethod
-    def _create_notification(message: str, type: str, recipients: List[User], task: Task = None,
-                             group: Group = None) -> None:
+    def _create_notification(
+            message: str, type: str, recipients: List[User], task: Task = None, group: Group = None
+    ) -> None:
         request = get_request()
         if not task:
             task_id_del = None
@@ -130,15 +135,16 @@ class NotificationService:
             group_name_del = None
         else:
             group_name_del = group.group_name
-        if (request and resolve(request.path_info).url_name 
-                                in ["task-detail", ]):
+        if (request and resolve(request.path_info).url_name
+                in ["task-detail", ]):
             task = None
-        if (request and resolve(request.path_info).url_name 
-                                in ["groups-detail", ]):
+        if (request and resolve(request.path_info).url_name
+                in ["groups-detail", ]):
             group = None
-        notification = Notification.objects.create(message=message, task=task, 
-                                        task_id_del=task_id_del, group=group,
-                                        group_name_del=group_name_del)
+        notification = Notification.objects.create(
+            message=message, task=task, task_id_del=task_id_del,
+            group=group, group_name_del=group_name_del
+        )
         notification.recipients.bulk_create(
             NotificationToUser(user=user, notification=notification) for user in recipients
         )
@@ -148,33 +154,42 @@ class NotificationService:
             notification.set_deadline_type()
         notification.save()
 
-    @staticmethod
-    def _action_message(user_name: str, method: str, task: Task) -> str or Exception:
-        if method == "POST":
-            action = "создал(а)"
-        elif method in ["PUT", "PATCH"]:
-            action = "обновил(а)"
-        elif method == "DELETE":
-            action = "удалил(а)"
-        else:
-            return Exception("Request method unknown")
+        # if current user made this action, he will remove from recipients for push notifications
+        if request.user:
+            try:
+                recipients.remove(request.user)
+            except ValueError:
+                pass
 
+        if notification.is_push_notification and recipients:
+            user_ids = [user.id for user in recipients]
+            tasks.fcm_send_message.delay(
+                user_ids=user_ids, message=notification.message, notification_id=notification.id
+            )
+
+    @staticmethod
+    def _action_message(user_name: str, method: str, task: Task) -> str:
+        method_in_msg = {
+            "POST": "создал(а)",
+            "PUT": "обновил(а)",
+            "PATCH": "обновил(а)",
+            "DELETE": "удалил(а)",
+        }
+        action = method_in_msg.get(method, Exception("Request method unknown"))
         if task.group:
             return f"{user_name} {action} задачу '{task.title}' в группе '{task.group.group_name}'"
         else:
             return f"{user_name} {action} задачу '{task.title}'"
 
     @staticmethod
-    def _task_action_message(user_name: str, task: Task, task_action: str) -> str or Exception:
-        if task_action == "start_task":
-            action = "начал(а)"
-        elif task_action == "stop_task":
-            action = "остановил(а)"
-        elif task_action == "finish_task":
-            action = "завершил(а)"
-        else:
-            return Exception("Task action unknown")
-        return f"{user_name} {action} задачу '{task.title}'"
+    def _task_action_message(username: str, task: Task, task_action: str) -> str:
+        action_in_msg = {
+            "start_task": "начал(а)",
+            "stop_task": "остановил(а)",
+            "finish_task": "завершил(а)"
+        }
+        action = action_in_msg.get(task_action, Exception("Task action unknown"))
+        return f"{username} {action} задачу '{task.title}'"
 
     @staticmethod
     def _changed_group_message(task: Task, old_group: Group = None, new_group: Group = None) -> str:
@@ -207,12 +222,12 @@ class NotificationService:
             return f"{task.creator.full_name} создал(а) повторяющаяся задача '{task.title}'"
 
     @staticmethod
-    def _add_object_message(task: Task, object_name):
+    def _add_object_message(username: str, task: Task, object_name):
         if task.group:
-            return f"{task.creator.full_name} добавил(а) {object_name} к задаче '{task.title}'" \
+            return f"{username} добавил(а) {object_name} к задаче '{task.title}'" \
                    f" в группе '{task.group.group_name}'"
         else:
-            return f"{task.creator.full_name} добавил(а) {object_name} к задаче '{task.title}'" \
+            return f"{username} добавил(а) {object_name} к задаче '{task.title}'"
 
     @staticmethod
     def _users_who_receive_notification(creator: User = None,
@@ -237,27 +252,40 @@ class NotificationService:
 
     def send_add_group_notifications(self, group: Group):
         message = self._add_group_message(group=group)
-        recipients = self._users_who_receive_notification(
-            creator=group.creator)
-        self._create_notification(message=message, recipients=recipients,
-                                  group=group, type="ACTION")
+        recipients = self._users_who_receive_notification(creator=group.creator)
+        self._create_notification(
+            message=message, recipients=recipients, group=group, type="ACTION"
+        )
 
     @staticmethod
     def _add_group_message(group: Group):
         return f"{group.creator.full_name} создал(а) группу {group.group_name}"
 
-
     @staticmethod
     def _del_group_message(group: Group):
         return f"{group.creator.full_name} удалил(а) группу {group.group_name}"
 
-
     def send_del_group_notifications(self, group: Group):
         message = self._del_group_message(group=group)
-        recipients = self._users_who_receive_notification(
-            creator=group.creator)
-        self._create_notification(message=message, recipients=recipients,
-                                  group=group, type="ACTION")
+        recipients = self._users_who_receive_notification(creator=group.creator)
+        self._create_notification(
+            message=message, recipients=recipients, group=group, type="ACTION"
+        )
+
+    @staticmethod
+    def _add_user_role_message(task: Task, role: str):
+        role_in_msg = {
+            "executor": "исполнителем",
+            "observer": "наблюдателем",
+        }
+        role = role_in_msg.get(role, Exception("Task role unknown"))
+        return f"{task.creator.full_name} добавил вас {role} задачи '{task.title}'"
+
+    def send_add_user_to_task_notifications(self, task: Task, recipient: User, role: str):
+        message = self._add_user_role_message(task=task, role=role)
+        self._create_notification(
+            message=message, task=task, recipients=[recipient], group=task.group, type="ACTION"
+        )
 
 
 notify_service = NotificationService()

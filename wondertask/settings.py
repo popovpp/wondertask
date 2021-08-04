@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'mptt',
     'django_filters',
     'django_celery_beat',
+    'push_notifications',
 
     'accounts',
     'tasks',
@@ -221,3 +222,9 @@ CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "FCM_API_KEY": os.getenv('FCM_API_KEY'),
+    "FCM_POST_URL": "https://fcm.googleapis.com/fcm/send",
+    "UNIQUE_REG_ID": True,
+}

@@ -35,7 +35,6 @@ def send_mail_thread(url, email):
 def start_repeat_task(task_id):
     task = Task.objects.get(pk=task_id)
     task.start_task()
-    notify_service.send_notification(task=task, task_action="start_task")
     task.save()
 
 
