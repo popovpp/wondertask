@@ -5,12 +5,16 @@ from accounts.models import User
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
+    avatar_image = serializers.ImageField(max_length=None,
+                                          allow_empty_file=True,
+                                          use_url=True,
+                                          required=False)
     password = serializers.CharField(write_only=True)
     full_name = serializers.CharField(required=True)
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'full_name']
+        fields = ['url', 'id', 'email', 'password', 'full_name', 'avatar_image']
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
