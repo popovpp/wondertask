@@ -17,12 +17,21 @@ post:
         application/json:
           schema:
             properties:
+              url:
+                type: string
+                example: "http://host/v1/accounts/user/125/"
+              id:
+                type: integer
+                example: 125
               email:
                 type: string
                 example: test@test.ru
               full_name:
                 type: string
                 example: Zarbazan
+              avatat_image:
+                type: string
+                example: null
       description: 'User is registered'
 
 components:

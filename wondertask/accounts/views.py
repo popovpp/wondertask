@@ -29,7 +29,7 @@ class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        serializer = UserRegistrationSerializer(data=request.data)
+        serializer = UserRegistrationSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
@@ -114,7 +114,7 @@ class UserSendEmailView(APIView):
             return Response({'result': 'The user is not active'}, 
                                 status=HTTPStatus.INTERNAL_SERVER_ERROR)
             
-        return Response({'secret': f'{user.secret}', 'result': f'The letter send to {user.email}'}, 
+        return Response({'result': f'The letter send to {user.email}'}, 
                         status=HTTPStatus.OK)
 
 
@@ -125,16 +125,14 @@ class RedirectUserView(APIView):
         hostname = socket.gethostname()
         IP = socket.gethostbyname(hostname)
         PORT = request.get_port()
-        enter_email_url = ('http://178.154.203.204' + ':' + '3000' +
-                           '/restore-password')
+        enter_email_url = (settings.ENTER_EMAIL_URL)
         return enter_email_url
 
     def get_enter_password_url(self, request, secret):
         hostname = socket.gethostname()
         IP = socket.gethostbyname(hostname)
         PORT = request.get_port()
-        enter_password_url = ('http://178.154.203.204' + ':' + '3000' +
-                              '/new-password/' + secret)
+        enter_password_url = (settings.ENTER_PASSWORD_URL + secret)
         return enter_password_url
 
     def get(self, request, **kwargs):

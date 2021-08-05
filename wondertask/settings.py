@@ -223,6 +223,10 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
+#Front URLs for recover password
+ENTER_EMAIL_URL = 'https://dev.wondertask.ru:3000/restore-password'
+ENTER_PASSWORD_URL = 'https://dev.wondertask.ru:3000/new-password/'
+
 PUSH_NOTIFICATIONS_SETTINGS = {
     "FCM_API_KEY": os.getenv('FCM_API_KEY'),
     "FCM_POST_URL": "https://fcm.googleapis.com/fcm/send",
