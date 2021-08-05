@@ -108,7 +108,7 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
         clocked_list = []
         if not task.deadline:
             return task
-        for hour in [12, 6, 1]:
+        for hour in [1]:
             if (task.deadline - task.creation_date) > timedelta(hours=hour):
                 time_start_task = task.deadline - timedelta(hours=hour)
                 clocked_list.insert(0, ClockedSchedule.objects.create(clocked_time=time_start_task))
@@ -216,7 +216,9 @@ class ExecutorSerializer(serializers.ModelSerializer):
         task = get_object_or_404(Task, id=self.context['task_id'])
         executor, created = Executor.objects.get_or_create(task=task,
                                                            executor=validated_data['executor'])
-
+        notify_service.send_add_user_to_task_notifications(
+            task=task, recipient=validated_data['executor'], role="executor"
+        )
         return executor
 
 
@@ -233,7 +235,9 @@ class ObserverSerializer(serializers.ModelSerializer):
         task = get_object_or_404(Task, id=self.context['task_id'])
         observer, created = Observer.objects.get_or_create(task=task,
                                                            observer=validated_data['observer'])
-
+        notify_service.send_add_user_to_task_notifications(
+            task=task, recipient=validated_data['observer'], role="observer"
+        )
         return observer
 
 

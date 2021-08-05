@@ -37,6 +37,7 @@ wondertask_api build:
       --build-arg API_PG_PASSWORD=$API_PG_PASSWORD
       --build-arg API_PG_HOST=$API_PG_HOST
       --build-arg API_PG_PORT=$API_PG_PORT
+      --build-arg FCM_API_KEY=$FCM_API_KEY
       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   only:
 #    - merge_request

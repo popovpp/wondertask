@@ -17,3 +17,4 @@ redis==3.5.3
 pytest-django==4.4.0
 django-celery-beat==2.2.0
 pytest-celery==0.0.0
+django-push-notifications==2.0.0

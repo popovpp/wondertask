@@ -9,6 +9,7 @@ from django.contrib.auth import (
     get_user_model,
 )
 from django.utils.translation import ugettext as _
+from push_notifications.models import GCMDevice
 from rest_framework import serializers
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework_jwt.settings import api_settings
@@ -30,6 +31,7 @@ class CustomJWTSerializer(JSONWebTokenSerializer):
         - https://stackoverflow.com/questions/34332074/django-rest-jwt-login-using-username-or-email/46191939#46191939
     """
     username_field = 'email'
+    fb_token = serializers.CharField(max_length=300, required=False)
 
     def validate(self, attrs):
         """
@@ -63,6 +65,11 @@ class CustomJWTSerializer(JSONWebTokenSerializer):
             raise serializers.ValidationError(msg)
 
         payload = jwt_payload_handler(user)
+
+        if "fb_token" in attrs:
+            GCMDevice.objects.get_or_create(
+                user=user, registration_id=attrs.get("fb_token"), cloud_message_type="FCM"
+            )
 
         return {
             'token': jwt_encode_handler(payload),
