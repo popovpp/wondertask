@@ -14,7 +14,6 @@ class Notification(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     group_name_del = models.CharField(max_length=255, default='', blank=True, null=True)
     task_id_del = models.IntegerField(null=True)
-    is_push_notification = models.BooleanField(default=True)
 
     class Meta:
         db_table = "notification"
