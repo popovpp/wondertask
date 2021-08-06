@@ -161,7 +161,7 @@ class NotificationService:
             except ValueError:
                 pass
 
-        if notification.is_push_notification and recipients:
+        if recipients:
             user_ids = [user.id for user in recipients]
             tasks.fcm_send_message.delay(
                 user_ids=user_ids, message=notification.message, notification_id=notification.id
