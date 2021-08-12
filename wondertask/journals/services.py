@@ -155,7 +155,7 @@ class NotificationService:
         notification.save()
 
         # if current user made this action, he will remove from recipients for push notifications
-        if request.user:
+        if request and request.user:
             try:
                 recipients.remove(request.user)
             except ValueError:
