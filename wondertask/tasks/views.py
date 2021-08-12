@@ -307,10 +307,13 @@ class GroupViewSet(ModelViewSet):
 
     @action(methods=["GET"], detail=True, url_path="members-list", url_name="members_list")
     def members_list(self, request, pk=None):
+        if 'search' in request.query_params:
+            search = request.query_params.get('search')
+            search_filter = Q(email__icontains=search) | Q(full_name__icontains=search)
 
         self.serializer_class = UserTaskSerializer
         group = get_object_or_404(Group, pk=pk)
-        group_members = [user.id for user in group.group_members.all()]
+        group_members = [user.id for user in group.group_members.filter(search_filter)]
         queryset = User.objects.filter(pk__in=group_members)
 
         page = self.paginate_queryset(queryset)

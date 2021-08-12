@@ -9,6 +9,11 @@ get:
       description: 'The group id'
       schema:
         type: integer
+    - name: search
+      in: query
+      description: 'Searching by full name and email'
+      schema:
+        type: string
   responses:
     '200':
       content:
