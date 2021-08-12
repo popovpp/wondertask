@@ -24,7 +24,7 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
                                ActionTagSerializer, TaskScheduleSerializer,
-                               TaskListSerializer)
+                               TaskListSerializer, GroupUserIdsSerializer)
 from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 from accounts.models import User
@@ -320,6 +320,15 @@ class GroupViewSet(ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=["POST"], detail=True, url_path="remove-members", url_name="remove_members",
+            serializer_class=GroupUserIdsSerializer, permission_classes=[IsAuthenticated, IsOwner])
+    def remove_members(self, request, pk=None):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        group = get_object_or_404(Group, pk=pk)
+        group.group_members.remove(*User.objects.filter(id__in=serializer.data['users_ids']))
+        return Response(data={"msg": "Users removed from group!"}, status=status.HTTP_200_OK)
 
 
 class CommentViewSet(ModelViewSet):
