@@ -373,6 +373,9 @@ class TagSerializer(serializers.ModelSerializer):
 class GroupInviteSerializer(serializers.Serializer):
     users_emails = serializers.ListField(child=serializers.EmailField())
 
+class GroupUserIdsSerializer(serializers.Serializer):
+    users_ids = serializers.ListField(child=serializers.IntegerField())
+
 
 class ActionTagSerializer(serializers.Serializer):
     tags = serializers.ListField(child=serializers.CharField())
