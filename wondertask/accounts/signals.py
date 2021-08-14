@@ -7,4 +7,4 @@ from accounts.models import User
 @receiver(pre_delete, sender=User)
 def avatar_delete(sender, instance, **kwargs):
     if instance.avatar_image:
-        instance.avatar_image.delete(False)
+        instance.avatar_image.delete(True)
