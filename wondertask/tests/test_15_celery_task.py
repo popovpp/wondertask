@@ -70,12 +70,9 @@ def test_03_start_repeat_task(celery_app, celery_worker):
         title="title", creator=user,
         deadline=timezone.now() + timezone.timedelta(days=3)
     )
-    notify_count = Notification.objects.count()
-
     tasks.start_repeat_task(task_id=task.id)
 
     assert Task.objects.get(pk=task.pk).status == task.IN_PROGRESS
-    assert Notification.objects.count() == notify_count + 1
 
 
 @pytest.mark.django_db(transaction=True)

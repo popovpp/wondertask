@@ -61,22 +61,19 @@ class TestJournalService:
                                                  notification__task_id=task.id)
         assert Notification.objects.count() == notification_count_before + 1
 
-    @pytest.mark.parametrize("object_name", [
-        ("файл",),
-        ("изображение",),
-        ("аудио",),
-        ("комментарий",),
-    ])
-    def test_04_send_add_object_notifications(self, create_task, object_name):
+    def test_04_send_add_object_notifications(self, create_task, user_client, create_user):
         task = Task.objects.get(pk=create_task['id'])
         notification_count_before = Notification.objects.count()
-        notify_service.send_add_object_notifications(task=task, object_name=object_name)
+        data = {'author': create_user.id, 'text': 'Comment for task'}
+        response = user_client.post(f'/v1/tasks/task/{create_task["id"]}/comment/', data=data)
+
         recipients = notify_service._users_who_receive_notification(
             creator=task.creator,
             executors=task.executors.all(),
             observers=task.observers.all(),
             group_members=task.group.group_members.all() if task.group else None
         )
+        assert response.status_code == 201
         assert NotificationToUser.objects.filter(user__in=recipients,
                                                  notification__task_id=task.id)
         assert Notification.objects.count() == notification_count_before + 1
