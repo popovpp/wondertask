@@ -55,12 +55,15 @@ class UserViewSet(mixins.RetrieveModelMixin,
     search_fields = ['$full_name', '$email']
 
     def update(self, request, pk=None, *args, **kwargs):
-        instance = get_object_or_404(User, id=self.kwargs['pk'])
-        try: 
-            request.data['avatar_image']
-            avatar_delete(User, instance=instance)
-        except KeyError:
-            pass
+        user = get_object_or_404(User, id=self.kwargs['pk'])
+        serializer = UserTaskSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        if request.method == 'PUT':
+            try: 
+                request.data['avatar_image']
+                avatar_delete(User, instance=user)
+            except KeyError:
+                pass
         return super(UserViewSet, self).update(request, pk, args, kwargs)
 
     @action(methods=['DELETE'], detail=True, url_path="del-avatar", url_name="del_avatar",
