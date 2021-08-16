@@ -143,7 +143,9 @@ paths:
   # Group Invite/Accept
   /v1/tasks/groups/{id}/invite/:
     $ref: "./view/tasks/group_invite.yml"
-  /v1/tasks/groups/{id}/accept-invite/:
+  /v1/tasks/groups/{id}/invite-link/:
+    $ref: "./view/tasks/group_create_invite_link.yml"
+  /v1/tasks/groups/accept-invite/:
     $ref: "./view/tasks/group_accept.yml"
   /v1/tasks/groups/{id}/remove-members/:
     $ref: "./view/tasks/group_remove_members.yml"

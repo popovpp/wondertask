@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.utils import timezone
 from django_celery_beat.models import (PeriodicTask, CrontabSchedule, 
@@ -253,3 +255,14 @@ class TaskSchedule(models.Model):
 
     def __repr__(self):
         return f"TaskSchedule({self.id}) - {self.task.title}"
+
+
+class InvitationInGroup(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name="The group to which invited")
+    user = models.ForeignKey(User, related_name='invitation_tokens', on_delete=models.CASCADE, blank=True, null=True,
+                             verbose_name="The User which is associated to this invitation token")
+    is_multiple = models.BooleanField("Multiple invitation", default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="When was the token generated")
+

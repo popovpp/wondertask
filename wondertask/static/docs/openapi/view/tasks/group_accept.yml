@@ -3,16 +3,10 @@ get:
   tags: ['Group Invite/Accept']
   operationId: AcceptInvite
   parameters:
-    - name: id
-      in: path
-      required: true
-      description: 'The group id'
-      schema:
-        type: integer
-    - name: email
+    - name: secret
       in: query
       required: true
-      description: 'The user email'
+      description: 'Secret invite token'
       schema:
         type: string
   responses:
