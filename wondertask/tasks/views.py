@@ -1,3 +1,5 @@
+import base64
+
 import django_filters
 from django.db.models import Q
 from django.utils import timezone
@@ -14,7 +16,7 @@ from taggit.models import Tag
 from django.contrib.auth import login
 
 from journals.services import notify_service
-from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule)
+from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, InvitationInGroup)
 from tasks.permissions import IsOwner, PermissionPost
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
@@ -277,18 +279,27 @@ class GroupViewSet(ModelViewSet):
                 data={"detail": f"No users found for these emails: {non_existent_emails}"},
                 status=status.HTTP_400_BAD_REQUEST)
 
-        url = request.build_absolute_uri().replace("invite", "accept-invite")
         group = get_object_or_404(Group, pk=pk)
-        group_service.invite_users_in_group(name=group.group_name, url=url, emails=emails)
+        group_service.invite_users_in_group(
+            name=group.group_name,
+            url=request.build_absolute_uri("/v1/tasks/groups/accept-invite/"),
+            emails=emails,
+            group_id=pk
+        )
         return Response(data={"msg": "Invitations will be mailed"}, status=status.HTTP_200_OK)
 
-    @action(methods=["GET"], detail=True, url_path="accept-invite", url_name="accept_invite")
-    def accept_invite(self, request, pk=None):
-        if 'email' not in request.query_params:
-            return Response(data={"detail": "email query param is required"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        email = request.query_params['email']
-        group_service.add_user_in_group(group_id=pk, email=email)
+    @action(methods=["POST"], detail=True, url_path="invite-link", url_name="create_invite_link",
+            serializer_class=GroupInviteSerializer, permission_classes=[IsAuthenticated, IsOwner])
+    def create_invite_link(self, request, pk=None):
+        invitation_token = InvitationInGroup.objects.create(group_id=pk, is_multiple=True)
+        token = base64.urlsafe_b64encode(str(invitation_token.id).encode()).decode()
+        link = request.build_absolute_uri("/v1/tasks/groups/accept-invite/?secret=" + token)
+        return Response(data={"link": link}, status=status.HTTP_201_CREATED)
+
+
+    @action(methods=["GET"], detail=False, url_path="accept-invite", url_name="accept_invite")
+    def accept_invite(self, request):
+        group_service.accept_invite_in_group(request=request)
         return Response(status=status.HTTP_200_OK)
 
     @action(methods=["GET"], detail=True, url_path="tasks-list", url_name="tasks_list")

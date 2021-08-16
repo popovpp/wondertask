@@ -1,9 +1,12 @@
+import base64
+
+from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from taggit.models import Tag
 
 from accounts.models import User
 from tasks.tasks import send_invite_in_group
-from tasks.models import Task, Group, TaskSchedule
+from tasks.models import Task, Group, TaskSchedule, InvitationInGroup
 
 
 class TagService:
@@ -68,15 +71,30 @@ class GroupService:
         return set(emails) - set(found_users_emails)
 
     @staticmethod
-    def invite_users_in_group(name: str, url: str, emails: list) -> None:
-        for email in emails:
-            send_invite_in_group.delay(group_name=name, link=f'{url}?email={email}', email=email)
+    def invite_users_in_group(name: str, url: str, emails: list, group_id:int) -> None:
+        for user in User.objects.filter(email__in=emails):
+            invitation_token = InvitationInGroup.objects.create(user=user, group_id=group_id)
+            token = base64.urlsafe_b64encode(str(invitation_token.id).encode()).decode()
+            send_invite_in_group.delay(group_name=name, link=f'{url}?secret={token}', email=user.email)
 
     @staticmethod
-    def add_user_in_group(group_id, email):
-        user = get_object_or_404(User, email=email)
-        group = Group.objects.get(pk=group_id)
-        group.group_members.add(user)
+    def accept_invite_in_group(request):
+        try:
+            invitation_token = request.query_params.get('secret')
+            decoded_token = base64.urlsafe_b64decode(invitation_token.encode()).decode()
+            invite = get_object_or_404(InvitationInGroup, id=decoded_token)
+        except Exception as e:
+            raise serializers.ValidationError({'detail': 'Invalid Invitation Token'})
+
+        group = Group.objects.get(pk=invite.group_id)
+        if invite.is_multiple and request.user.is_authenticated:
+            group.group_members.add(request.user)
+        else:
+            raise serializers.ValidationError({'detail': 'Please sign in and try again'})
+
+        if not invite.is_multiple and invite.user:
+            group.group_members.add(invite.user)
+            invite.delete()
 
 
 group_service = GroupService()

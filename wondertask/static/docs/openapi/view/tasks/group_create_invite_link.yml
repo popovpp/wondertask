@@ -1,0 +1,30 @@
+post:
+  summary: "Create invite link in a Group"
+  tags: ['Group Invite/Accept']
+  operationId: CreateInviteLink
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+
+  responses:
+    '201':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              link:
+                type: string
+      description: 'Invite link was created'
+    '400':
+      description: 'HTTP_400_BAD_REQUEST'
+    '403':
+      description: 'HTTP_403_FORBIDDEN'
+
+
+
+
