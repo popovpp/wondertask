@@ -246,8 +246,8 @@ class ObserverListSerializer(ObserverSerializer):
 
 
 class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
-    
     creator = UserTaskSerializer(required=False)
+    count_open_tasks = serializers.SerializerMethodField(method_name="get_count_open_tasks")
 
     class Meta:
         model = Group
@@ -259,6 +259,9 @@ class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
         group.save()
 
         return group
+
+    def get_count_open_tasks(self, instance):
+        return instance.group_tasks.exclude(status=Task.DONE).count()
 
 
 class CommentTreeSerializer(serializers.ModelSerializer):
