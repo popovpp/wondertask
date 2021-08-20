@@ -18,3 +18,18 @@ class PermissionPost(permissions.BasePermission):
             return True
         else:
             return False
+
+
+class IsExecutorOrObserver(permissions.BasePermission):
+    """
+    Custom permission to only allow executor or observer of an object
+    """
+    def has_object_permission(self, request, view, obj):
+        if request.user.id in obj.executors.all().values_list("executor", flat=True):
+            return True
+        elif request.user.id in obj.observers.all().values_list("observer", flat=True):
+            return True
+        else:
+            return False
+
+

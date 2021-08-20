@@ -60,3 +60,16 @@ def test_08_get_my_task_list(user_client, create_task):
     assert response.status_code == 200
     assert response.json()['count'] > 0
 
+
+@pytest.mark.django_db()
+def test_09_add_task_in_favorite(user_client, create_task):
+    response = user_client.post(f'/v1/tasks/task/{create_task["id"]}/favorite/')
+    assert response.status_code == 200
+    assert response.json()['is_favorite'] is True
+
+    response = user_client.post(f'/v1/tasks/task/{create_task["id"]}/favorite/')
+    assert response.status_code == 200
+    assert response.json()['is_favorite'] is False
+
+
+

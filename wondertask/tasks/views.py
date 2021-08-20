@@ -16,8 +16,8 @@ from taggit.models import Tag
 from django.contrib.auth import login
 
 from journals.services import notify_service
-from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, InvitationInGroup)
-from tasks.permissions import IsOwner, PermissionPost
+from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, InvitationInGroup, Favorite)
+from tasks.permissions import IsOwner, PermissionPost, IsExecutorOrObserver
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
                                GroupSerializer,
@@ -26,18 +26,17 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
                                ActionTagSerializer, TaskScheduleSerializer,
-                               TaskListSerializer, GroupUserIdsSerializer)
+                               TaskListSerializer, GroupUserIdsSerializer, TaskMySerializer)
 from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 from accounts.models import User
 from accounts.serializers import UserTaskSerializer
 
-
 try:
     anonimous_user = User.objects.get(email='anonimous@anonimous.com')
 except User.DoesNotExist:
-    anonimous_user = User.objects.create_user(email='anonimous@anonimous.com', password='qwerty:)', 
-                                    full_name='Anonimous User')
+    anonimous_user = User.objects.create_user(email='anonimous@anonimous.com', password='qwerty:)',
+                                              full_name='Anonimous User')
     anonimous_user.save()
 
 
@@ -71,6 +70,7 @@ class TaskFilters(django_filters.FilterSet):
     start_date = django_filters.DateFromToRangeFilter(field_name="start_date")
     finish_date = django_filters.DateFromToRangeFilter(field_name="finish_date")
     tags = django_filters.CharFilter(field_name="user_tags", method='filter_tags')
+    keyword = django_filters.CharFilter(field_name="keyword", method='keyword_filter')
 
     class Meta:
         model = Task
@@ -82,6 +82,14 @@ class TaskFilters(django_filters.FilterSet):
         return queryset.filter(Q(user_tags__name__in=tags) |
                                Q(system_tags__name__in=tags)).distinct()
 
+    def keyword_filter(self, queryset, name, value):
+        result = {
+            "creator": queryset.filter(creator=self.request.user),
+            "executor": queryset.filter(executors__executor=self.request.user).exclude(creator=self.request.user),
+            "observers": queryset.filter(observers__observer=self.request.user),
+            "favorite": queryset.filter(favorite__executor=self.request.user)
+        }
+        return result.get(value, queryset)
 
 class TaskViewSet(ModelViewSet):
     serializer_class = TaskSerializer
@@ -102,15 +110,16 @@ class TaskViewSet(ModelViewSet):
             for group in groups:
                 if self.request.user in group.group_members.all():
                     queryset = queryset | Task.objects.all().filter(group=group).order_by('-creation_date')
-            return queryset.order_by('-creation_date') 
+            return queryset.order_by('-creation_date')
 
     @action(methods=['GET'], detail=False, url_path="my", url_name="my_tasks",
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsAuthenticated], serializer_class=TaskMySerializer)
     def my_tasks(self, request):
-        self.serializer_class = TaskListSerializer
-        filter_queryset = self.filter_queryset(self.get_queryset())
-        queryset = filter_queryset.filter(creator=request.user)
-
+        queryset = self.filter_queryset(Task.objects.filter(
+                Q(creator=self.request.user) |
+                Q(executors__executor=self.request.user) |
+                Q(observers__observer=self.request.user)
+            ).order_by('-creation_date'))
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -198,9 +207,23 @@ class TaskViewSet(ModelViewSet):
         parent_task.creator = request.user
         child_task.parent = parent_task
         parent_task.save()
-        child_task.save()       
+        child_task.save()
         serializer_task = TaskTreeSerializer(instance=parent_task, context=self.get_serializer_context())
         return Response(data=serializer_task.data, status=status.HTTP_200_OK)
+
+    @action(
+        methods=['POST'], detail=True,
+        url_path="favorite", url_name="favorite",
+        permission_classes=[IsAuthenticated, IsExecutorOrObserver],
+        serializer_class=TaskMySerializer
+    )
+    def favorite(self, request, pk=None):
+        task = get_object_or_404(Task, pk=pk)
+        self.check_object_permissions(self.request, task)
+        favorite, is_created = Favorite.objects.get_or_create(task=task, executor=request.user)
+        if not is_created:
+            favorite.delete()
+        return Response(data=self.serializer_class(task, context={'request': request}).data, status=status.HTTP_200_OK)
 
     def create(self, request):
         if self.request.user.is_authenticated == False:
@@ -488,4 +511,3 @@ class TaskScheduleViewSet(ModelViewSet):
     queryset = TaskSchedule.objects.all().order_by('-id')
     serializer_class = TaskScheduleSerializer
     permission_classes = [AllowAny]
-

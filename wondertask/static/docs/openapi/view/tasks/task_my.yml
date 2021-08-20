@@ -43,6 +43,12 @@ get:
       schema:
         type: string
         format: date
+    - name: keyword
+      in: query
+      description: 'Filter by keyword. Keywords: creator/executor/observer - tasks where user
+      is creator/executor/observe, favorite - tasks that were added to favorites'
+      schema:
+        type: string
 
 
   responses:
@@ -61,7 +67,7 @@ get:
               results:
                 type: array
                 items:
-                  $ref: '/static/docs/openapi/schema/response_single_task_1.yml#/components/schemas/SingleTask'
+                  $ref: '/static/docs/openapi/schema/response_my_tasks.yml#/components/schemas/SingleTask'
       description: 'The list was got'
     '401':
       description: Not authenticated

@@ -266,3 +266,10 @@ class InvitationInGroup(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="When was the token generated")
 
+
+class Favorite(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    executor = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __repr__(self):
+        return f"Favorite {self.task.title} {self.executor.email}"

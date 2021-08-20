@@ -85,16 +85,18 @@ class GroupService:
             invite = get_object_or_404(InvitationInGroup, id=decoded_token)
         except Exception as e:
             raise serializers.ValidationError({'detail': 'Invalid Invitation Token'})
+        if not request.user.is_authenticated:
+            raise serializers.ValidationError({'detail': 'Please sign in and try again'})
 
         group = Group.objects.get(pk=invite.group_id)
         if invite.is_multiple and request.user.is_authenticated:
             group.group_members.add(request.user)
-        else:
-            raise serializers.ValidationError({'detail': 'Please sign in and try again'})
-
-        if not invite.is_multiple and invite.user:
+        elif not invite.is_multiple and invite.user:
             group.group_members.add(invite.user)
             invite.delete()
+        else:
+            raise serializers.ValidationError({'detail': 'Something went wrong :('})
+
 
 
 group_service = GroupService()
