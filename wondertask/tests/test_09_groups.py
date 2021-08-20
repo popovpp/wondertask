@@ -1,4 +1,8 @@
+import base64
+
 import pytest
+
+from tasks.models import InvitationInGroup
 
 
 @pytest.mark.django_db()
@@ -45,9 +49,11 @@ def test_06_invalid_invite_users_in_group(user_client, create_group):
 
 @pytest.mark.django_db()
 def test_07_accept_group_invite(user_client, create_group, create_user):
+    invitation = InvitationInGroup.objects.create(user=create_user, group_id=create_group['id'])
+    token = base64.urlsafe_b64encode(str(invitation.id).encode()).decode()
     response = user_client.get(
-        f'/v1/tasks/groups/{create_group["id"]}/accept-invite/?email={create_user.email}'
+        f'/v1/tasks/groups/accept-invite/?secret={token}'
     )
     group = user_client.get(f'/v1/tasks/groups/{create_group["id"]}/').json()
     assert create_user.id in group["group_members"]
-    assert response.status_code == 200
+    assert response.status_code == 200, response.json()

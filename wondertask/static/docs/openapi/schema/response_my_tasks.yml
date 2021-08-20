@@ -1,0 +1,120 @@
+components:
+  schemas:
+    SingleTask:
+      type: object
+      properties:
+        url:
+          type: string
+          example: http://0.0.0.0:9007/v1/tasks/task/22/
+        id:
+          type: integer
+          example: 22
+        title:
+          type: string
+          example: Новая задача
+        group:
+          type: object
+          properties:
+            id:
+              type: integer
+            group_name:
+              type: string
+          example:
+            id: 1
+            group_name: "Banda"
+        creation_date:
+          type: string
+          example: '2021-05-15T10:55:56.532291Z'
+        deadline:
+          type: string
+          example: '2021-05-15T10:55:56.525330Z'
+        start_date:
+          type: string
+          example: null
+        finish_date:
+          type: string
+          example: null
+        sum_elapsed_time:
+          type: string
+          example: null
+        status:
+          type: string
+          example: 'CREATED'
+        priority:
+          type: integer
+          example: 0
+        creator:
+          type: object
+          properties:
+            url:
+              type: string
+            id:
+              type: integer
+            email:
+              type: string
+            full_name:
+              type: string
+            avatar_image:
+              type: string
+          example:
+            url: "http://0.0.0.0:9007/v1/accounts/user/1/"
+            id: 1
+            email: "test@test.com"
+            full_name: 'дон Педро'
+            avatar_image: "http://0.0.0.0:9007/media/avatar_img/1_215f9b_Avatar.png"
+        user_tags:
+          type: array
+          items:
+            type: string
+          example: []
+        system_tags:
+          type: array
+          items:
+            type: string
+          example: [ ]
+        level:
+          type: integer
+          example: 0
+        parent:
+          type: integer
+          example: null
+        executors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              executor:
+                type: object
+                properties:
+                  full_name:
+                    type: string
+                    example: дон Педро
+                  avatar_image:
+                    type: string
+                    example: null
+        oservers:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              observer:
+                type: object
+                properties:
+                  full_name:
+                    type: string
+                    example: дон Педро
+                  avatar_image:
+                    type: string
+                    example: null
+              is_favorite:
+                type: boolean
+                example: false
+              role:
+                type: string
+                example: creator

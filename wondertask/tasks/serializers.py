@@ -15,7 +15,7 @@ from accounts.serializers import UserTaskSerializer
 from journals.services import notify_service
 from tasks import tasks
 from tasks.models import (Task, Executor, Observer,
-                          Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule)
+                          Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, Favorite)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
                               VALID_AUDIO_FILES, )
 
@@ -130,7 +130,7 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
             one_off=True,
         ))
         task.periodic_tasks.add(*periodic_task_list)
-        task.clocked_shedule.add(*clocked_list)     
+        task.clocked_shedule.add(*clocked_list)
 
         anonimous_user = User.objects.get(email='anonimous@anonimous.com')
         if task.creator == anonimous_user:
@@ -139,8 +139,8 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
                 anonimous_group_user = User.objects.get(email=email)
             except User.DoesNotExist:
                 full_name = 'Anonimous_' + task.group.group_name
-                anonimous_group_user = User.objects.create_user(email=email, 
-                                                                password='qwerty:)', 
+                anonimous_group_user = User.objects.create_user(email=email,
+                                                                password='qwerty:)',
                                                                 full_name=full_name)
                 anonimous_group_user.save()
             executor = Executor.objects.create(task=task,
@@ -155,7 +155,7 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
             task.user_tags.add(*list(map(str, user_tags)), tag_kwargs={"user_id": task.creator.id})
 
         task.save()
-            
+
         return task
 
     def update(self, instance, validated_data):
@@ -183,12 +183,12 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
             context={'request': self.context['request']}).data
 
         executors = instance.executors.all()
-        list_executors = [ExecutorListSerializer(el, 
+        list_executors = [ExecutorListSerializer(el,
             context={'request': self.context['request']}).data for el in executors]
         output_data['executors'] = list_executors
 
         observers = instance.observers.all()
-        list_observers = [ObserverListSerializer(el, 
+        list_observers = [ObserverListSerializer(el,
             context={'request': self.context['request']}).data for el in observers]
         output_data['observers'] = list_observers
 
@@ -199,6 +199,25 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 class TaskListSerializer(TaskSerializer):
     creator = UserTaskSerializer()
+
+
+class TaskMySerializer(TaskListSerializer):
+
+    def to_representation(self, instance):
+        response = super(TaskMySerializer, self).to_representation(instance)
+        user = self.context['request'].user
+
+        if user == instance.creator:
+            response['role'] = "creator"
+        elif user.id in instance.executors.all().values_list("executor", flat=True):
+            response['role'] = "executor"
+        elif user.id in instance.observers.all().values_list("observer", flat=True):
+            response['role'] = "observer"
+        else:
+            response['role'] = None
+
+        response['is_favorite'] = Favorite.objects.filter(executor=user, task=instance).exists()
+        return response
 
 
 class TaskSystemTagsSerializer(serializers.ModelSerializer):
@@ -265,7 +284,7 @@ class GroupSerializer(TaggitSerializer, serializers.ModelSerializer):
 
 
 class CommentTreeSerializer(serializers.ModelSerializer):
-    
+
     author = UserTaskSerializer(read_only=True)
 
     class Meta:
@@ -289,7 +308,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent', 'creation_date']
 
     def to_representation(self, instance):
-        
+
         output_data = super().to_representation(instance)
         output_data['author'] = UserTaskSerializer(instance.author,
             context={'request': self.context['request']}).data

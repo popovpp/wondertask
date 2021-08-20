@@ -64,8 +64,3 @@ class TestGroupService:
         )
         assert "non@existent.user" in result
 
-    def test_02_add_user_in_group(self, create_group, create_user):
-        user = User.objects.create(email="new.user@exapmple.com", password="1235")
-        assert not Group.objects.filter(group_members__email=user.email).exists()
-        group_service.add_user_in_group(group_id=create_group["id"], email=user.email)
-        assert Group.objects.filter(group_members__email=user.email).exists()

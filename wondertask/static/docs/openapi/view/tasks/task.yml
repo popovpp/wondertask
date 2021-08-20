@@ -65,6 +65,12 @@ get:
       schema:
         type: string
         format: date
+    - name: keyword
+      in: query
+      description: 'Filter by keyword. Keywords: creator/executor/observer - tasks where user
+      is creator/executor/observe, favorite - tasks that were added to favorites'
+      schema:
+        type: string
 
 
   responses:

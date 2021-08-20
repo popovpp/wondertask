@@ -57,6 +57,8 @@ paths:
     $ref: "./view/tasks/task_id_doubling.yml"
   /v1/tasks/task/{id}/add-parent/:
     $ref: "./view/tasks/task_id_add_parent.yml"
+  /v1/tasks/task/{id}/favorite/:
+    $ref: "./view/tasks/task_favorite.yml"
 
   # Tasktree
   /v1/tasks/tasktree/:

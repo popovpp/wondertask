@@ -1,0 +1,16 @@
+post:
+  summary: "Add task in favorite"
+  tags: ['Tasks']
+  description: "First request add task in favorite, second request remove task from favorite"
+
+  operationId: TaskFavorite
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The task id'
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: 'The task add in favorite'
