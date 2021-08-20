@@ -119,7 +119,7 @@ class TaskViewSet(ModelViewSet):
                 Q(creator=self.request.user) |
                 Q(executors__executor=self.request.user) |
                 Q(observers__observer=self.request.user)
-            ).order_by('-creation_date'))
+            ).order_by('-creation_date')).distinct()
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
