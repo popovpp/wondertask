@@ -105,12 +105,16 @@ class TaskViewSet(ModelViewSet):
             login(self.request, anonimous_user)
             return Task.objects.all().filter(creator=anonimous_user).order_by('-creation_date')
         else:
-            queryset = Task.objects.all().filter(creator=self.request.user).order_by('-creation_date')
+            queryset = Task.objects.filter(
+                Q(creator=self.request.user) |
+                Q(executors__executor=self.request.user) |
+                Q(observers__observer=self.request.user)
+            )
             groups = Group.objects.all()
             for group in groups:
                 if self.request.user in group.group_members.all():
                     queryset = queryset | Task.objects.all().filter(group=group).order_by('-creation_date')
-            return queryset.order_by('-creation_date')
+            return queryset.order_by('-creation_date').distinct()
 
     @action(methods=['GET'], detail=False, url_path="my", url_name="my_tasks",
             permission_classes=[IsAuthenticated])
