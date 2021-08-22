@@ -112,6 +112,13 @@ components:
                   avatar_image:
                     type: string
                     example: null
+        role:
+          type: string
+          example: creator
+        is_favorite:
+          type: boolean
+          example: false
+
     SingleTaskTree:
       type: object
       properties:
@@ -306,3 +313,9 @@ components:
                         avatar_image:
                           type: string
                           example: null
+              role:
+                type: string
+                example: creator
+              is_favorite:
+                type: boolean
+                example: false
