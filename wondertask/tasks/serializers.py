@@ -194,30 +194,22 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
         output_data['status'] = instance.STATUS_DICT[instance.status]
 
+        user = self.context['request'].user
+        if user == instance.creator:
+            output_data['role'] = "creator"
+        elif user.id in instance.executors.all().values_list("executor", flat=True):
+            output_data['role'] = "executor"
+        elif user.id in instance.observers.all().values_list("observer", flat=True):
+            output_data['role'] = "observer"
+        else:
+            output_data['role'] = None
+
+        output_data['is_favorite'] = Favorite.objects.filter(executor=user, task=instance).exists()
         return output_data
 
 
 class TaskListSerializer(TaskSerializer):
     creator = UserTaskSerializer()
-
-
-class TaskMySerializer(TaskListSerializer):
-
-    def to_representation(self, instance):
-        response = super(TaskMySerializer, self).to_representation(instance)
-        user = self.context['request'].user
-
-        if user == instance.creator:
-            response['role'] = "creator"
-        elif user.id in instance.executors.all().values_list("executor", flat=True):
-            response['role'] = "executor"
-        elif user.id in instance.observers.all().values_list("observer", flat=True):
-            response['role'] = "observer"
-        else:
-            response['role'] = None
-
-        response['is_favorite'] = Favorite.objects.filter(executor=user, task=instance).exists()
-        return response
 
 
 class TaskSystemTagsSerializer(serializers.ModelSerializer):

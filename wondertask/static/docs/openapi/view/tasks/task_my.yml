@@ -67,7 +67,7 @@ get:
               results:
                 type: array
                 items:
-                  $ref: '/static/docs/openapi/schema/response_my_tasks.yml#/components/schemas/SingleTask'
+                  $ref: '/static/docs/openapi/schema/response_single_task_1.yml#/components/schemas/SingleTask'
       description: 'The list was got'
     '401':
       description: Not authenticated

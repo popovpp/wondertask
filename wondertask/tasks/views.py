@@ -26,7 +26,7 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
                                ActionTagSerializer, TaskScheduleSerializer,
-                               TaskListSerializer, GroupUserIdsSerializer, TaskMySerializer)
+                               TaskListSerializer, GroupUserIdsSerializer)
 from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
 from accounts.models import User
@@ -113,7 +113,7 @@ class TaskViewSet(ModelViewSet):
             return queryset.order_by('-creation_date')
 
     @action(methods=['GET'], detail=False, url_path="my", url_name="my_tasks",
-            permission_classes=[IsAuthenticated], serializer_class=TaskMySerializer)
+            permission_classes=[IsAuthenticated])
     def my_tasks(self, request):
         queryset = self.filter_queryset(Task.objects.filter(
                 Q(creator=self.request.user) |
@@ -215,7 +215,6 @@ class TaskViewSet(ModelViewSet):
         methods=['POST'], detail=True,
         url_path="favorite", url_name="favorite",
         permission_classes=[IsAuthenticated, IsExecutorOrObserver],
-        serializer_class=TaskMySerializer
     )
     def favorite(self, request, pk=None):
         task = get_object_or_404(Task, pk=pk)
