@@ -12,9 +12,9 @@ services:
       - "9007:9007"
   redis:
     image: redis:6.2.4
-    container_name: redis
+    container_name: wondertask-redis
   celery:
-    container_name: celery
+    container_name: wondertask-celery
     image: registry.gitlab.com/auditor2/production/wondertaskbackend:latest
     command: celery -A django_celery worker --beat --scheduler django --loglevel=info
     depends_on:
