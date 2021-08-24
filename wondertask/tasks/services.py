@@ -5,6 +5,7 @@ from rest_framework.generics import get_object_or_404
 from taggit.models import Tag
 
 from accounts.models import User
+from journals.services import notify_service
 from tasks.tasks import send_invite_in_group
 from tasks.models import Task, Group, TaskSchedule, InvitationInGroup
 
@@ -71,11 +72,12 @@ class GroupService:
         return set(emails) - set(found_users_emails)
 
     @staticmethod
-    def invite_users_in_group(name: str, url: str, emails: list, group_id:int) -> None:
+    def invite_users_in_group(group: Group, url: str, emails: list) -> None:
         for user in User.objects.filter(email__in=emails):
-            invitation_token = InvitationInGroup.objects.create(user=user, group_id=group_id)
+            invitation_token = InvitationInGroup.objects.create(user=user, group=group)
             token = base64.urlsafe_b64encode(str(invitation_token.id).encode()).decode()
-            send_invite_in_group.delay(group_name=name, link=f'{url}?secret={token}', email=user.email)
+            notify_service.send_invite_user_in_group_notifications(group=group, recipient=user, secret=token)
+            send_invite_in_group.delay(group_name=group.group_name, link=f'{url}?secret={token}', email=user.email)
 
     @staticmethod
     def accept_invite_in_group(request):

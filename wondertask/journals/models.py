@@ -7,6 +7,8 @@ from tasks.models import Task, Group
 class Notification(models.Model):
     ACTION = 'ACTION'
     DEADLINE = 'DEADLINE'
+    INVITE = 'INVITE'
+
     type = models.CharField(max_length=8, default=None, null=True)
     message = models.CharField(max_length=500)
     task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True)
@@ -23,6 +25,9 @@ class Notification(models.Model):
 
     def set_deadline_type(self):
         self.type = self.DEADLINE
+
+    def set_invite_type(self):
+        self.type = self.INVITE
 
 
 class NotificationToUser(models.Model):
