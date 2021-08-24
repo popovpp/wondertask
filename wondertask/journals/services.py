@@ -124,7 +124,7 @@ class NotificationService:
 
     @staticmethod
     def _create_notification(
-            message: str, type: str, recipients: List[User], task: Task = None, group: Group = None
+            message: str, type: str, recipients: List[User], task: Task = None, group: Group = None, **kwargs
     ) -> None:
         request = get_request()
         if not task:
@@ -152,19 +152,33 @@ class NotificationService:
             notification.set_action_type()
         if type == "DEADLINE":
             notification.set_deadline_type()
+        if type == "INVITE":
+            notification.set_invite_type()
         notification.save()
 
+        push_notification_data = {
+            "message": notification.message,
+            "notification_message": notification.message,
+            "notification_id": notification.pk,
+            "notification_type": notification.type
+        }
         # if current user made this action, he will remove from recipients for push notifications
         if request and request.user:
+            push_notification_data['from_user_id'] = request.user.id
+            push_notification_data['from_user_av_url'] = request.user.avatar_image.url if request.user.avatar_image else ""
             try:
                 recipients.remove(request.user)
             except ValueError:
                 pass
+        if group:
+            push_notification_data["group_id"] = group.pk
+            push_notification_data["group_name"] = group.group_name
+            push_notification_data["secret"] = kwargs.get('secret', "")
 
         if recipients:
             user_ids = [user.id for user in recipients]
             tasks.fcm_send_message.delay(
-                user_ids=user_ids, message=notification.message, notification_id=notification.id
+                user_ids=user_ids, extra=push_notification_data,
             )
 
     @staticmethod
@@ -285,6 +299,12 @@ class NotificationService:
         message = self._add_user_role_message(task=task, role=role)
         self._create_notification(
             message=message, task=task, recipients=[recipient], group=task.group, type="ACTION"
+        )
+
+    def send_invite_user_in_group_notifications(self, group, recipient, secret):
+        message = f"{group.creator.full_name} пригласил Вас в группу '{group.group_name}'"
+        self._create_notification(
+            message=message, recipients=[recipient], group=group, type="INVITE", secret=secret
         )
 
 

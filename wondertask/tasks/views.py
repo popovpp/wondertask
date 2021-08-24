@@ -307,10 +307,9 @@ class GroupViewSet(ModelViewSet):
 
         group = get_object_or_404(Group, pk=pk)
         group_service.invite_users_in_group(
-            name=group.group_name,
+            group=group,
             url=request.build_absolute_uri("/v1/tasks/groups/accept-invite/"),
             emails=emails,
-            group_id=pk
         )
         return Response(data={"msg": "Invitations will be mailed"}, status=status.HTTP_200_OK)
 
