@@ -12,6 +12,9 @@ components:
         title:
           type: string
           example: Новая задача
+        description:
+          type: string
+          example: Описание
         group:
           type: object
           properties:
@@ -131,6 +134,9 @@ components:
         title:
           type: string
           example: Новая задача
+        description:
+          type: string
+          example: Описание
         group:
           type: object
           properties:
@@ -229,6 +235,9 @@ components:
               title:
                 type: string
                 example: Новая задача1
+              description:
+                type: string
+                example: Описание
               group:
                 type: object
                 properties:
