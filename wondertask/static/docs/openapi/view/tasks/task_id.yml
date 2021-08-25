@@ -95,6 +95,8 @@ components:
       properties:
         title:
           type: string
+        description:
+          type: string
         group:
           type: integer
         deadline:
@@ -111,6 +113,7 @@ components:
       summary: 'Task'
       value:
         title: Новая задача
+        description: Описание
         group: 1
         deadline: '2021-05-13T01:00:59.502847Z'
         priority: 0

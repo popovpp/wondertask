@@ -73,6 +73,7 @@ class Task(models.Model):
     }
 
     title = models.CharField(max_length=255, default='', blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
     deadline = models.DateTimeField(default=timezone.now)
     start_date = models.DateTimeField(blank=True, null=True)

@@ -68,7 +68,7 @@ class TaskSerializer(TaggitSerializer, serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['url', 'id', 'title', 'group', 'creation_date', 'deadline',
+        fields = ['url', 'id', 'title', 'description', 'group', 'creation_date', 'deadline',
                   'start_date', 'finish_date',
                   'sum_elapsed_time', 'status', 'priority', 'creator',
                   'user_tags', 'system_tags', 'level', 'parent']
