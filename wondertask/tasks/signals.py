@@ -3,7 +3,7 @@ from django.dispatch.dispatcher import receiver
 from taggit.models import Tag
 
 from journals.services import notify_service
-from tasks.models import Doc, Image, Audio, Task, Comment
+from tasks.models import Doc, Image, Audio, Task, Comment, Video
 from tasks.models import TaskSchedule, TaskTag, Group
 
 
@@ -23,6 +23,12 @@ def image_file_delete(sender, instance, **kwargs):
 def audio_file_delete(sender, instance, **kwargs):
     if instance.audio_file:
         instance.audio_file.delete(False)
+
+
+@receiver(pre_delete, sender=Video)
+def video_file_delete(sender, instance, **kwargs):
+    if instance.video_file:
+        instance.video_file.delete(False)
 
 
 @receiver(pre_delete, sender=TaskSchedule)

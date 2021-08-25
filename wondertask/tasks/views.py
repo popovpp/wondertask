@@ -16,7 +16,8 @@ from taggit.models import Tag
 from django.contrib.auth import login
 
 from journals.services import notify_service
-from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, InvitationInGroup, Favorite)
+from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, InvitationInGroup, Favorite,
+                          Video)
 from tasks.permissions import IsOwner, PermissionPost, IsExecutorOrObserver
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
@@ -26,9 +27,9 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
                                ActionTagSerializer, TaskScheduleSerializer,
-                               TaskListSerializer, GroupUserIdsSerializer)
+                               TaskListSerializer, GroupUserIdsSerializer, VideoSerializer)
 from tasks.services import tag_service, group_service
-from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete
+from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete, video_file_delete
 from accounts.models import User
 from accounts.serializers import UserTaskSerializer
 
@@ -497,6 +498,43 @@ class CommentAudioViewSet(ModelViewSet):
 
     def perform_destroy(self, instance):
         audio_file_delete(Audio, instance=instance)
+        instance.delete()
+
+
+class TaskVideoViewSet(ModelViewSet):
+    serializer_class = VideoSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        task = get_object_or_404(Task, pk=self.kwargs['task_id'])
+        return task.videos.all()
+
+    def perform_create(self, serializer):
+        task = get_object_or_404(Task, pk=self.kwargs.get('task_id'))
+        serializer.save(task=task)
+
+    def perform_destroy(self, instance):
+        video_file_delete(Video, instance=instance)
+        instance.delete()
+
+
+class CommentVideoViewSet(ModelViewSet):
+    serializer_class = VideoSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        comment = get_object_or_404(Comment, id=self.kwargs['comment_id'],
+                                    task__id=self.kwargs['task_id'])
+        return comment.videos.all()
+
+    def perform_create(self, serializer):
+        comment = get_object_or_404(Comment, id=self.kwargs['comment_id'],
+                                    task__id=self.kwargs['task_id'])
+        task = get_object_or_404(Task, pk=self.kwargs['task_id'])
+        serializer.save(task=task, comment=comment)
+
+    def perform_destroy(self, instance):
+        video_file_delete(Video, instance=instance)
         instance.delete()
 
 

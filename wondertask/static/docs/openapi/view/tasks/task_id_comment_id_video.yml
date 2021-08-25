@@ -1,0 +1,101 @@
+get:
+  summary: "Getting the list of Video for the comment id"
+  tags: ["CommentVideo"]
+  operationId: GetListCommentVideo
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "The comment id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Video"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Video"
+      description: "The list has been recieved"
+post:
+  summary: "Creating a new Video for the comment"
+  tags: ["CommentVideo"]
+  operationId: CreateNewCommentVideo
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "The comment id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            video_file:
+              type: string
+              format: binary
+          required:
+            - video_file
+  responses:
+    "201":
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 2
+              task:
+                type: integer
+                example: 2
+              comment:
+                type: integer
+                example: null
+              video_file:
+                type: string
+                example: "test video_file"
+      description: "Video is created. The id is id of Video table here."
+
+components:
+  schemas:
+    Video:
+      type: object
+      description: "Video"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        video_file:
+          type: string
+
+  examples:
+    Video:
+      summary: "Audio"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        video_file: "Test Video"
