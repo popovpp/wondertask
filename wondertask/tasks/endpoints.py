@@ -6,7 +6,7 @@ from tasks.views import (TaskViewSet, ExecutorViewSet, ObserverViewSet,
                          TaskTreeViewSet,
                          TaskDocViewSet, TaskImageViewSet, TaskAudioViewSet, CommentViewSet,
                          CommentDocViewSet, CommentImageViewSet, CommentAudioViewSet, TagViewSet,
-                         TaskScheduleViewSet)
+                         TaskScheduleViewSet, TaskVideoViewSet, CommentVideoViewSet)
 
 
 task_router = DefaultRouter()
@@ -29,6 +29,10 @@ task_router.register(r'task/(?P<task_id>\d+)/comment/(?P<comment_id>\d+)/image',
 task_router.register(r'task/(?P<task_id>\d+)/audio', TaskAudioViewSet, 'task_audio')
 task_router.register(r'task/(?P<task_id>\d+)/comment/(?P<comment_id>\d+)/audio',
                      CommentAudioViewSet, 'comment_audio')
+task_router.register(r'task/(?P<task_id>\d+)/video', TaskVideoViewSet, 'task_video')
+task_router.register(r'task/(?P<task_id>\d+)/comment/(?P<comment_id>\d+)/video',
+                     CommentVideoViewSet, 'comment_video')
+
 
 task_router.register('tags', TagViewSet, 'tags')
 task_router.register('repeats', TaskScheduleViewSet, 'repeats')

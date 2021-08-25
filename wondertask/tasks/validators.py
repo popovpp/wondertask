@@ -5,6 +5,8 @@ VALID_DOC_FILES = ('pdf', 'doc', 'docx', 'txt',
 
 VALID_AUDIO_FILES = ('mp3', 'ogg', 'wav', 'flac', 'wma')
 
+VALID_VIDEO_FILES = ('mp4', 'mov', 'wmv', 'flv', 'avi', 'mkv', 'webm')
+
 
 def check_file_extensions(file_field, instance, validator):
     if (file_field not in instance or

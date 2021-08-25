@@ -15,9 +15,9 @@ from accounts.serializers import UserTaskSerializer
 from journals.services import notify_service
 from tasks import tasks
 from tasks.models import (Task, Executor, Observer,
-                          Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, Favorite)
+                          Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, Favorite, Video)
 from tasks.validators import (check_file_extensions, VALID_DOC_FILES,
-                              VALID_AUDIO_FILES, )
+                              VALID_AUDIO_FILES, VALID_VIDEO_FILES, )
 
 
 class GroupNameSerializer(serializers.ModelSerializer):
@@ -374,6 +374,29 @@ class AudioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Audio
+        fields = '__all__'
+
+
+class VideoSerializer(serializers.ModelSerializer):
+    task = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='id',
+    )
+    comment = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='id',
+    )
+    video_file = serializers.FileField(max_length=None,
+                                       allow_empty_file=True,
+                                       use_url=True,
+                                       required=False)
+
+    def validate(self, instance):
+        check_file_extensions('video_file', instance, VALID_VIDEO_FILES)
+        return instance
+
+    class Meta:
+        model = Video
         fields = '__all__'
 
 

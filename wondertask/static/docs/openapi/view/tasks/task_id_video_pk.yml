@@ -1,0 +1,114 @@
+get:
+  summary: "Getting video with pk for the task with task_id"
+  tags: ["TaskVideo"]
+  operationId: GetTaskVideo
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: audio_pk
+      in: path
+      required: true
+      description: "Video id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Video"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Video"
+      description: "The list has been recieved"
+patch:
+  summary: "Updating data for the video id"
+  tags: ["TaskVideo"]
+  operationId: PatchTaskAudio
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "Task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Video id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            video_file:
+              type: string
+              format: binary
+          required:
+            - video_file
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: ""#/components/schemas/Video"
+          examples:
+            Audio:
+              $ref: "#/components/examples/Video"
+      description: "Video has been updated"
+delete:
+  summary: "Delete Video with pk for the task with task_id"
+  tags: ["TaskVideo"]
+  operationId: DeleteVideo
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "Task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Task video id"
+      schema:
+        type: integer
+  responses:
+    "204":
+      content:
+      description: "Task Video been deleted. The id is pk of Video table here."
+
+components:
+  schemas:
+    Video:
+      type: object
+      description: "Video"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        video_file:
+          type: string
+
+  examples:
+    Video:
+      summary: "Video"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        video_file: "Test Video"

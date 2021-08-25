@@ -242,6 +242,21 @@ class Audio(FileSave):
         db_table = 'audio'
 
 
+class Video(FileSave):
+    def video_directory_path(instance, filename):
+        return f'video/{instance.task.pk}/{filename}'
+
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, blank=True, null=True, related_name='videos')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, blank=True, null=True, related_name='videos')
+    video_file = models.FileField(upload_to=video_directory_path, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        return self.file_save(model_name=Video, field_name='video_file', *args, **kwargs)
+
+    class Meta:
+        db_table = 'video'
+
+
 class TaskSchedule(models.Model):
     number_of_times = models.SmallIntegerField("Number of times execution of the interval",
                                                blank=True, null=True)

@@ -114,6 +114,16 @@ paths:
   /v1/tasks/task/{task_id}/comment/{comment_id}/audio/{pk}/:
     $ref: "./view/tasks/task_id_comment_id_audio_pk.yml"
 
+  # Video
+  /v1/tasks/task/{task_id}/video/:
+    $ref: "./view/tasks/task_id_video.yml"
+  /v1/tasks/task/{task_id}/video/{pk}/:
+    $ref: "./view/tasks/task_id_video_pk.yml"
+  /v1/tasks/task/{task_id}/comment/{comment_id}/video/:
+    $ref: "./view/tasks/task_id_comment_id_video.yml"
+  /v1/tasks/task/{task_id}/comment/{comment_id}/video/{pk}/:
+    $ref: "./view/tasks/task_id_comment_id_video_pk.yml"
+
   # Tag
   /v1/tasks/tags/:
     $ref: "./view/tasks/tag.yml"

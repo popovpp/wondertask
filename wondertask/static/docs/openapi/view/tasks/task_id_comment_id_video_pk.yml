@@ -1,0 +1,132 @@
+get:
+  summary: "Getting Video for the comment id"
+  tags: ["CommentVideo"]
+  operationId: GetCommentVideo
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "Comment id"
+      schema:
+        type: integer
+    - name: audio_pk
+      in: path
+      required: true
+      description: "Video id"
+      schema:
+        type: integer
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: "#/components/schemas/Video"
+          examples:
+            Comment:
+              $ref: "#/components/examples/Video"
+      description: "The list has been recieved"
+patch:
+  summary: "Updating Video data for the comment id"
+  tags: ["CommentVideo"]
+  operationId: PatchCommentVideo
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "Comment id"
+      schema:
+        type: integer
+    - name: audio_pk
+      in: path
+      required: true
+      description: "Video id"
+      schema:
+        type: integer
+  requestBody:
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            video_file:
+              type: string
+              format: binary
+          required:
+            - video_file
+  responses:
+    "200":
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              - $ref: ""#/components/schemas/Video"
+          examples:
+            Audio:
+              $ref: "#/components/examples/Video"
+      description: "Video has been updated"
+delete:
+  summary: "Delete Audio with pk for the comment with comment_id"
+  tags: ["CommentVideo"]
+  operationId: DeleteCommentVideo
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "Task id"
+      schema:
+        type: integer
+    - name: comment_id
+      in: path
+      required: true
+      description: "comment id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "Comment video id"
+      schema:
+        type: integer
+  responses:
+    "204":
+      content:
+      description: "Comment's Video has been deleted. The id is pk of Video table here."
+
+components:
+  schemas:
+    Video:
+      type: object
+      description: "Video"
+      properties:
+        id:
+          type: integer
+        task:
+          type: integer
+        comment:
+          type: integer
+        video_file:
+          type: string
+
+  examples:
+    Video:
+      summary: "Video"
+      value:
+        id: 1
+        task: 1
+        comment: 1
+        video_file: "Test Video"
