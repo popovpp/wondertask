@@ -1,25 +1,21 @@
 from rest_framework import serializers
 from django.urls import resolve
 
+from accounts.serializers import UserTaskSerializer
 from journals.models import Notification, NotificationToUser
+from tasks.serializers import GroupSerializer
 from tasks.services import group_service
 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    recipients = serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
-    from_user_avatar = serializers.SerializerMethodField(method_name="get_user_avatar")
     is_read = serializers.SerializerMethodField(method_name="get_is_read")
+    group = GroupSerializer()
+    from_user = UserTaskSerializer()
 
     class Meta:
         model = Notification
         fields = ["id", "message", "type", "task", "group", "created", "recipients",
-                  "from_user", "from_user_avatar", "is_read"]
-
-    @staticmethod
-    def get_user_avatar(instance):
-        if not instance.from_user:
-            return ""
-        return instance.from_user.avatar_image.url if instance.from_user.avatar_image else ""
+                  "from_user", "is_read"]
 
     def get_is_read(self, instance):
         user = self.context['request'].user
@@ -49,12 +45,20 @@ class NotificationSerializer(serializers.ModelSerializer):
 
         return output_data
 
+
+class NotificationCreateUpdateSerializer(serializers.ModelSerializer):
+    recipients = serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
+
+    class Meta:
+        model = Notification
+        fields = ["id", "message", "type", "task", "group", "created", "recipients"]
+
     def create(self, validated_data):
         if "recipients" not in validated_data:
-            notification = super(NotificationSerializer, self).create(validated_data)
+            notification = super(NotificationCreateUpdateSerializer, self).create(validated_data)
         else:
             recipients = validated_data.pop("recipients")
-            notification = super(NotificationSerializer, self).create(validated_data)
+            notification = super(NotificationCreateUpdateSerializer, self).create(validated_data)
             notification.recipients.bulk_create(
                 NotificationToUser(user_id=recipient_id, notification=notification)
                 for recipient_id in recipients

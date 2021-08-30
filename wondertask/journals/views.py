@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from journals.models import Notification
-from journals.serializers import NotificationSerializer, ActionReadNotificationsSerializer
+from journals.serializers import NotificationSerializer, ActionReadNotificationsSerializer, \
+    NotificationCreateUpdateSerializer
 from journals.services import notify_service
 
 
@@ -30,7 +31,6 @@ class CustomPageNumberPagination(PageNumberPagination):
 class NotificationFilters(django_filters.FilterSet):
     keyword = django_filters.CharFilter(field_name="keyword", method='keyword_filter')
 
-
     def keyword_filter(self, queryset, name, value):
         result = {
             "new": queryset.filter(recipients__is_read=False),
@@ -48,6 +48,12 @@ class NotificationViewSet(ModelViewSet):
     def get_queryset(self):
         return Notification.objects.filter(recipients__user=self.request.user). \
             prefetch_related("recipients").order_by("-created")
+
+    def get_serializer_class(self):
+        if self.request.method in ["POST", "PUT", "PATCH"]:
+            return NotificationCreateUpdateSerializer
+        else:
+            return super(NotificationViewSet, self).get_serializer_class()
 
     @action(methods=["GET"], url_path="actions-journal", url_name="actions_journal", detail=False,
             permission_classes=[permissions.IsAuthenticated])

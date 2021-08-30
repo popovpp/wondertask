@@ -1,0 +1,35 @@
+delete:
+  summary: "Delete tasks"
+  tags: ['Tasks']
+  operationId: DeleteBulkTasks
+  parameters: []
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Tasks'
+        examples:
+          Notification:
+            $ref: '#/components/examples/Tasks'
+  responses:
+    '200':
+      content:
+      description: 'Tasks removed'
+
+
+components:
+  schemas:
+    Tasks:
+      type: object
+      description: 'Tasks'
+      properties:
+        task_ids:
+          type: array
+          items:
+            type: integer
+
+  examples:
+    Tasks:
+      summary: 'Tasks'
+      value:
+        task_ids: [10, 11, 12]

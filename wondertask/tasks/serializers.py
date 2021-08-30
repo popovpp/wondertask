@@ -218,6 +218,10 @@ class TaskSystemTagsSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
+class TaskIdsSerializer(serializers.Serializer):
+    task_ids = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
+
+
 class ExecutorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Executor

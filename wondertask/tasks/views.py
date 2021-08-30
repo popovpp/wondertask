@@ -27,7 +27,7 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ImageSerializer, AudioSerializer, CommentSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
                                ActionTagSerializer, TaskScheduleSerializer,
-                               TaskListSerializer, GroupUserIdsSerializer, VideoSerializer)
+                               TaskListSerializer, GroupUserIdsSerializer, VideoSerializer, TaskIdsSerializer)
 from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete, video_file_delete
 from accounts.models import User
@@ -234,6 +234,17 @@ class TaskViewSet(ModelViewSet):
             login(self.request, anonimous_user)
         return super(TaskViewSet, self).create(request, permission_classes=[IsAuthenticatedOrReadOnly])
 
+    @action(
+        methods=['DELETE'], detail=False, url_path="delete/bulk", url_name="bulk_delete",
+        permission_classes=[IsAuthenticated, IsOwner],
+        serializer_class=TaskIdsSerializer
+    )
+    def bulk_delete(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        Task.objects.filter(pk__in=serializer.data['task_ids']).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class TaskTreeViewSet(RetrieveListViewSet):
     serializer_class = TaskTreeSerializer
@@ -371,6 +382,31 @@ class GroupViewSet(ModelViewSet):
         group = get_object_or_404(Group, pk=pk)
         group.group_members.remove(*User.objects.filter(id__in=serializer.data['users_ids']))
         return Response(data={"msg": "Users removed from group!"}, status=status.HTTP_200_OK)
+
+    @action(
+        methods=['POST'], detail=True, url_path="add-task/(?P<task_id>\d+)", url_name="add_task",
+        permission_classes=[IsAuthenticated, IsOwner],
+    )
+    def add_task(self, request, pk=None, task_id=None):
+        group = get_object_or_404(Group, pk=pk)
+        task = get_object_or_404(Task, pk=task_id)
+        task.group = group
+        task.save()
+        return Response(status=status.HTTP_200_OK)
+
+    @action(
+        methods=['POST'], detail=True, url_path="add-task/bulk", url_name="add_task_bulk",
+        permission_classes=[IsAuthenticated, IsOwner], serializer_class=TaskIdsSerializer
+    )
+    def add_task_bulk(self, request, pk=None):
+        group = get_object_or_404(Group, pk=pk)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tasks = Task.objects.filter(pk__in=serializer.data['task_ids'])
+        for task in tasks:
+            task.group = group
+        Task.objects.bulk_update(tasks, ['group'])
+        return Response(status=status.HTTP_200_OK)
 
 
 class CommentViewSet(ModelViewSet):
