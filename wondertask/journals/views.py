@@ -30,7 +30,7 @@ class CustomPageNumberPagination(PageNumberPagination):
 class NotificationFilters(django_filters.FilterSet):
     keyword = django_filters.CharFilter(field_name="keyword", method='keyword_filter')
 
-    @staticmethod
+
     def keyword_filter(self, queryset, name, value):
         result = {
             "new": queryset.filter(recipients__is_read=False),
