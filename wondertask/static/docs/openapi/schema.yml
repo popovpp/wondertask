@@ -47,6 +47,8 @@ paths:
     $ref: "./view/tasks/task_my.yml"
   /v1/tasks/task/{id}/:
     $ref: "./view/tasks/task_id.yml"
+  /v1/tasks/task/delete/bulk/:
+    $ref: "./view/tasks/task_delete_bulk.yml"
   /v1/tasks/task/{id}/start-task/:
     $ref: "./view/tasks/task_id_start.yml"
   /v1/tasks/task/{id}/stop-task/:
@@ -151,6 +153,10 @@ paths:
     $ref: "./view/tasks/group_id_tasks_list.yml"
   /v1/tasks/groups/{id}/members-list/:
     $ref: "./view/tasks/group_id_members_list.yml"
+  /v1/tasks/groups/{id}/add-task/{task_id}/:
+    $ref: "./view/tasks/group_id_add_task.yml"
+  /v1/tasks/groups/{id}/add-task/bulk/:
+    $ref: "./view/tasks/group_id_add_task_bulk.yml"
 
   # Group Invite/Accept
   /v1/tasks/groups/{id}/invite/:

@@ -74,12 +74,12 @@ components:
               task:
                 type: integer
               group:
-                type: integer
+                type: object
               created:
                 type: string
                 fromate: date_time
               from_user:
-                type: integer
+                type: object
               from_user_avatar:
                 type: string
               is_read:
@@ -108,8 +108,6 @@ components:
           fromate: date_time
         from_user:
           type: integer
-        from_user_avatar:
-          type: string
         is_read:
           type: boolean
         recipients:

@@ -1,0 +1,41 @@
+post:
+  summary: 'Add tasks in group'
+  tags: ['Group']
+  operationId: GroupAddTaskBulk
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+  requestBody:
+    content:
+      application/json:
+        schema:
+          - $ref: '#/components/schemas/Group'
+        examples:
+          Notification:
+            $ref: '#/components/examples/Group'
+  responses:
+    '200':
+      content:
+      description: 'The task added in group'
+
+
+components:
+  schemas:
+    Group:
+      type: object
+      description: 'Group'
+      properties:
+        task_ids:
+          type: array
+          items:
+            type: integer
+
+  examples:
+    Group:
+      summary: 'Group'
+      value:
+        task_ids: [10, 11, 12]

@@ -51,13 +51,6 @@ def test_06_delete_notification(user_client, create_notification):
 
 
 @pytest.mark.django_db()
-def test_07_get_notifications_list_my(user_client, create_notification):
-    response = user_client.get(f'/v1/journals/notifications/my/')
-    assert response.status_code == 200
-    assert response.json()['count'] > 0
-
-
-@pytest.mark.django_db()
 def test_08_read_notification(user_client, create_notification):
     response = user_client.post(f'/v1/journals/notifications/{create_notification["id"]}/read/')
     assert response.status_code == 200
