@@ -123,10 +123,19 @@ class NotificationService:
         notify.save()
 
     @staticmethod
+    def get_unread_notification(request) -> int:
+        return NotificationToUser.objects.filter(user=request.user, is_read=False).count()
+
+    @staticmethod
     def _create_notification(
             message: str, type: str, recipients: List[User], task: Task = None, group: Group = None, **kwargs
     ) -> None:
         request = get_request()
+        if request and request.user:
+            user = request.user
+        else:
+            user = None
+
         if not task:
             task_id_del = None
         else:
@@ -143,7 +152,7 @@ class NotificationService:
             group = None
         notification = Notification.objects.create(
             message=message, task=task, task_id_del=task_id_del,
-            group=group, group_name_del=group_name_del
+            group=group, group_name_del=group_name_del, from_user=user
         )
         notification.recipients.bulk_create(
             NotificationToUser(user=user, notification=notification) for user in recipients
@@ -163,11 +172,11 @@ class NotificationService:
             "notification_type": notification.type
         }
         # if current user made this action, he will remove from recipients for push notifications
-        if request and request.user:
-            push_notification_data['from_user_id'] = request.user.id
-            push_notification_data['from_user_av_url'] = request.user.avatar_image.url if request.user.avatar_image else ""
+        if user:
+            push_notification_data['from_user_id'] = user.id
+            push_notification_data['from_user_av_url'] = user.avatar_image.url if user.avatar_image else ""
             try:
-                recipients.remove(request.user)
+                recipients.remove(user)
             except ValueError:
                 pass
         if group:

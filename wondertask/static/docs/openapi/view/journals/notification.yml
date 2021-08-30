@@ -8,6 +8,16 @@ get:
       description: "Pagination page"
       schema:
         type: integer
+    - name: limit
+      in: query
+      description: "Pagination limit"
+      schema:
+        type: integer
+    - name: keyword
+      in: query
+      description: "Available keywords: new, old"
+      schema:
+        type: string
   responses:
     '200':
       content:
@@ -48,6 +58,8 @@ components:
           type: string
         previous:
           type: string
+        unread:
+          type: integer
         result:
           type: array
           items:
@@ -63,11 +75,15 @@ components:
                 type: integer
               group:
                 type: integer
-              is_read:
-                type: boolean
               created:
                 type: string
                 fromate: date_time
+              from_user:
+                type: integer
+              from_user_avatar:
+                type: string
+              is_read:
+                type: boolean
               recipients:
                 type: array
                 items:
@@ -87,11 +103,15 @@ components:
           type: integer
         group:
           type: integer
-        is_read:
-          type: boolean
         created:
           type: string
           fromate: date_time
+        from_user:
+          type: integer
+        from_user_avatar:
+          type: string
+        is_read:
+          type: boolean
         recipients:
           type: array
           items:

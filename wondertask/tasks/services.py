@@ -74,7 +74,7 @@ class GroupService:
     @staticmethod
     def invite_users_in_group(group: Group, url: str, emails: list) -> None:
         for user in User.objects.filter(email__in=emails):
-            invitation_token = InvitationInGroup.objects.create(user=user, group=group)
+            invitation_token, _ = InvitationInGroup.objects.get_or_create(user=user, group=group)
             token = base64.urlsafe_b64encode(str(invitation_token.id).encode()).decode()
             notify_service.send_invite_user_in_group_notifications(group=group, recipient=user, secret=token)
             send_invite_in_group.delay(group_name=group.group_name, link=f'{url}?secret={token}', email=user.email)
@@ -99,6 +99,13 @@ class GroupService:
         else:
             raise serializers.ValidationError({'detail': 'Something went wrong :('})
 
+    @staticmethod
+    def get_invite_token(group: Group, user) -> str:
+        try:
+            invitation_token = InvitationInGroup.objects.get(user=user, group=group)
+        except InvitationInGroup.DoesNotExist:
+            return ""
+        return base64.urlsafe_b64encode(str(invitation_token.id).encode()).decode()
 
 
 group_service = GroupService()
