@@ -1,16 +1,53 @@
+from collections import OrderedDict
+
+import django_filters
 from rest_framework import permissions, status
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from journals.models import Notification, NotificationToUser
+from journals.models import Notification
 from journals.serializers import NotificationSerializer, ActionReadNotificationsSerializer
 from journals.services import notify_service
 
 
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size_query_param = 'limit'
+    max_page_size = 1000
+
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),
+            ('next', self.get_next_link()),
+            ('previous', self.get_previous_link()),
+            ('unread', notify_service.get_unread_notification(self.request)),
+            ('results', data),
+        ]))
+
+
+class NotificationFilters(django_filters.FilterSet):
+    keyword = django_filters.CharFilter(field_name="keyword", method='keyword_filter')
+
+    @staticmethod
+    def keyword_filter(self, queryset, name, value):
+        result = {
+            "new": queryset.filter(recipients__is_read=False),
+            "old": queryset.filter(recipients__is_read=True),
+        }
+        return result.get(value, queryset)
+
+
 class NotificationViewSet(ModelViewSet):
-    queryset = Notification.objects.all().prefetch_related("recipients").order_by("-created")
     serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = CustomPageNumberPagination
+    filterset_class = NotificationFilters
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipients__user=self.request.user). \
+            prefetch_related("recipients").order_by("-created")
 
     @action(methods=["GET"], url_path="actions-journal", url_name="actions_journal", detail=False,
             permission_classes=[permissions.IsAuthenticated])
@@ -21,31 +58,6 @@ class NotificationViewSet(ModelViewSet):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(data=serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @action(methods=["GET"], url_path="my", url_name="my", detail=False,
-            permission_classes=[permissions.IsAuthenticated])
-    def get_my_notifications(self, request):
-        queryset = self.get_queryset()
-        queryset = queryset.filter(recipients__user=request.user)
-
-        reads_notifications = NotificationToUser.objects.filter(user=request.user, is_read=True)
-        reads_notifications = [obj.notification.id for obj in reads_notifications]
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            for obj in serializer.data:
-                if obj["id"] in reads_notifications:
-                    obj["is_read"] = True
-                else:
-                    obj["is_read"] = False
-            return self.get_paginated_response(data={
-                "unread": NotificationToUser.objects.filter(user=request.user,
-                                                            is_read=False).count(),
-                "notification": serializer.data
-            })
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

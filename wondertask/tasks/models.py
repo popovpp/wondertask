@@ -81,7 +81,7 @@ class Task(models.Model):
     last_start_time = models.DateTimeField(blank=True, null=True)
     sum_elapsed_time = models.DurationField(default=timedelta())
     status = models.IntegerField(default=CREATED)
-    priority = models.PositiveIntegerField(default=0)
+    priority = models.PositiveIntegerField(default=4)
     creator = models.ForeignKey(User, on_delete=models.CASCADE,
                                 related_name='task_authors',
                                 blank=True, null=True)

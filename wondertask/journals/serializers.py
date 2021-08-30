@@ -2,15 +2,30 @@ from rest_framework import serializers
 from django.urls import resolve
 
 from journals.models import Notification, NotificationToUser
+from tasks.services import group_service
 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    recipients = serializers.ListField(child=serializers.IntegerField(),
-                                       write_only=True, required=False)
+    recipients = serializers.ListField(child=serializers.IntegerField(), write_only=True, required=False)
+    from_user_avatar = serializers.SerializerMethodField(method_name="get_user_avatar")
+    is_read = serializers.SerializerMethodField(method_name="get_is_read")
 
     class Meta:
         model = Notification
-        fields = ["id", "message", "type", "task", "group", "created", "recipients"]
+        fields = ["id", "message", "type", "task", "group", "created", "recipients",
+                  "from_user", "from_user_avatar", "is_read"]
+
+    @staticmethod
+    def get_user_avatar(instance):
+        if not instance.from_user:
+            return ""
+        return instance.from_user.avatar_image.url if instance.from_user.avatar_image else ""
+
+    def get_is_read(self, instance):
+        user = self.context['request'].user
+        reads_notifications = NotificationToUser.objects.filter(user=user, is_read=True)\
+            .values_list("notification_id", flat=True)
+        return True if instance.pk in reads_notifications else False
 
     def to_representation(self, instance):
         output_data = super().to_representation(instance)
@@ -26,6 +41,12 @@ class NotificationSerializer(serializers.ModelSerializer):
             output_data['task'] = instance.task_id_del
         if not instance.group:
             output_data['group'] = instance.group_name_del
+
+        user = self.context['request'].user
+        if instance.type == Notification.INVITE:
+            output_data['is_accepted'] = instance.group.group_members.filter(pk=user.pk).exists()
+            output_data['secret'] = group_service.get_invite_token(user=user, group=instance.group)
+
         return output_data
 
     def create(self, validated_data):

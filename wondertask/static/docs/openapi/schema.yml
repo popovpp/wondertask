@@ -171,8 +171,6 @@ paths:
   # Notification
   /v1/journals/notifications/:
     $ref: "./view/journals/notification.yml"
-  /v1/journals/notifications/my/:
-    $ref: "./view/journals/notification_my.yml"
   /v1/journals/notifications/{id}/:
     $ref: "./view/journals/notification_id.yml"
   /v1/journals/notifications/{id}/read/:
