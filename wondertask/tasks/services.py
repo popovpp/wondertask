@@ -101,9 +101,8 @@ class GroupService:
 
     @staticmethod
     def get_invite_token(group: Group, user) -> str:
-        try:
-            invitation_token = InvitationInGroup.objects.get(user=user, group=group)
-        except InvitationInGroup.DoesNotExist:
+        invitation_token = InvitationInGroup.objects.filter(user=user, group=group).first()
+        if not invitation_token:
             return ""
         return base64.urlsafe_b64encode(str(invitation_token.id).encode()).decode()
 
