@@ -93,7 +93,7 @@ components:
 
   examples:
     Video:
-      summary: "Audio"
+      summary: "Video"
       value:
         id: 1
         task: 1

@@ -80,7 +80,7 @@ patch:
               $ref: "#/components/examples/Video"
       description: "Video has been updated"
 delete:
-  summary: "Delete Audio with pk for the comment with comment_id"
+  summary: "Delete Video with pk for the comment with comment_id"
   tags: ["CommentVideo"]
   operationId: DeleteCommentVideo
   parameters:
