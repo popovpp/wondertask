@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'wsgi.application'
 #DOMAIN = os.environ.get('DOMAIN')
 
 # This expresion is for develop mode
-DOMAIN = socket.gethostbyname(socket.gethostname())
+DOMAIN = socket.gethostbyname(socket.gethostname()) if DEBUG else "dev.wondertask.ru"
 
 
 # Database
