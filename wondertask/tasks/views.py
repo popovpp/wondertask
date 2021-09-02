@@ -1,4 +1,5 @@
 import base64
+from collections import OrderedDict
 
 import django_filters
 from django.db.models import Q
@@ -9,6 +10,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
@@ -92,6 +94,28 @@ class TaskFilters(django_filters.FilterSet):
         }
         return result.get(value, queryset)
 
+
+class TaskPageNumberPagination(PageNumberPagination):
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('count', self.page.paginator.count),
+            ('next', self.get_next_link()),
+            ('previous', self.get_previous_link()),
+            ('favourite', Task.objects.filter(favorite__executor=self.request.user).count()),
+            ('deadline_today', self.get_deadline_today()),
+            ('results', data),
+        ]))
+
+    def get_deadline_today(self):
+        return Task.objects.filter(
+            Q(creator=self.request.user) |
+            Q(executors__executor=self.request.user) |
+            Q(observers__observer=self.request.user),
+            deadline__gte=timezone.now().replace(hour=0, minute=0, second=0),
+            deadline__lte=timezone.now().replace(hour=23, minute=59, second=59)
+        ).count()
+
+
 class TaskViewSet(ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [PermissionPost|IsAuthenticatedOrReadOnly]
@@ -100,6 +124,7 @@ class TaskViewSet(ModelViewSet):
     search_fields = ['$title']
     ordering_fields = ["status", "priority", "creation_date",
                        "deadline", "start_date", "finish_date"]
+    pagination_class = TaskPageNumberPagination
 
     def get_queryset(self):
         if self.request.user.is_authenticated == False:
