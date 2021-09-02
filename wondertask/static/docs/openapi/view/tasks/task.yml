@@ -86,6 +86,10 @@ get:
                 type: integer
               previous:
                 type: integer
+              favourite:
+                type: integer
+              deadline_today:
+                type: integer
               results:
                 type: array
                 items:

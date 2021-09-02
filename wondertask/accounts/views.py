@@ -1,9 +1,12 @@
 import socket
+
+from django import forms
+from django.contrib import messages
+from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework import mixins, status
 from rest_framework.generics import get_object_or_404
@@ -12,12 +15,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from taggit.models import Tag
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.core.mail import send_mail
 from http import HTTPStatus
 
 from tasks.models import TaskTag
 from tasks.serializers import TagSerializer
-from accounts.serializers import (UserRegistrationSerializer, UserTaskSerializer, 
+from accounts.serializers import (UserRegistrationSerializer, UserTaskSerializer,
                                   AvatarSerializer, UserSendEmailSerializer,
                                   NewPasswordSerializer)
 from accounts.models import User
@@ -59,7 +61,7 @@ class UserViewSet(mixins.RetrieveModelMixin,
         serializer = UserTaskSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         if request.method == 'PUT':
-            try: 
+            try:
                 request.data['avatar_image']
                 avatar_delete(User, instance=user)
             except KeyError:
@@ -90,17 +92,17 @@ class UserViewSet(mixins.RetrieveModelMixin,
 
 class UserSendEmailView(APIView):
     permission_classes = [AllowAny]
-    
+
     def get_recover_password_url(self, request, user):
         hostname = socket.gethostname()
         IP = socket.gethostbyname(hostname)
         PORT = request.get_port()
-        recover_password_url = (f'http://{settings.DOMAIN}' + ':' + PORT + 
-                                '/v1/accounts/newpassword/' + user.secret_set() + '/')
+        recover_password_url = (f'http://{settings.DOMAIN}' + ':' + PORT +
+                                '/v1/accounts/password-reset/' + user.secret_set() + '/')
         return recover_password_url
 
 
-    def post(self, request):            
+    def post(self, request):
 
         serializer = UserSendEmailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -111,13 +113,13 @@ class UserSendEmailView(APIView):
                 send_mail_thread.delay(url, user.email)
             except Exception as e:
                 print(f'Letter was not send to user {user.email}', e)
-                return Response({'result': f'The letter is not send to {user.email}'}, 
+                return Response({'result': f'The letter is not send to {user.email}'},
                                       status=HTTPStatus.INTERNAL_SERVER_ERROR)
         else:
-            return Response({'result': 'The user is not active'}, 
+            return Response({'result': 'The user is not active'},
                                 status=HTTPStatus.INTERNAL_SERVER_ERROR)
-            
-        return Response({'result': f'The letter send to {user.email}'}, 
+
+        return Response({'result': f'The letter send to {user.email}'},
                         status=HTTPStatus.OK)
 
 
@@ -154,10 +156,33 @@ class RedirectUserView(APIView):
         try:
             user = User.objects.get(secret=secret)
         except User.DoesNotExist:
-            return Response({'result': 'The secret is not valid.'}, 
+            return Response({'result': 'The secret is not valid.'},
                             status=HTTPStatus.BAD_REQUEST)
         user.set_password(serializer.data['password'])
         user.secret_clear()
         user.save()
-        return Response({'result': 'The password changed'}, 
+        return Response({'result': 'The password changed'},
                         status=HTTPStatus.OK)
+
+
+# Временное решение востановления пароля. Убрать когда появится фронт
+class RecoverPassword(forms.Form):
+    new_password = forms.CharField(label='New password', max_length=40)
+
+
+def recover(request, secret):
+    if request.method == 'POST':
+        form = RecoverPassword(request.POST)
+        if form.is_valid():
+            try:
+                user = User.objects.get(secret=secret)
+                user.set_password(form.cleaned_data['new_password'])
+                user.secret_clear()
+                user.save()
+                messages.add_message(request, messages.SUCCESS, 'Password changed!')
+            except Exception:
+                messages.add_message(request, messages.WARNING, 'Token is invalid!')
+
+    else:
+        form = RecoverPassword()
+    return render(request, 'accounts/password_reset.html', {'form': form})
