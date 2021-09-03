@@ -2,7 +2,7 @@ import base64
 from collections import OrderedDict
 
 import django_filters
-from django.db.models import Q
+from django.db.models import Q, Case, When, Value, IntegerField
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
@@ -30,7 +30,8 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
                                ActionTagSerializer, TaskScheduleSerializer,
                                TaskListSerializer, GroupUserIdsSerializer, VideoSerializer, TaskIdsSerializer)
-from tasks.services import tag_service, group_service
+from tasks.services import tag_service, group_service, get_today_tasks, get_tomorrow_tasks, get_week_tasks, \
+    get_month_tasks
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete, video_file_delete
 from accounts.models import User
 from accounts.serializers import UserTaskSerializer
@@ -74,6 +75,7 @@ class TaskFilters(django_filters.FilterSet):
     finish_date = django_filters.DateFromToRangeFilter(field_name="finish_date")
     tags = django_filters.CharFilter(field_name="user_tags", method='filter_tags')
     keyword = django_filters.CharFilter(field_name="keyword", method='keyword_filter')
+    status_first = django_filters.CharFilter(field_name="status_first", method='status_first')
 
     class Meta:
         model = Task
@@ -90,9 +92,21 @@ class TaskFilters(django_filters.FilterSet):
             "creator": queryset.filter(creator=self.request.user),
             "executor": queryset.filter(executors__executor=self.request.user).exclude(creator=self.request.user),
             "observers": queryset.filter(observers__observer=self.request.user),
-            "favorite": queryset.filter(favorite__executor=self.request.user)
+            "favorite": queryset.filter(favorite__executor=self.request.user),
+            "today": get_today_tasks(queryset),
+            "tomorrow": get_tomorrow_tasks(queryset),
+            "week": get_week_tasks(queryset),
+            "month": get_month_tasks(queryset),
         }
-        return result.get(value, queryset)
+        return result.get(value.lower(), queryset)
+
+    def status_first(self, queryset, name, value):
+        return queryset.objects.annotate(
+            status_first=Case(
+                When(status=value, then=Value(0)),
+                output_field=IntegerField(),
+            ),
+        ).order_by('status_first', 'status')
 
 
 class TaskPageNumberPagination(PageNumberPagination):
