@@ -1,6 +1,5 @@
 import base64
 
-from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from taggit.models import Tag
@@ -109,27 +108,3 @@ class GroupService:
 
 
 group_service = GroupService()
-
-
-def get_today_tasks(queryset):
-    today = timezone.now().replace(hour=0, minute=0, second=0)
-    tomorrow = today + timezone.timedelta(days=1)
-    return queryset.filter(deadline__gte=today, deadline__lt=tomorrow)
-
-
-def get_tomorrow_tasks(queryset):
-    today = timezone.now().replace(hour=23, minute=59, second=59)
-    tomorrow = today + timezone.timedelta(days=1)
-    return queryset.filter(deadline__gt=today, deadline__lte=tomorrow)
-
-
-def get_week_tasks(queryset):
-    today = timezone.now().replace(hour=0, minute=0, second=0)
-    week = today + timezone.timedelta(days=7)
-    return queryset.filter(deadline__gte=today, deadline__lte=week)
-
-
-def get_month_tasks(queryset):
-    today = timezone.now().replace(hour=0, minute=0, second=0)
-    month = today + timezone.timedelta(days=30)
-    return queryset.filter(deadline__gte=today, deadline__lte=month)

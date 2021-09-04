@@ -1,8 +1,8 @@
 import base64
 from collections import OrderedDict
 
-import django_filters
-from django.db.models import Q, Case, When, Value, IntegerField
+from django.contrib.auth import login
+from django.db.models import Q
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
@@ -15,9 +15,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from taggit.models import Tag
-from django.contrib.auth import login
 
+from accounts.models import User
+from accounts.serializers import UserTaskSerializer
 from journals.services import notify_service
+from tasks.filters import TaskFilters
 from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, InvitationInGroup, Favorite,
                           Video)
 from tasks.permissions import IsOwner, PermissionPost, IsExecutorOrObserver
@@ -30,11 +32,8 @@ from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                CommentTreeSerializer, TagSerializer, GroupInviteSerializer,
                                ActionTagSerializer, TaskScheduleSerializer,
                                TaskListSerializer, GroupUserIdsSerializer, VideoSerializer, TaskIdsSerializer)
-from tasks.services import tag_service, group_service, get_today_tasks, get_tomorrow_tasks, get_week_tasks, \
-    get_month_tasks
+from tasks.services import tag_service, group_service
 from tasks.signals import doc_file_delete, audio_file_delete, image_file_delete, video_file_delete
-from accounts.models import User
-from accounts.serializers import UserTaskSerializer
 
 try:
     anonimous_user = User.objects.get(email='anonimous@anonimous.com')
@@ -67,46 +66,6 @@ class RetrieveListViewSet(mixins.RetrieveModelMixin,
                           GenericViewSet):
     pass
 
-
-class TaskFilters(django_filters.FilterSet):
-    creation_date = django_filters.DateFromToRangeFilter(field_name="creation_date")
-    deadline = django_filters.DateFromToRangeFilter(field_name="deadline")
-    start_date = django_filters.DateFromToRangeFilter(field_name="start_date")
-    finish_date = django_filters.DateFromToRangeFilter(field_name="finish_date")
-    tags = django_filters.CharFilter(field_name="user_tags", method='filter_tags')
-    keyword = django_filters.CharFilter(field_name="keyword", method='keyword_filter')
-    status_first = django_filters.CharFilter(field_name="status_first", method='status_first')
-
-    class Meta:
-        model = Task
-        fields = ["status", "priority"]
-
-    @staticmethod
-    def filter_tags(queryset, name, value):
-        tags = value.replace(' ', '').upper().split(',')
-        return queryset.filter(Q(user_tags__name__in=tags) |
-                               Q(system_tags__name__in=tags)).distinct()
-
-    def keyword_filter(self, queryset, name, value):
-        result = {
-            "creator": queryset.filter(creator=self.request.user),
-            "executor": queryset.filter(executors__executor=self.request.user).exclude(creator=self.request.user),
-            "observers": queryset.filter(observers__observer=self.request.user),
-            "favorite": queryset.filter(favorite__executor=self.request.user),
-            "today": get_today_tasks(queryset),
-            "tomorrow": get_tomorrow_tasks(queryset),
-            "week": get_week_tasks(queryset),
-            "month": get_month_tasks(queryset),
-        }
-        return result.get(value.lower(), queryset)
-
-    def status_first(self, queryset, name, value):
-        return queryset.objects.annotate(
-            status_first=Case(
-                When(status=value, then=Value(0)),
-                output_field=IntegerField(),
-            ),
-        ).order_by('status_first', 'status')
 
 
 class TaskPageNumberPagination(PageNumberPagination):
