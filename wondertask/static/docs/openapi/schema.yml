@@ -168,11 +168,11 @@ paths:
   /v1/tasks/groups/{id}/remove-members/:
     $ref: "./view/tasks/group_remove_members.yml"
 
-  # TaskSchedule
-  /v1/tasks/repeats/:
-    $ref: "./view/tasks/task_schedule.yml"
-  /v1/tasks/repeats/{id}/:
-    $ref: "./view/tasks/task_schedule_id.yml"
+#  # TaskSchedule
+#  /v1/tasks/repeats/:
+#    $ref: "./view/tasks/task_schedule.yml"
+#  /v1/tasks/repeats/{id}/:
+#    $ref: "./view/tasks/task_schedule_id.yml"
 
   # Notification
   /v1/journals/notifications/:
