@@ -35,7 +35,8 @@ task_router.register(r'task/(?P<task_id>\d+)/comment/(?P<comment_id>\d+)/video',
 
 
 task_router.register('tags', TagViewSet, 'tags')
-task_router.register('repeats', TaskScheduleViewSet, 'repeats')
+# will be available for the next version 
+# task_router.register('repeats', TaskScheduleViewSet, 'repeats')
 
 task_endpoints = [
     path('', include([path('', include(task_router.urls)), ]))
