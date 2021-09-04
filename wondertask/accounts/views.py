@@ -168,12 +168,17 @@ class RedirectUserView(APIView):
 # Временное решение востановления пароля. Убрать когда появится фронт
 class RecoverPassword(forms.Form):
     new_password = forms.CharField(label='New password', max_length=40)
+    repeat_password = forms.CharField(label='Repeat password', max_length=40)
 
 
 def recover(request, secret):
     if request.method == 'POST':
         form = RecoverPassword(request.POST)
         if form.is_valid():
+            if form.cleaned_data['new_password'] != form.cleaned_data['repeat_password']:
+                messages.add_message(request, messages.WARNING, 'Passwords do not match!')
+                form = RecoverPassword()
+                return render(request, 'accounts/password_reset.html', {'form': form})
             try:
                 user = User.objects.get(secret=secret)
                 user.set_password(form.cleaned_data['new_password'])
@@ -182,7 +187,6 @@ def recover(request, secret):
                 messages.add_message(request, messages.SUCCESS, 'Password changed!')
             except Exception:
                 messages.add_message(request, messages.WARNING, 'Token is invalid!')
-
     else:
         form = RecoverPassword()
     return render(request, 'accounts/password_reset.html', {'form': form})
