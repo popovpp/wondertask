@@ -70,10 +70,9 @@ get:
       description: 'Filter by keyword. Keywords: creator, executor, observer, favorite, today, tomorrow, week, month'
       schema:
         type: string
-    - name: status_first
+    - name: order
       in: query
-      description: 'Filter by status first. CREATED=0, IN_PROGRESS=1, IN_WAITING=2, DONE=4, OVERDUE=8
-      IN_PROGRESS_OVERDUE=9, IN_WAITING_OVERDUE=10'
+      description: 'Order: CREATED, IN_PROGRESS, IN_WAITING, DONE, OVERDUE, IN_PROGRESS_OVERDUE, IN_WAITING_OVERDUE, priority, today'
       schema:
         type: string
 
