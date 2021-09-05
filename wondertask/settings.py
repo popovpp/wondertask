@@ -231,5 +231,5 @@ ENTER_PASSWORD_URL = 'https://dev.wondertask.ru:3000/new-password/'
 PUSH_NOTIFICATIONS_SETTINGS = {
     "FCM_API_KEY": os.getenv('FCM_API_KEY'),
     "FCM_POST_URL": "https://fcm.googleapis.com/fcm/send",
-    "UNIQUE_REG_ID": True,
+    "UNIQUE_REG_ID": False,
 }
