@@ -167,6 +167,8 @@ paths:
     $ref: "./view/tasks/group_accept.yml"
   /v1/tasks/groups/{id}/remove-members/:
     $ref: "./view/tasks/group_remove_members.yml"
+  /v1/tasks/groups/{id}/invite-list/:
+    $ref: "./view/tasks/group_invite_list.yml"
 
 #  # TaskSchedule
 #  /v1/tasks/repeats/:

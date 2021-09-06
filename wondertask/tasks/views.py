@@ -408,14 +408,19 @@ class GroupViewSet(ModelViewSet):
 
     @action(
         methods=['GET'], detail=True, url_path="invite-list", url_name="invite_list",
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated], serializer_class=UserTaskSerializer
     )
     def get_invite_list(self, request, pk=None):
         all_group_current_user = Group.objects.filter(group_members=request.user).exclude(pk=pk)
+        print(all_group_current_user)
         members = User.objects.filter(group__in=all_group_current_user).exclude(pk=request.user.pk).distinct()
-        serializer = UserTaskSerializer(members, many=True, context={'request': request})
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        page = self.paginate_queryset(members)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
+        serializer = self.get_serializer(members, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer

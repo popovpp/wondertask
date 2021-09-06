@@ -1,0 +1,39 @@
+get:
+  summary: "Getting the list of users for invite"
+  tags: ['Group Invite/Accept']
+  operationId: GetInviteListUsers
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: 'The group id'
+      schema:
+        type: integer
+
+  responses:
+    '200':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              count:
+                type: integer
+              next:
+                type: integer
+              previous:
+                type: integer
+              results:
+                type: array
+                items:
+                  url:
+                    type: string
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  full_name:
+                    type: string
+                  avatar_image:
+                    type: string
+      description: 'The invite list users was got'
