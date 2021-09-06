@@ -406,6 +406,16 @@ class GroupViewSet(ModelViewSet):
         Task.objects.bulk_update(tasks, ['group'])
         return Response(status=status.HTTP_200_OK)
 
+    @action(
+        methods=['GET'], detail=True, url_path="invite-list", url_name="invite_list",
+        permission_classes=[IsAuthenticated]
+    )
+    def get_invite_list(self, request, pk=None):
+        all_group_current_user = Group.objects.filter(group_members=request.user).exclude(pk=pk)
+        members = User.objects.filter(group__in=all_group_current_user).exclude(pk=request.user.pk).distinct()
+        serializer = UserTaskSerializer(members, many=True, context={'request': request})
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
 
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
