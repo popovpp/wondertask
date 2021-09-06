@@ -411,9 +411,11 @@ class GroupViewSet(ModelViewSet):
         permission_classes=[IsAuthenticated], serializer_class=UserTaskSerializer
     )
     def get_invite_list(self, request, pk=None):
+        group = get_object_or_404(Group, pk=pk)
+        exclude_users = group.group_members.all().values_list("pk", flat=True)
         all_group_current_user = Group.objects.filter(group_members=request.user).exclude(pk=pk)
-        print(all_group_current_user)
-        members = User.objects.filter(group__in=all_group_current_user).exclude(pk=request.user.pk).distinct()
+        members = User.objects.filter(group__in=all_group_current_user).exclude(pk__in=exclude_users).distinct()
+
         page = self.paginate_queryset(members)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
