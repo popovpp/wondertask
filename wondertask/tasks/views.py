@@ -318,17 +318,18 @@ class GroupViewSet(ModelViewSet):
         group = get_object_or_404(Group, pk=pk)
         group_service.invite_users_in_group(
             group=group,
-            url=request.build_absolute_uri("/v1/tasks/groups/accept-invite/"),
+            url=request.build_absolute_uri("/accept-invite/"),
             emails=emails,
+            from_user=request.user
         )
         return Response(data={"msg": "Invitations will be mailed"}, status=status.HTTP_200_OK)
 
     @action(methods=["POST"], detail=True, url_path="invite-link", url_name="create_invite_link",
             serializer_class=GroupInviteSerializer, permission_classes=[IsAuthenticated, IsOwner])
     def create_invite_link(self, request, pk=None):
-        invitation_token = InvitationInGroup.objects.create(group_id=pk, is_multiple=True)
+        invitation_token = InvitationInGroup.objects.create(group_id=pk, is_multiple=True, from_user=request.user)
         token = base64.urlsafe_b64encode(str(invitation_token.id).encode()).decode()
-        link = request.build_absolute_uri("/v1/tasks/groups/accept-invite/?secret=" + token)
+        link = request.build_absolute_uri("/accept-invite/?secret=" + token)
         return Response(data={"link": link}, status=status.HTTP_201_CREATED)
 
 

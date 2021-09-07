@@ -2,7 +2,7 @@ import uuid
 
 from django.db import models
 from django.utils import timezone
-from django_celery_beat.models import (PeriodicTask, CrontabSchedule, 
+from django_celery_beat.models import (PeriodicTask, CrontabSchedule,
                                        ClockedSchedule)
 from rest_framework.generics import get_object_or_404
 from taggit.managers import TaggableManager
@@ -276,6 +276,8 @@ class TaskSchedule(models.Model):
 class InvitationInGroup(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name="The group to which invited")
+    from_user = models.ForeignKey(User, related_name='invitations', on_delete=models.CASCADE, blank=True,
+                                  null=True, verbose_name="The User who send invitation token")
     user = models.ForeignKey(User, related_name='invitation_tokens', on_delete=models.CASCADE, blank=True, null=True,
                              verbose_name="The User which is associated to this invitation token")
     is_multiple = models.BooleanField("Multiple invitation", default=False)

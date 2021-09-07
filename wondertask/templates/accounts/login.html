@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<form action="" method="POST">
+    {% csrf_token %}
+    <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Sign In</legend>
+        <div class="mb-3">
+            <label for="exampleInputEmail" class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" id="exampleInputEmail">
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputPassword" class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" id="exampleInputPassword">
+        </div>
+    </fieldset>
+    <div class="form-group text-center">
+        <button class="btn btn-outline-info btn-block" type="sumbit">Sign In</button>
+    </div>
+</form>
+<div class="border-top pt-3">
+    <small class="text-muted">You don't have an account yet?
+        <a href="{% url 'register' %}" class="ml-2">Register</a>
+    </small>
+</div>
+{% endblock content %}
