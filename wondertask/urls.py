@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
+
+from accounts import views
 from generic.jwt import CustomJWTSerializer
 from rest_framework_jwt.views import (
     ObtainJSONWebToken,
@@ -50,6 +52,10 @@ v1 = [
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('v1/', include(v1)),
+    path('login/', views.user_login, name="login"),
+    path('register/', views.register, name="register"),
+    path('password-reset/<str:secret>/', views.recover_password),
+    path('accept-invite/', views.accept_invite_link),
 ] #+ static(settings.STATIC_URL)
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

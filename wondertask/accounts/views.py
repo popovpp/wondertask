@@ -1,8 +1,11 @@
+import base64
 import socket
 
 from django import forms
 from django.contrib import messages
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
@@ -17,7 +20,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from http import HTTPStatus
 
-from tasks.models import TaskTag
+from tasks.models import TaskTag, InvitationInGroup, Group
 from tasks.serializers import TagSerializer
 from accounts.serializers import (UserRegistrationSerializer, UserTaskSerializer,
                                   AvatarSerializer, UserSendEmailSerializer,
@@ -98,9 +101,8 @@ class UserSendEmailView(APIView):
         IP = socket.gethostbyname(hostname)
         PORT = request.get_port()
         recover_password_url = (f'http://{settings.DOMAIN}' + ':' + PORT +
-                                '/v1/accounts/password-reset/' + user.secret_set() + '/')
+                                '/password-reset/' + user.secret_set() + '/')
         return recover_password_url
-
 
     def post(self, request):
 
@@ -114,10 +116,10 @@ class UserSendEmailView(APIView):
             except Exception as e:
                 print(f'Letter was not send to user {user.email}', e)
                 return Response({'result': f'The letter is not send to {user.email}'},
-                                      status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                                status=HTTPStatus.INTERNAL_SERVER_ERROR)
         else:
             return Response({'result': 'The user is not active'},
-                                status=HTTPStatus.INTERNAL_SERVER_ERROR)
+                            status=HTTPStatus.INTERNAL_SERVER_ERROR)
 
         return Response({'result': f'The letter send to {user.email}'},
                         status=HTTPStatus.OK)
@@ -165,13 +167,92 @@ class RedirectUserView(APIView):
                         status=HTTPStatus.OK)
 
 
-# Временное решение востановления пароля. Убрать когда появится фронт
+# Все что ниже это временное решение. Убрать когда появится фронт
 class RecoverPassword(forms.Form):
     new_password = forms.CharField(label='New password', max_length=40)
     repeat_password = forms.CharField(label='Repeat password', max_length=40)
 
 
-def recover(request, secret):
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField()
+
+    class Meta:
+        model = User
+        fields = ['email', 'password1', 'password2']
+
+
+class LoginForm(forms.Form):
+    email = forms.EmailField(label='Email', max_length=40)
+    password = forms.CharField(label='Password', max_length=40)
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your account created! Now you can sign in!')
+            return redirect('login')
+        else:
+            messages.warning(request, form.errors)
+    else:
+        form = UserRegisterForm()
+    return render(request, 'accounts/register.html', {'form': form})
+
+
+def user_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            user = authenticate(request,
+                                username=cd['email'],
+                                password=cd['password'])
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+                    if request.GET.get("next", False):
+                        return redirect(request.GET.get("next", "login"))
+                    messages.success(request, 'Authenticated successfully!')
+                else:
+                    messages.warning(request, 'Disabled account!')
+            else:
+                messages.warning(request, 'Invalid login!')
+    else:
+        form = LoginForm()
+    return render(request, 'accounts/login.html', {'form': form})
+
+
+def accept_invite_link(request):
+    try:
+        invitation_token = request.GET.get('secret')
+        decoded_token = base64.urlsafe_b64decode(invitation_token.encode()).decode()
+        invite = get_object_or_404(InvitationInGroup, id=decoded_token)
+        group = Group.objects.get(pk=invite.group_id)
+        message = f'You have been invited to "{group.group_name}" ' \
+                  f'by {invite.from_user.full_name if invite.from_user.full_name else invite.from_user.email}'
+
+        if request.method == 'POST':
+            if not request.user.is_authenticated:
+                messages.warning(request, 'Please login first and then accept the invitation!')
+                return redirect('/login/?next=/accept-invite/?secret=' + invitation_token)
+            if invite.is_multiple and request.user.is_authenticated:
+                group.group_members.add(request.user)
+                messages.success(request, 'You accept invite in group!')
+            elif not invite.is_multiple and invite.user and invite.user == request.user:
+                group.group_members.add(invite.user)
+                messages.success(request, 'You accept invite in group!')
+                invite.delete()
+            else:
+                messages.warning(request, 'Invalid invitation token or invite link not intended for you!')
+
+    except Exception as e:
+        messages.warning(request, 'Invalid Invitation Token!')
+        return render(request, 'accept_invite.html')
+    return render(request, 'accept_invite.html', context={"message": message})
+
+
+def recover_password(request, secret):
     if request.method == 'POST':
         form = RecoverPassword(request.POST)
         if form.is_valid():

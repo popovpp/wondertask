@@ -72,9 +72,9 @@ class GroupService:
         return set(emails) - set(found_users_emails)
 
     @staticmethod
-    def invite_users_in_group(group: Group, url: str, emails: list) -> None:
+    def invite_users_in_group(group: Group, url: str, emails: list, from_user) -> None:
         for user in User.objects.filter(email__in=emails):
-            invitation_token, _ = InvitationInGroup.objects.get_or_create(user=user, group=group)
+            invitation_token, _ = InvitationInGroup.objects.get_or_create(user=user, group=group, from_user=from_user)
             token = base64.urlsafe_b64encode(str(invitation_token.id).encode()).decode()
             notify_service.send_invite_user_in_group_notifications(group=group, recipient=user, secret=token)
             send_invite_in_group.delay(group_name=group.group_name, link=f'{url}?secret={token}', email=user.email)
