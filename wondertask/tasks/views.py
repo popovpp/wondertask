@@ -1,5 +1,6 @@
 import base64
 from collections import OrderedDict
+from random import choice
 
 from django.contrib.auth import login
 from django.db.models import Q
@@ -303,7 +304,7 @@ class GroupViewSet(ModelViewSet):
         serializer.save(creator=self.request.user)
 
     @action(methods=["POST"], detail=True, url_path="invite", url_name="invite_users_in_group",
-            serializer_class=GroupInviteSerializer, permission_classes=[IsAuthenticated, IsOwner])
+            serializer_class=GroupInviteSerializer, permission_classes=[IsAuthenticated])
     def invite_users_in_group(self, request, pk=None):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -325,7 +326,7 @@ class GroupViewSet(ModelViewSet):
         return Response(data={"msg": "Invitations will be mailed"}, status=status.HTTP_200_OK)
 
     @action(methods=["POST"], detail=True, url_path="invite-link", url_name="create_invite_link",
-            serializer_class=GroupInviteSerializer, permission_classes=[IsAuthenticated, IsOwner])
+            serializer_class=GroupInviteSerializer, permission_classes=[IsAuthenticated])
     def create_invite_link(self, request, pk=None):
         invitation_token = InvitationInGroup.objects.create(group_id=pk, is_multiple=True, from_user=request.user)
         token = base64.urlsafe_b64encode(str(invitation_token.id).encode()).decode()
@@ -379,8 +380,22 @@ class GroupViewSet(ModelViewSet):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         group = get_object_or_404(Group, pk=pk)
+        self.check_object_permissions(request=request, obj=group)
         group.group_members.remove(*User.objects.filter(id__in=serializer.data['users_ids']))
         return Response(data={"msg": "Users removed from group!"}, status=status.HTTP_200_OK)
+
+    @action(methods=["POST"], detail=True, url_path="leave", url_name="leave",  permission_classes=[IsAuthenticated])
+    def leave_from_group(self, request, pk=None):
+        group = get_object_or_404(Group, pk=pk)
+        group.group_members.remove(request.user)
+        if request.user == group.creator:
+            group_members = group.group_members.all()
+            random_member = choice(group_members) if len(group_members) > 0 else None
+            if not random_member:
+                group.delete()
+            group.creator = random_member
+            group.save()
+        return Response(data={"msg": "You left the group!"}, status=status.HTTP_200_OK)
 
     @action(
         methods=['POST'], detail=True, url_path="add-task/(?P<task_id>\d+)", url_name="add_task",

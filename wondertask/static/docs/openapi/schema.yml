@@ -157,6 +157,8 @@ paths:
     $ref: "./view/tasks/group_id_add_task.yml"
   /v1/tasks/groups/{id}/add-task/bulk/:
     $ref: "./view/tasks/group_id_add_task_bulk.yml"
+  /v1/tasks/groups/{id}/leave/:
+    $ref: "./view/tasks/group_leave.yml"
 
   # Group Invite/Accept
   /v1/tasks/groups/{id}/invite/:
