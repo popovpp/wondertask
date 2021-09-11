@@ -177,6 +177,14 @@ TreeForeignKey(Comment, on_delete=models.CASCADE, related_name="children",
 mptt.register(Comment, order_insertion_by=['id'])
 
 
+class LikeComment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes")
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="likes")
+
+    class Meta:
+        db_table = 'likes_comment'
+
+
 class Doc(FileSave):
     def files_directory_path(instance, filename):
         return f'files/{instance.task.pk}/{filename}'

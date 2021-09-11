@@ -298,10 +298,11 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='id',
     )
+    likes = serializers.IntegerField(source="likes.count")
 
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent', 'creation_date']
+        fields = ['id', 'author', 'task', 'text', 'tree_id', 'level', 'parent', 'creation_date', 'likes']
 
     def to_representation(self, instance):
 

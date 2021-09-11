@@ -85,6 +85,8 @@ paths:
     $ref: "./view/tasks/task_id_comment.yml"
   /v1/tasks/task/{task_id}/comment/{pk}/:
     $ref: "./view/tasks/task_id_comment_pk.yml"
+  /v1/tasks/task/{task_id}/comment/{pk}/like/:
+    $ref: "./view/tasks/comment_like.yml"
 
   # Doc
   /v1/tasks/task/{task_id}/doc/:
