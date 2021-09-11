@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 VALID_DOC_FILES = ('pdf', 'doc', 'docx', 'txt',
                    'rtf', 'xlsx', 'xls')
 
-VALID_AUDIO_FILES = ('mp3', 'ogg', 'wav', 'flac', 'wma')
+VALID_AUDIO_FILES = ('mp3', 'ogg', 'wav', 'flac', 'wma', 'aac', 'aiff')
 
 VALID_VIDEO_FILES = ('mp4', 'mov', 'wmv', 'flv', 'avi', 'mkv', 'webm')
 
