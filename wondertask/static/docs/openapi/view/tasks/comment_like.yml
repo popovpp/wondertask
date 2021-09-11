@@ -1,0 +1,21 @@
+post:
+  summary: "Like or Unlike comment"
+  tags: ["Comment"]
+  operationId: LikeComment
+  parameters:
+    - name: task_id
+      in: path
+      required: true
+      description: "The task id"
+      schema:
+        type: integer
+    - name: pk
+      in: path
+      required: true
+      description: "The comment id"
+      schema:
+        type: integer
+  responses:
+    "201":
+      content:
+      description: "Liked or unliked"

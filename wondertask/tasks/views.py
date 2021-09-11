@@ -21,7 +21,7 @@ from accounts.serializers import UserTaskSerializer
 from journals.services import notify_service
 from tasks.filters import TaskFilters
 from tasks.models import (Task, Group, Doc, Image, Audio, Comment, TaskTag, TaskSchedule, InvitationInGroup, Favorite,
-                          Video)
+                          Video, LikeComment)
 from tasks.permissions import IsOwner, PermissionPost, IsExecutorOrObserver
 from tasks.serializers import (TaskSerializer, ExecutorSerializer,
                                ObserverSerializer, TaskSystemTagsSerializer,
@@ -441,6 +441,14 @@ class CommentViewSet(ModelViewSet):
     def perform_create(self, serializer):
         task = get_object_or_404(Task, pk=self.kwargs.get('task_id'))
         serializer.save(task=task)
+
+    @action(methods=['POST'], detail=True, url_path="like", url_name="like")
+    def like(self, request, task_id=None, pk=None):
+        like, is_created = LikeComment.objects.get_or_create(user=request.user, comment_id=pk)
+        if not is_created:
+            like.delete()
+            return Response(data={"detail": "unliked"}, status=status.HTTP_200_OK)
+        return Response(data={"detail": "liked"}, status=status.HTTP_200_OK)
 
 
 class TaskDocViewSet(ModelViewSet):
