@@ -298,7 +298,7 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='id',
     )
-    likes = serializers.IntegerField(source="likes.count")
+    likes = serializers.IntegerField(source="likes.count", read_only=True)
 
     class Meta:
         model = Comment
