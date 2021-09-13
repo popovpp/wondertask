@@ -121,6 +121,8 @@ components:
           type: integer
         Audio_file:
           type: string
+        length:
+          type: string
 
   examples:
     Audio:
@@ -130,3 +132,4 @@ components:
         task: 1
         comment: 1
         Audio_file: "Test Audio"
+        length: 35.5
