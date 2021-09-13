@@ -241,8 +241,22 @@ class Audio(FileSave):
                                 related_name='audios')
     audio_file = models.FileField(upload_to=audio_directory_path,
                                   blank=True, null=True, )
+    length = models.CharField(max_length=20, blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        from mutagen.mp3 import MP3
+        from mutagen.wave import WAVE
+        from mutagen.flac import FLAC
+        from mutagen.aac import AAC
+        from mutagen.asf import ASF
+
+        try:
+            audio_extensions = {'mp3': MP3, 'wav': WAVE, 'flac': FLAC, 'aac': AAC, 'wma': ASF}
+            audio = audio_extensions[self.audio_file.url.split('.')[-1]](self.audio_file)
+            self.length = round(audio.info.length, 2)
+        except Exception:
+            self.length = 0
+
         return self.file_save(model_name=Audio,
                               field_name='audio_file',
                               *args, **kwargs)
