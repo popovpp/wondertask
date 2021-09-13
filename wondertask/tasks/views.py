@@ -244,6 +244,18 @@ class TaskViewSet(ModelViewSet):
         Task.objects.filter(pk__in=serializer.data['task_ids']).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @action(methods=['GET'], detail=False, url_path="calendar", url_name="calendar")
+    def calendar(self, request):
+        bulk_data = {}
+        queryset = self.filter_queryset(self.get_queryset())
+        serializers = self.serializer_class(queryset, many=True, context={'request': request})
+        for task, serialized_task in zip(queryset, serializers.data):
+            key = f"{task.deadline.day}.{task.deadline.month}"
+            if bulk_data.get(key, False):
+                bulk_data[key].append(serialized_task)
+                continue
+            bulk_data[key] = [serialized_task]
+        return Response(data=bulk_data, status=status.HTTP_200_OK)
 
 class TaskTreeViewSet(RetrieveListViewSet):
     serializer_class = TaskTreeSerializer
