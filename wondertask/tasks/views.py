@@ -250,7 +250,7 @@ class TaskViewSet(ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         serializers = self.serializer_class(queryset, many=True, context={'request': request})
         for task, serialized_task in zip(queryset, serializers.data):
-            key = f"{task.deadline.day}.{task.deadline.month}"
+            key = f"{task.deadline.year}-{task.deadline.month}-{task.deadline.day}"
             if bulk_data.get(key, False):
                 bulk_data[key].append(serialized_task)
                 continue
